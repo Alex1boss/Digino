@@ -63,7 +63,7 @@ export default function Navbar() {
           <Button
             className="bg-[#00CFFF]/10 text-[#00CFFF] transition duration-300 btn-glow-blue text-sm md:text-base border-0 rounded-full hover:bg-[#00CFFF]/20"
           >
-            Sell Your Product
+            Browse Collection
           </Button>
         </div>
       </div>

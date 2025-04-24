@@ -18,7 +18,7 @@ export default function CTASection() {
           </h2>
           
           <p className="text-[#A0A0A0] mb-10">
-            Join thousands of creators and businesses using InnventaAI to build the next generation of digital products.
+            Discover the most innovative AI-powered tools and products in the InnventaAI marketplace.
           </p>
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -26,14 +26,14 @@ export default function CTASection() {
               size="lg"
               className="w-full sm:w-auto px-8 py-7 rounded-full bg-[#BB86FC]/90 text-white font-medium transition duration-300 hover:bg-[#BB86FC] btn-glow border-0"
             >
-              Start Creating Free
+              Explore Products
             </Button>
             <Button
               variant="outline"
               size="lg"
               className="w-full sm:w-auto px-8 py-7 rounded-full glass text-white font-medium transition duration-300 hover:bg-white/10 border-white/10"
             >
-              Book a Demo
+              Learn More
             </Button>
           </div>
           
