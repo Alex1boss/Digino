@@ -3,10 +3,24 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Shield, ArrowLeft, UploadCloud, Check } from "lucide-react";
 
-export default function ProductForm3D() {
+interface ProductForm3DProps {
+  onBack?: () => void;
+}
+
+export default function ProductForm3D({ onBack }: ProductForm3DProps) {
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const [imageUploaded, setImageUploaded] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [formData, setFormData] = useState({
+    title: "",
+    category: "",
+    price: "",
+    description: "",
+    sellerName: "",
+    bio: "",
+    website: "",
+    location: ""
+  });
   
   const handleFocus = (fieldName: string) => {
     setFocusedField(fieldName);
@@ -20,13 +34,21 @@ export default function ProductForm3D() {
     setImageUploaded(true);
   };
   
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+  
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setFormSubmitted(true);
     
+    console.log("Form submitted:", formData);
+    
     // Reset after animation
     setTimeout(() => {
       setFormSubmitted(false);
+      // Success message or redirect could be added here
     }, 2000);
   };
   
@@ -72,6 +94,8 @@ export default function ProductForm3D() {
         <div className="relative z-10">
           <div className="flex items-center mb-8">
             <motion.button
+              type="button"
+              onClick={onBack}
               whileHover={{ scale: 1.05, x: -2 }}
               whileTap={{ scale: 0.95 }}
               className="mr-4 p-2 rounded-full bg-[#4F46E5]/10 text-[#4F46E5]"
@@ -98,6 +122,9 @@ export default function ProductForm3D() {
                 >
                   <input
                     type="text"
+                    name="title"
+                    value={formData.title}
+                    onChange={handleChange}
                     className="w-full h-12 px-4 rounded-xl bg-white/5 border border-white/10 text-white shadow-inner transition-all duration-200 focus:outline-none focus:border-[#4F46E5]/40 focus:bg-white/10"
                     placeholder="Enter your product name"
                     onFocus={() => handleFocus('title')}
@@ -131,6 +158,9 @@ export default function ProductForm3D() {
                   className="relative"
                 >
                   <select
+                    name="category"
+                    value={formData.category}
+                    onChange={handleChange}
                     className="w-full h-12 px-4 rounded-xl bg-white/5 border border-white/10 text-white shadow-inner transition-all duration-200 focus:outline-none focus:border-[#4F46E5]/40 focus:bg-white/10 appearance-none"
                     onFocus={() => handleFocus('category')}
                     onBlur={handleBlur}
@@ -173,6 +203,9 @@ export default function ProductForm3D() {
                   </div>
                   <input
                     type="text"
+                    name="price"
+                    value={formData.price}
+                    onChange={handleChange}
                     className="w-full h-12 pl-12 pr-4 rounded-xl bg-white/5 border border-white/10 text-white shadow-inner transition-all duration-200 focus:outline-none focus:border-[#4F46E5]/40 focus:bg-white/10"
                     placeholder="0.00"
                     onFocus={() => handleFocus('price')}
@@ -206,6 +239,9 @@ export default function ProductForm3D() {
                   className="relative"
                 >
                   <textarea
+                    name="description"
+                    value={formData.description}
+                    onChange={handleChange}
                     className="w-full h-24 p-4 rounded-xl bg-white/5 border border-white/10 text-white shadow-inner transition-all duration-200 focus:outline-none focus:border-[#4F46E5]/40 focus:bg-white/10 resize-none"
                     placeholder="Describe your product in a few sentences"
                     onFocus={() => handleFocus('description')}
@@ -253,6 +289,9 @@ export default function ProductForm3D() {
                 >
                   <input
                     type="text"
+                    name="sellerName"
+                    value={formData.sellerName}
+                    onChange={handleChange}
                     className="w-full h-12 px-4 rounded-xl bg-white/5 border border-white/10 text-white shadow-inner transition-all duration-200 focus:outline-none focus:border-[#4F46E5]/40 focus:bg-white/10"
                     placeholder="Your name or company name"
                     onFocus={() => handleFocus('sellerName')}
@@ -322,6 +361,9 @@ export default function ProductForm3D() {
                   className="relative"
                 >
                   <textarea
+                    name="bio"
+                    value={formData.bio}
+                    onChange={handleChange}
                     className="w-full h-20 p-4 rounded-xl bg-white/5 border border-white/10 text-white shadow-inner transition-all duration-200 focus:outline-none focus:border-[#4F46E5]/40 focus:bg-white/10 resize-none"
                     placeholder="Tell us about yourself or your company"
                     onFocus={() => handleFocus('bio')}
@@ -356,6 +398,9 @@ export default function ProductForm3D() {
                 >
                   <input
                     type="text"
+                    name="website"
+                    value={formData.website}
+                    onChange={handleChange}
                     className="w-full h-12 px-4 rounded-xl bg-white/5 border border-white/10 text-white shadow-inner transition-all duration-200 focus:outline-none focus:border-[#4F46E5]/40 focus:bg-white/10"
                     placeholder="https://example.com"
                     onFocus={() => handleFocus('website')}
@@ -389,6 +434,9 @@ export default function ProductForm3D() {
                   className="relative"
                 >
                   <select
+                    name="location"
+                    value={formData.location}
+                    onChange={handleChange}
                     className="w-full h-12 px-4 rounded-xl bg-white/5 border border-white/10 text-white shadow-inner transition-all duration-200 focus:outline-none focus:border-[#4F46E5]/40 focus:bg-white/10 appearance-none"
                     onFocus={() => handleFocus('location')}
                     onBlur={handleBlur}
