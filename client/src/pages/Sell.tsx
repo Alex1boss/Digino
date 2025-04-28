@@ -80,7 +80,7 @@ export default function Sell() {
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.5 }}
             >
-              <ProductForm3D />
+              <ProductForm3D onBack={() => setShowForm(false)} />
             </motion.div>
           )}
         </AnimatePresence>

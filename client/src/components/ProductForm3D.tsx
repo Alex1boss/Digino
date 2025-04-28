@@ -475,6 +475,7 @@ export default function ProductForm3D({ onBack }: ProductForm3DProps) {
                 <div className="flex gap-4 w-full md:w-auto">
                   <motion.button
                     type="button"
+                    onClick={onBack}
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.97 }}
                     className="px-6 py-3 rounded-xl border border-white/10 text-white/80 flex-1 md:flex-initial"
