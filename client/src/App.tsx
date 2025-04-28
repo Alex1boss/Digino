@@ -5,11 +5,18 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
+import Explore from "@/pages/Explore";
+import Buy from "@/pages/Buy";
+import Sell from "@/pages/Sell";
+import BottomNav from "@/components/BottomNav";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/explore" component={Explore} />
+      <Route path="/buy" component={Buy} />
+      <Route path="/sell" component={Sell} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -21,6 +28,7 @@ function App() {
       <TooltipProvider>
         <Toaster />
         <Router />
+        <BottomNav />
       </TooltipProvider>
     </QueryClientProvider>
   );
