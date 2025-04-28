@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Shield, ArrowLeft, UploadCloud, Check } from "lucide-react";
+import { Shield, ArrowLeft } from "lucide-react";
 
 interface ProductForm3DProps {
   onBack?: () => void;
@@ -9,17 +9,12 @@ interface ProductForm3DProps {
 
 export default function ProductForm3D({ onBack }: ProductForm3DProps) {
   const [focusedField, setFocusedField] = useState<string | null>(null);
-  const [imageUploaded, setImageUploaded] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     category: "",
     price: "",
-    description: "",
-    sellerName: "",
-    bio: "",
-    website: "",
-    location: ""
+    description: ""
   });
   
   const handleFocus = (fieldName: string) => {
@@ -28,10 +23,6 @@ export default function ProductForm3D({ onBack }: ProductForm3DProps) {
   
   const handleBlur = () => {
     setFocusedField(null);
-  };
-  
-  const handleImageUpload = () => {
-    setImageUploaded(true);
   };
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -265,206 +256,6 @@ export default function ProductForm3D({ onBack }: ProductForm3DProps) {
               </div>
               
               <div className="premium-divider my-8"></div>
-              
-              {/* Seller Information */}
-              <div className="flex items-center mb-6">
-                <h3 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-white to-white/80">
-                  Seller Information
-                </h3>
-                <div className="flex items-center ml-3 text-[#4F46E5] bg-[#4F46E5]/10 px-2 py-1 rounded-full text-xs">
-                  <Shield size={12} className="mr-1" />
-                  <span>Verified Status</span>
-                </div>
-              </div>
-              
-              {/* Seller Name */}
-              <div className="space-y-2">
-                <label className="block text-white/80 font-medium pl-1">Seller Name</label>
-                <motion.div
-                  whileHover={{ y: -2 }}
-                  animate={focusedField === 'sellerName' ? { 
-                    boxShadow: "0 0 0 2px rgba(79, 70, 229, 0.4), 0 2px 8px rgba(79, 70, 229, 0.2)" 
-                  } : {}}
-                  className="relative"
-                >
-                  <input
-                    type="text"
-                    name="sellerName"
-                    value={formData.sellerName}
-                    onChange={handleChange}
-                    className="w-full h-12 px-4 rounded-xl bg-white/5 border border-white/10 text-white shadow-inner transition-all duration-200 focus:outline-none focus:border-[#4F46E5]/40 focus:bg-white/10"
-                    placeholder="Your name or company name"
-                    onFocus={() => handleFocus('sellerName')}
-                    onBlur={handleBlur}
-                    style={{
-                      boxShadow: "inset 0 2px 4px rgba(0, 0, 0, 0.1)"
-                    }}
-                  />
-                  {focusedField === 'sellerName' && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="absolute inset-0 rounded-xl pointer-events-none"
-                      style={{
-                        boxShadow: "0 0 10px rgba(79, 70, 229, 0.2)",
-                        zIndex: -1
-                      }}
-                    ></motion.div>
-                  )}
-                </motion.div>
-              </div>
-              
-              {/* Profile Image Upload */}
-              <div className="space-y-2">
-                <label className="block text-white/80 font-medium pl-1">Profile Image</label>
-                <div className="flex items-center">
-                  <motion.div 
-                    className="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mr-4 overflow-hidden"
-                    animate={imageUploaded ? { rotate: 360 } : {}}
-                    transition={{ duration: 1, ease: "easeInOut" }}
-                  >
-                    {imageUploaded ? (
-                      <div className="w-full h-full bg-gradient-to-br from-[#4F46E5] to-[#6366F1] flex items-center justify-center">
-                        <Check size={24} className="text-white" />
-                      </div>
-                    ) : (
-                      <div className="text-white/40">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12Z" fill="currentColor" fillOpacity="0.5"/>
-                          <path d="M12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z" fill="currentColor" fillOpacity="0.5"/>
-                        </svg>
-                      </div>
-                    )}
-                  </motion.div>
-                  
-                  <motion.button 
-                    type="button"
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
-                    className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white/80 flex items-center"
-                    onClick={handleImageUpload}
-                  >
-                    <UploadCloud size={16} className="mr-2" />
-                    {imageUploaded ? "Change Image" : "Upload Image"}
-                  </motion.button>
-                </div>
-              </div>
-              
-              {/* Bio */}
-              <div className="space-y-2">
-                <label className="block text-white/80 font-medium pl-1">Seller Bio</label>
-                <motion.div
-                  whileHover={{ y: -2 }}
-                  animate={focusedField === 'bio' ? { 
-                    boxShadow: "0 0 0 2px rgba(79, 70, 229, 0.4), 0 2px 8px rgba(79, 70, 229, 0.2)" 
-                  } : {}}
-                  className="relative"
-                >
-                  <textarea
-                    name="bio"
-                    value={formData.bio}
-                    onChange={handleChange}
-                    className="w-full h-20 p-4 rounded-xl bg-white/5 border border-white/10 text-white shadow-inner transition-all duration-200 focus:outline-none focus:border-[#4F46E5]/40 focus:bg-white/10 resize-none"
-                    placeholder="Tell us about yourself or your company"
-                    onFocus={() => handleFocus('bio')}
-                    onBlur={handleBlur}
-                    style={{
-                      boxShadow: "inset 0 2px 4px rgba(0, 0, 0, 0.1)"
-                    }}
-                  ></textarea>
-                  {focusedField === 'bio' && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="absolute inset-0 rounded-xl pointer-events-none"
-                      style={{
-                        boxShadow: "0 0 10px rgba(79, 70, 229, 0.2)",
-                        zIndex: -1
-                      }}
-                    ></motion.div>
-                  )}
-                </motion.div>
-              </div>
-              
-              {/* Seller Website */}
-              <div className="space-y-2">
-                <label className="block text-white/80 font-medium pl-1">Website (Optional)</label>
-                <motion.div
-                  whileHover={{ y: -2 }}
-                  animate={focusedField === 'website' ? { 
-                    boxShadow: "0 0 0 2px rgba(79, 70, 229, 0.4), 0 2px 8px rgba(79, 70, 229, 0.2)" 
-                  } : {}}
-                  className="relative"
-                >
-                  <input
-                    type="text"
-                    name="website"
-                    value={formData.website}
-                    onChange={handleChange}
-                    className="w-full h-12 px-4 rounded-xl bg-white/5 border border-white/10 text-white shadow-inner transition-all duration-200 focus:outline-none focus:border-[#4F46E5]/40 focus:bg-white/10"
-                    placeholder="https://example.com"
-                    onFocus={() => handleFocus('website')}
-                    onBlur={handleBlur}
-                    style={{
-                      boxShadow: "inset 0 2px 4px rgba(0, 0, 0, 0.1)"
-                    }}
-                  />
-                  {focusedField === 'website' && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="absolute inset-0 rounded-xl pointer-events-none"
-                      style={{
-                        boxShadow: "0 0 10px rgba(79, 70, 229, 0.2)",
-                        zIndex: -1
-                      }}
-                    ></motion.div>
-                  )}
-                </motion.div>
-              </div>
-              
-              {/* Location */}
-              <div className="space-y-2">
-                <label className="block text-white/80 font-medium pl-1">Location</label>
-                <motion.div
-                  whileHover={{ y: -2 }}
-                  animate={focusedField === 'location' ? { 
-                    boxShadow: "0 0 0 2px rgba(79, 70, 229, 0.4), 0 2px 8px rgba(79, 70, 229, 0.2)" 
-                  } : {}}
-                  className="relative"
-                >
-                  <select
-                    name="location"
-                    value={formData.location}
-                    onChange={handleChange}
-                    className="w-full h-12 px-4 rounded-xl bg-white/5 border border-white/10 text-white shadow-inner transition-all duration-200 focus:outline-none focus:border-[#4F46E5]/40 focus:bg-white/10 appearance-none"
-                    onFocus={() => handleFocus('location')}
-                    onBlur={handleBlur}
-                    style={{
-                      boxShadow: "inset 0 2px 4px rgba(0, 0, 0, 0.1)"
-                    }}
-                  >
-                    <option value="" className="bg-[#0A0A23] text-white">Select your location</option>
-                    <option value="us" className="bg-[#0A0A23] text-white">United States</option>
-                    <option value="ca" className="bg-[#0A0A23] text-white">Canada</option>
-                    <option value="uk" className="bg-[#0A0A23] text-white">United Kingdom</option>
-                    <option value="eu" className="bg-[#0A0A23] text-white">Europe</option>
-                    <option value="asia" className="bg-[#0A0A23] text-white">Asia</option>
-                    <option value="other" className="bg-[#0A0A23] text-white">Other</option>
-                  </select>
-                  {focusedField === 'location' && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="absolute inset-0 rounded-xl pointer-events-none"
-                      style={{
-                        boxShadow: "0 0 10px rgba(79, 70, 229, 0.2)",
-                        zIndex: -1
-                      }}
-                    ></motion.div>
-                  )}
-                </motion.div>
-              </div>
               
               <div className="mt-10 flex flex-col md:flex-row items-center justify-between gap-4">
                 <div className="text-center md:text-left text-white/60 text-sm flex items-center">
