@@ -22,19 +22,31 @@ export default function CTASection() {
           </p>
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button 
-              size="lg"
-              className="w-full sm:w-auto px-8 py-7 rounded-full bg-[#BB86FC]/90 text-white font-medium transition duration-300 hover:bg-[#BB86FC] btn-glow border-0"
+            <motion.div
+              whileHover={{ scale: 1.03, y: -5 }}
+              whileTap={{ scale: 0.97 }}
+              className="w-full sm:w-auto"
             >
-              Explore Products
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              className="w-full sm:w-auto px-8 py-7 rounded-full glass text-white font-medium transition duration-300 hover:bg-white/10 border-white/10"
+              <Button 
+                size="lg"
+                className="w-full sm:w-auto px-8 py-7 rounded-full button-3d bg-gradient-to-r from-[#BB86FC] to-[#BB86FC]/80 text-white font-medium border-0"
+              >
+                Explore Products
+              </Button>
+            </motion.div>
+            <motion.div
+              whileHover={{ scale: 1.03, y: -5 }}
+              whileTap={{ scale: 0.97 }}
+              className="w-full sm:w-auto" 
             >
-              Learn More
-            </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                className="w-full sm:w-auto px-8 py-7 rounded-full glass text-white font-medium transition duration-300 hover:bg-white/10 border-white/10 glow-effect"
+              >
+                Learn More
+              </Button>
+            </motion.div>
           </div>
           
           <motion.div 
@@ -49,10 +61,25 @@ export default function CTASection() {
               "No credit card required",
               "Cancel anytime"
             ].map((feature, index) => (
-              <div key={index} className="glass px-4 py-3 rounded-full flex items-center">
-                <Check className="w-5 h-5 text-[#BB86FC] mr-2" />
-                <span className="text-sm">{feature}</span>
-              </div>
+              <motion.div 
+                key={index} 
+                className="glass-card px-4 py-3 rounded-full flex items-center border-glow"
+                whileHover={{ 
+                  scale: 1.05, 
+                  y: -2,
+                  rotateZ: index % 2 === 0 ? 1 : -1 
+                }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <motion.div
+                  initial={{ rotate: 0 }}
+                  whileHover={{ rotate: 360 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <Check className="w-5 h-5 text-[#BB86FC] mr-2 glow-effect" />
+                </motion.div>
+                <span className="text-sm text-shadow-glow">{feature}</span>
+              </motion.div>
             ))}
           </motion.div>
         </motion.div>

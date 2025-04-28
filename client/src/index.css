@@ -45,6 +45,39 @@
 @layer components {
   .glass {
     @apply bg-white/5 backdrop-blur-md border border-white/5 shadow-lg;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+  }
+  
+  .glass-card {
+    @apply bg-white/5 backdrop-blur-md border border-white/5 shadow-lg;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .glass-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -50%;
+    width: 200%;
+    height: 100%;
+    background: linear-gradient(
+      60deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.03) 80%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    transform: translateY(-100%) rotate(45deg);
+    animation: shine 5s infinite;
+  }
+  
+  @keyframes shine {
+    0% { transform: translateY(-100%) rotate(45deg); }
+    20% { transform: translateY(100%) rotate(45deg); }
+    100% { transform: translateY(100%) rotate(45deg); }
   }
   
   .text-gradient {
@@ -53,27 +86,114 @@
   
   .btn-glow:hover {
     @apply shadow-[0_0_15px_rgba(187,134,252,0.6)];
+    transform: translateY(-2px);
   }
   
   .btn-glow-blue:hover {
     @apply shadow-[0_0_15px_rgba(0,207,255,0.6)];
+    transform: translateY(-2px);
   }
   
   .card-hover {
     @apply transition-all duration-300 ease-in-out;
+    transform-style: preserve-3d;
+    perspective: 1000px;
   }
   
   .card-hover:hover {
     @apply transform -translate-y-1 scale-[1.02] shadow-[0_10px_30px_rgba(187,134,252,0.15)] border-[#BB86FC]/30;
+    transform: translateY(-5px) rotateX(5deg) rotateY(-5deg);
   }
   
   .card-hover-blue:hover {
     @apply shadow-[0_10px_30px_rgba(0,207,255,0.15)] border-[#00CFFF]/30;
+    transform: translateY(-5px) rotateX(5deg) rotateY(5deg);
+  }
+  
+  .input-3d {
+    @apply bg-white/10 border border-white/10 rounded-lg p-3 transition-all duration-200;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  
+  .input-3d:focus {
+    @apply border-[#BB86FC]/50 bg-white/15;
+    box-shadow: 0 0 0 2px rgba(187, 134, 252, 0.1), inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+  }
+  
+  .button-3d {
+    @apply relative bg-gradient-to-br from-[#BB86FC]/80 to-[#BB86FC]/60 text-white px-6 py-3 rounded-lg transition-all duration-200;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transform-style: preserve-3d;
+    transform: translateZ(0);
+  }
+  
+  .button-3d:hover {
+    @apply bg-gradient-to-br from-[#BB86FC] to-[#BB86FC]/80;
+    box-shadow: 0 7px 14px rgba(0, 0, 0, 0.1), 0 3px 6px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px) translateZ(5px);
+  }
+  
+  .button-3d:active {
+    @apply bg-gradient-to-br from-[#BB86FC]/70 to-[#BB86FC]/50;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.1);
+    transform: translateY(1px) translateZ(0);
   }
 }
 
 @layer utilities {
   .text-shadow-glow {
     text-shadow: 0 0 10px rgba(187, 134, 252, 0.5);
+  }
+  
+  .text-shadow-blue-glow {
+    text-shadow: 0 0 10px rgba(0, 207, 255, 0.5);
+  }
+  
+  .glow-effect {
+    box-shadow: 0 0 10px rgba(187, 134, 252, 0.5), inset 0 0 5px rgba(187, 134, 252, 0.2);
+  }
+  
+  .glow-effect-blue {
+    box-shadow: 0 0 10px rgba(0, 207, 255, 0.5), inset 0 0 5px rgba(0, 207, 255, 0.2);
+  }
+  
+  .bg-mesh-gradient {
+    background-image: 
+      radial-gradient(at 80% 0%, rgba(187, 134, 252, 0.12) 0px, transparent 50%),
+      radial-gradient(at 0% 50%, rgba(0, 207, 255, 0.12) 0px, transparent 50%);
+  }
+  
+  .card-3d-effect {
+    transform-style: preserve-3d;
+    perspective: 1000px;
+  }
+  
+  .card-3d-content {
+    transform: translateZ(20px);
+    transform-style: preserve-3d;
+  }
+  
+  .border-glow {
+    position: relative;
+  }
+  
+  .border-glow::after {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    bottom: -1px;
+    border-radius: inherit;
+    box-shadow: 0 0 20px rgba(187, 134, 252, 0.5);
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    pointer-events: none;
+    z-index: -1;
+  }
+  
+  .border-glow:hover::after {
+    opacity: 1;
   }
 }
