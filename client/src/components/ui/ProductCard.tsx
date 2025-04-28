@@ -49,72 +49,57 @@ export function ProductCard({ product, index }: ProductCardProps) {
         ease: "easeOut" 
       }}
       className={cn(
-        "glass-card p-6 transition-all duration-500 h-full flex flex-col border-glow card-3d-effect",
-        isBlueAccent ? "card-hover-blue" : "card-hover"
+        "premium-card p-6 transition-all duration-300 h-full flex flex-col",
+        isBlueAccent ? "border-[#4F46E5]/20" : "border-[#4F46E5]/10"
       )}
       whileHover={{ 
-        y: -5, 
-        rotateX: isBlueAccent ? 2 : -2, 
-        rotateY: isBlueAccent ? 5 : -5,
-        z: 10
+        y: -4,
+        scale: 1.02
       }}
     >
-      <div className="flex items-center mb-4 card-3d-content">
+      <div className="flex items-center mb-5">
         <div 
           className={cn(
-            "w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300",
+            "w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300",
             isBlueAccent
-              ? "text-[#00CFFF] bg-[#00CFFF]/10 glow-effect-blue"
-              : "text-[#BB86FC] bg-[#BB86FC]/10 glow-effect"
+              ? "text-[#4F46E5] bg-[#4F46E5]/10"
+              : "text-[#4F46E5] bg-[#4F46E5]/5"
           )}
         >
           {renderIcon()}
         </div>
-        <h3 className={cn(
-          "text-xl ml-3 font-heading font-medium", 
-          isBlueAccent ? "text-shadow-blue-glow" : "text-shadow-glow"
-        )}>
+        <h3 className="text-xl ml-3 font-semibold text-white">
           {product.name}
         </h3>
       </div>
       
       {product.isFree && (
-        <motion.div 
-          className="absolute top-3 right-3 bg-gradient-to-r from-[#00CFFF]/90 to-[#00CFFF]/70 text-white text-xs font-bold px-3 py-1 rounded-full"
-          initial={{ scale: 0.9 }}
-          animate={{ scale: 1 }}
-          transition={{ 
-            duration: 0.5,
-            repeat: Infinity,
-            repeatType: "reverse"
-          }}
-        >
+        <div className="absolute top-4 right-4 premium-badge">
           FREE
-        </motion.div>
+        </div>
       )}
       
-      <p className="text-[#A0A0A0] text-sm mb-6 flex-grow card-3d-content">{product.description}</p>
+      <div className="flex items-center mb-3">
+        <div className="flex items-center mr-3">
+          <div className="text-yellow-400 mr-1">★</div>
+          <span className="text-xs text-white/80">4.9</span>
+        </div>
+        <div className="h-4 w-px bg-white/10 mr-3"></div>
+        <span className="text-xs text-white/80">
+          {index % 2 === 0 ? "Trending" : "Top Rated"}
+        </span>
+      </div>
+      
+      <p className="text-[#A0A0A0] text-sm mb-6 flex-grow">{product.description}</p>
       
       <motion.a 
         href={product.link} 
-        className={cn(
-          "mt-auto flex items-center text-sm font-medium transition-all duration-300 rounded-lg py-2 px-3",
-          isBlueAccent 
-            ? "text-[#00CFFF] hover:text-[#00CFFF] hover:bg-[#00CFFF]/10" 
-            : "text-[#BB86FC] hover:text-[#BB86FC] hover:bg-[#BB86FC]/10"
-        )}
-        whileHover={{ scale: 1.02 }}
+        className="premium-button w-full text-center mt-auto flex items-center justify-center"
+        whileHover={{ scale: 1.01 }}
         whileTap={{ scale: 0.98 }}
       >
         <span>{product.ctaText}</span>
-        <motion.div
-          className="ml-1"
-          initial={{ x: 0 }}
-          whileHover={{ x: 3 }}
-          transition={{ duration: 0.2 }}
-        >
-          <ChevronRight className="w-4 h-4" />
-        </motion.div>
+        <ChevronRight className="w-4 h-4 ml-1" />
       </motion.a>
     </motion.div>
   );

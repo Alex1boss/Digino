@@ -21,34 +21,36 @@ export default function Navbar() {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.5 }}
-      className={`glass fixed top-0 left-0 right-0 z-50 py-4 border-b border-white/5 ${
-        isScrolled ? "backdrop-blur-lg" : "backdrop-blur-sm"
+      className={`fixed top-0 left-0 right-0 z-50 py-4 ${
+        isScrolled 
+          ? "bg-[#0A0A23]/95 shadow-md backdrop-blur-lg" 
+          : "bg-[#0A0A23] backdrop-blur-sm"
       }`}
     >
       <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
         <Link href="/">
           <div className="flex items-center cursor-pointer">
-            <div className="mr-2 text-[#BB86FC]">
-              <Zap size={28} />
+            <div className="mr-2 text-[#4F46E5] bg-[#4F46E5]/10 p-1.5 rounded">
+              <Zap size={22} />
             </div>
-            <h1 className="text-xl md:text-2xl font-heading font-semibold">
+            <h1 className="text-xl md:text-2xl font-semibold">
               <span className="text-white">Innventa</span>
-              <span className="text-[#BB86FC]">AI</span>
+              <span className="text-[#4F46E5]">AI</span>
             </h1>
           </div>
         </Link>
 
-        <div className="hidden md:flex items-center space-x-6">
-          <Link href="/" className="transition duration-300 hover:text-[#BB86FC]">
+        <div className="hidden md:flex items-center space-x-8">
+          <Link href="/" className="font-medium transition-colors duration-200 hover:text-[#4F46E5]">
             Home
           </Link>
-          <Link href="#products" className="transition duration-300 hover:text-[#BB86FC]">
+          <Link href="#products" className="font-medium transition-colors duration-200 hover:text-[#4F46E5]">
             Products
           </Link>
-          <Link href="#pricing" className="transition duration-300 hover:text-[#BB86FC]">
+          <Link href="#pricing" className="font-medium transition-colors duration-200 hover:text-[#4F46E5]">
             Pricing
           </Link>
-          <Link href="#blog" className="transition duration-300 hover:text-[#BB86FC]">
+          <Link href="#blog" className="font-medium transition-colors duration-200 hover:text-[#4F46E5]">
             Blog
           </Link>
         </div>
@@ -56,14 +58,14 @@ export default function Navbar() {
         <div className="flex items-center space-x-3">
           <Button
             variant="outline"
-            className="glass transition duration-300 btn-glow text-sm md:text-base rounded-full"
+            className="border-[#4F46E5]/20 text-white font-medium transition duration-200 text-sm md:text-base rounded-lg hover:bg-[#4F46E5]/5"
           >
-            Discover Tools
+            Sign In
           </Button>
           <Button
-            className="bg-[#00CFFF]/10 text-[#00CFFF] transition duration-300 btn-glow-blue text-sm md:text-base border-0 rounded-full hover:bg-[#00CFFF]/20"
+            className="premium-button text-sm md:text-base"
           >
-            Browse Collection
+            Get Started
           </Button>
         </div>
       </div>
