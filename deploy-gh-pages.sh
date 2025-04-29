@@ -18,20 +18,33 @@ echo "Creating mock API data..."
 mkdir -p gh-pages/api
 cp -r data/* gh-pages/api/ 2>/dev/null || echo "No static data to copy"
 
-# Create an index.js file to handle GitHub Pages routing for SPA
+# Create a 404.html file to handle GitHub Pages routing for SPA
 cat > gh-pages/404.html << EOL
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Redirecting</title>
-  <script>
-    sessionStorage.setItem('redirect', window.location.pathname);
-    window.location.href = '/';
+  <title>Innventa Marketplace</title>
+  <script type="text/javascript">
+    // Single Page Apps for GitHub Pages
+    // MIT License
+    // This script takes the current URL and converts the path and query
+    // parameters into just a query parameter for the real index.html,
+    // which GitHub Pages will properly serve.
+    var pathSegmentsToKeep = 1; // Change this to 0 if your repo is username.github.io
+
+    var l = window.location;
+    l.replace(
+      l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+      l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/?/' +
+      l.pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/').replace(/&/g, '~and~') +
+      (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+      l.hash
+    );
   </script>
 </head>
 <body>
-  <p>Redirecting...</p>
+  <h2>Redirecting...</h2>
 </body>
 </html>
 EOL
@@ -40,17 +53,24 @@ EOL
 # First, save original index.html
 cp gh-pages/index.html gh-pages/index.html.bak
 
-# Add redirect script and base path to head
-sed -i 's|</head>|<base href="./"><script>\
-  (function() {\
-    var redirect = sessionStorage.getItem("redirect");\
-    if (redirect && redirect !== "/") {\
-      sessionStorage.removeItem("redirect");\
-      if (redirect.startsWith("/")) {\
-        history.replaceState(null, null, redirect);\
-      }\
+# Add redirect script to head
+sed -i 's|</head>|<base href="./"><script type="text/javascript">\
+  // Single Page Apps for GitHub Pages\
+  // MIT License\
+  // This script checks to see if a redirect is present in the query string\
+  // and converts it back into the correct url and adds it to the\
+  // browser\'s history using window.history.replaceState(...),\
+  // which won\'t cause the browser to attempt to load the new url.\
+  (function(l) {\
+    if (l.search[1] === \'/\' ) {\
+      var decoded = l.search.slice(1).split(\'&\').map(function(s) { \
+        return s.replace(/~and~/g, \'&\')\
+      }).join(\'?\');\
+      window.history.replaceState(null, null,\
+          l.pathname.slice(0, -1) + decoded + l.hash\
+      );\
     }\
-  })();\
+  }(window.location))\
 </script></head>|' gh-pages/index.html
 
 echo "GitHub Pages deployment files prepared in gh-pages/ directory."
