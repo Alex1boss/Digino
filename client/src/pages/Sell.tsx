@@ -577,11 +577,28 @@ export default function Sell() {
                   <div className={`w-6 h-6 rounded-full mr-3 flex items-center justify-center flex-shrink-0 ${formData.licenses.personal ? 'bg-[#4F46E5]' : 'bg-white/10'}`}>
                     {formData.licenses.personal && <CheckCircle size={16} className="text-white" />}
                   </div>
-                  <div>
-                    <h3 className="text-white font-medium">Personal Use</h3>
-                    <p className="text-white/60 text-sm mt-1">
-                      Buyer can use the product for personal projects only. Cannot be used in commercial projects or products.
+                  <div className="flex-1">
+                    <div className="flex justify-between items-center mb-1">
+                      <h3 className="text-white font-medium">Personal Use</h3>
+                      <Badge variant="outline" className="bg-[#22C55E]/10 text-[#22C55E] border-[#22C55E]/30 text-xs">Basic</Badge>
+                    </div>
+                    <p className="text-white/60 text-sm mb-2">
+                      For individual, non-commercial projects only
                     </p>
+                    <ul className="space-y-1.5">
+                      <li className="flex items-center text-white/60 text-xs">
+                        <CheckCircle size={12} className="text-[#22C55E] mr-2 flex-shrink-0" />
+                        <span>Use in personal projects</span>
+                      </li>
+                      <li className="flex items-center text-white/60 text-xs">
+                        <CheckCircle size={12} className="text-[#22C55E] mr-2 flex-shrink-0" />
+                        <span>Install on 1 device</span>
+                      </li>
+                      <li className="flex items-center text-white/60 text-xs line-through">
+                        <CheckCircle size={12} className="text-white/20 mr-2 flex-shrink-0" />
+                        <span>Use in commercial work</span>
+                      </li>
+                    </ul>
                   </div>
                 </div>
               </div>
@@ -594,11 +611,28 @@ export default function Sell() {
                   <div className={`w-6 h-6 rounded-full mr-3 flex items-center justify-center flex-shrink-0 ${formData.licenses.commercial ? 'bg-[#4F46E5]' : 'bg-white/10'}`}>
                     {formData.licenses.commercial && <CheckCircle size={16} className="text-white" />}
                   </div>
-                  <div>
-                    <h3 className="text-white font-medium">Commercial Use</h3>
-                    <p className="text-white/60 text-sm mt-1">
-                      Buyer can use the product in commercial projects and products with a single end product for sale.
+                  <div className="flex-1">
+                    <div className="flex justify-between items-center mb-1">
+                      <h3 className="text-white font-medium">Commercial Use</h3>
+                      <Badge variant="outline" className="bg-[#4F46E5]/10 text-[#4F46E5] border-[#4F46E5]/30 text-xs">Standard</Badge>
+                    </div>
+                    <p className="text-white/60 text-sm mb-2">
+                      For business use within a single company
                     </p>
+                    <ul className="space-y-1.5">
+                      <li className="flex items-center text-white/60 text-xs">
+                        <CheckCircle size={12} className="text-[#22C55E] mr-2 flex-shrink-0" />
+                        <span>All Personal Use benefits</span>
+                      </li>
+                      <li className="flex items-center text-white/60 text-xs">
+                        <CheckCircle size={12} className="text-[#22C55E] mr-2 flex-shrink-0" />
+                        <span>Use in 1 commercial project</span>
+                      </li>
+                      <li className="flex items-center text-white/60 text-xs">
+                        <CheckCircle size={12} className="text-[#22C55E] mr-2 flex-shrink-0" />
+                        <span>Team use (up to 5 people)</span>
+                      </li>
+                    </ul>
                   </div>
                 </div>
               </div>
@@ -611,13 +645,37 @@ export default function Sell() {
                   <div className={`w-6 h-6 rounded-full mr-3 flex items-center justify-center flex-shrink-0 ${formData.licenses.extended ? 'bg-[#4F46E5]' : 'bg-white/10'}`}>
                     {formData.licenses.extended && <CheckCircle size={16} className="text-white" />}
                   </div>
-                  <div>
-                    <h3 className="text-white font-medium">Extended Commercial</h3>
-                    <p className="text-white/60 text-sm mt-1">
-                      Buyer can use the product in unlimited commercial projects and products, including redistributable products.
+                  <div className="flex-1">
+                    <div className="flex justify-between items-center mb-1">
+                      <h3 className="text-white font-medium">Extended Commercial</h3>
+                      <Badge variant="outline" className="bg-[#EAB308]/10 text-[#EAB308] border-[#EAB308]/30 text-xs">Premium</Badge>
+                    </div>
+                    <p className="text-white/60 text-sm mb-2">
+                      Unlimited commercial usage with full rights
                     </p>
+                    <ul className="space-y-1.5">
+                      <li className="flex items-center text-white/60 text-xs">
+                        <CheckCircle size={12} className="text-[#22C55E] mr-2 flex-shrink-0" />
+                        <span>All Commercial Use benefits</span>
+                      </li>
+                      <li className="flex items-center text-white/60 text-xs">
+                        <CheckCircle size={12} className="text-[#22C55E] mr-2 flex-shrink-0" />
+                        <span>Unlimited commercial projects</span>
+                      </li>
+                      <li className="flex items-center text-white/60 text-xs">
+                        <CheckCircle size={12} className="text-[#22C55E] mr-2 flex-shrink-0" />
+                        <span>Redistribution rights in final products</span>
+                      </li>
+                    </ul>
                   </div>
                 </div>
+              </div>
+              
+              <div className="p-3 bg-white/5 rounded-lg flex items-start mt-4">
+                <ShieldCheck className="text-[#4F46E5] mr-3 mt-0.5 w-5 h-5 flex-shrink-0" />
+                <p className="text-white/70 text-sm">
+                  You can select multiple license options. Buyers will choose from the licenses you've enabled when making a purchase.
+                </p>
               </div>
               
               <div className="mt-8 flex justify-between">
