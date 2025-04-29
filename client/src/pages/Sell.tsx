@@ -43,7 +43,8 @@ export default function Sell() {
     keywords: "",
     metaDescription: "",
     files: [] as File[],
-    previewUrl: ""
+    previewUrl: "",
+    productLink: ""
   });
   
   const [isUploading, setIsUploading] = useState(false);
@@ -120,8 +121,37 @@ export default function Sell() {
     const previewUrl = `/preview/${formData.title.toLowerCase().replace(/\s+/g, '-')}`;
     setFormData(prev => ({ ...prev, previewUrl }));
     
-    // Open preview in new tab (simulated)
-    alert(`Preview would open at: ${previewUrl}`);
+    // Show popup with preview info (matching screenshot)
+    const message = document.createElement('div');
+    message.style.position = 'fixed';
+    message.style.top = '50%';
+    message.style.left = '50%';
+    message.style.transform = 'translate(-50%, -50%)';
+    message.style.backgroundColor = 'white';
+    message.style.color = 'black';
+    message.style.padding = '20px';
+    message.style.borderRadius = '10px';
+    message.style.zIndex = '9999';
+    message.style.width = '90%';
+    message.style.maxWidth = '400px';
+    message.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+    
+    message.innerHTML = `
+      <h3 style="margin-top: 0; font-size: 18px; font-weight: bold;">An embedded page at ${window.location.hostname} says</h3>
+      <p style="margin-bottom: 20px;">Preview would open at: /preview/</p>
+      <div style="text-align: right;">
+        <button style="padding: 8px 16px; background: #4F46E5; color: white; border: none; border-radius: 4px; cursor: pointer;">OK</button>
+      </div>
+    `;
+    
+    document.body.appendChild(message);
+    
+    const button = message.querySelector('button');
+    if (button) {
+      button.addEventListener('click', () => {
+        document.body.removeChild(message);
+      });
+    }
   };
   
   const handleBackToIntro = () => {
@@ -1120,65 +1150,159 @@ export default function Sell() {
           {renderStepContent()}
         </AnimatePresence>
         
-        {/* Deployment Link Section */}
+        {/* Product Link Section - For users to add their product link */}
         <div className="mt-16 p-6 border border-[#4F46E5]/30 rounded-xl bg-gradient-to-r from-[#4F46E5]/5 to-transparent">
           <div className="flex items-start gap-4">
-            <div className="bg-[#4F46E5]/20 p-3 rounded-full">
-              <Sparkles className="text-[#4F46E5] w-6 h-6" />
-            </div>
-            <div>
-              <h3 className="text-white text-lg font-medium mb-2">Your Platform is Live!</h3>
+            <div className="w-full">
+              <h3 className="text-white text-lg font-medium mb-2">Add Your Product Link</h3>
               <p className="text-white/70 mb-4">
-                Your Innventa marketplace is now deployed and available at the link below.
-                Share it with your audience to start selling your digital products.
+                Enter your product link below to share it with your audience. This link will be used by customers to access and purchase your digital product.
               </p>
               
-              <div className="flex items-center bg-white/5 border border-white/10 rounded-lg p-3 mt-4">
-                <span className="text-white/80 mr-2">🌐</span>
-                <a 
-                  href="https://innventa-marketplace.replit.app" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-[#4F46E5] hover:underline flex-1 truncate"
-                >
-                  https://innventa-marketplace.replit.app
-                </a>
-                <button 
-                  onClick={() => {
-                    navigator.clipboard.writeText("https://innventa-marketplace.replit.app");
-                    alert("Link copied to clipboard!");
-                  }}
-                  className="px-3 py-1 bg-white/10 hover:bg-white/20 rounded-md text-white/80 text-sm ml-2"
-                >
-                  Copy
-                </button>
-              </div>
-              
-              <div className="flex flex-wrap gap-2 mt-4">
-                <a 
-                  href="https://innventa-marketplace.replit.app/product/new" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="px-4 py-2 bg-[#4F46E5] hover:bg-[#4F46E5]/90 rounded-lg text-white text-sm"
-                >
-                  Upload Product
-                </a>
-                <a 
-                  href="https://innventa-marketplace.replit.app/profile" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white text-sm"
-                >
-                  View Profile
-                </a>
-                <a 
-                  href="https://innventa-marketplace.replit.app/explore" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white text-sm"
-                >
-                  Browse Marketplace
-                </a>
+              <div className="space-y-4 mt-4">
+                <div className="space-y-2">
+                  <label className="block text-white/80 font-medium text-sm">Product URL</label>
+                  <div className="flex items-center">
+                    <input 
+                      type="text" 
+                      placeholder="https://example.com/your-product" 
+                      className="flex-1 h-12 px-4 rounded-l-lg bg-white/5 border border-white/10 text-white shadow-inner transition-all duration-200 focus:outline-none focus:border-[#4F46E5]/40 focus:bg-white/10"
+                      style={{ boxShadow: "inset 0 2px 4px rgba(0, 0, 0, 0.1)" }}
+                    />
+                    <button 
+                      className="h-12 px-4 bg-[#4F46E5] hover:bg-[#4F46E5]/90 text-white rounded-r-lg"
+                      onClick={() => {
+                        // Validate URL
+                        const input = document.querySelector('input[type="text"]') as HTMLInputElement;
+                        if (input && input.value) {
+                          // Check if valid URL
+                          try {
+                            new URL(input.value);
+                            
+                            // Use custom toast
+                            const toast = document.createElement('div');
+                            toast.style.position = 'fixed';
+                            toast.style.bottom = '20px';
+                            toast.style.right = '20px';
+                            toast.style.backgroundColor = '#22c55e';
+                            toast.style.color = 'white';
+                            toast.style.padding = '10px 16px';
+                            toast.style.borderRadius = '4px';
+                            toast.style.zIndex = '9999';
+                            toast.style.transition = 'opacity 0.3s ease';
+                            toast.style.opacity = '0';
+                            toast.innerText = 'Product link saved successfully!';
+                            
+                            document.body.appendChild(toast);
+                            setTimeout(() => { toast.style.opacity = '1'; }, 10);
+                            setTimeout(() => {
+                              toast.style.opacity = '0';
+                              setTimeout(() => document.body.removeChild(toast), 300);
+                            }, 2000);
+                          } catch (e) {
+                            // Show error for invalid URL
+                            const toast = document.createElement('div');
+                            toast.style.position = 'fixed';
+                            toast.style.bottom = '20px';
+                            toast.style.right = '20px';
+                            toast.style.backgroundColor = '#ef4444';
+                            toast.style.color = 'white';
+                            toast.style.padding = '10px 16px';
+                            toast.style.borderRadius = '4px';
+                            toast.style.zIndex = '9999';
+                            toast.style.transition = 'opacity 0.3s ease';
+                            toast.style.opacity = '0';
+                            toast.innerText = 'Please enter a valid URL';
+                            
+                            document.body.appendChild(toast);
+                            setTimeout(() => { toast.style.opacity = '1'; }, 10);
+                            setTimeout(() => {
+                              toast.style.opacity = '0';
+                              setTimeout(() => document.body.removeChild(toast), 300);
+                            }, 2000);
+                          }
+                        }
+                      }}
+                    >
+                      Save
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <label className="block text-white/80 font-medium text-sm">Vanity URL (Optional)</label>
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0 px-3 h-12 flex items-center bg-white/10 border-y border-l border-white/10 rounded-l-lg text-white/50">
+                      digino.com/
+                    </div>
+                    <input 
+                      type="text" 
+                      placeholder="your-product-name" 
+                      className="flex-1 h-12 px-4 rounded-r-lg bg-white/5 border border-white/10 text-white shadow-inner transition-all duration-200 focus:outline-none focus:border-[#4F46E5]/40 focus:bg-white/10"
+                      style={{ boxShadow: "inset 0 2px 4px rgba(0, 0, 0, 0.1)" }}
+                    />
+                  </div>
+                  <p className="text-white/50 text-xs">Create a short, memorable URL for your product</p>
+                </div>
+                
+                <div className="mt-6 flex flex-wrap gap-3">
+                  <button 
+                    className="flex items-center px-4 py-2 bg-white/10 hover:bg-white/15 rounded-md text-white text-sm"
+                    onClick={() => {
+                      // Copy generated product link
+                      const vanityInput = document.querySelectorAll('input[type="text"]')[1] as HTMLInputElement;
+                      if (vanityInput && vanityInput.value) {
+                        const link = `https://digino.com/${vanityInput.value}`;
+                        navigator.clipboard.writeText(link);
+                        
+                        // Show toast
+                        const toast = document.createElement('div');
+                        toast.style.position = 'fixed';
+                        toast.style.bottom = '20px';
+                        toast.style.right = '20px';
+                        toast.style.backgroundColor = '#4F46E5';
+                        toast.style.color = 'white';
+                        toast.style.padding = '10px 16px';
+                        toast.style.borderRadius = '4px';
+                        toast.style.zIndex = '9999';
+                        toast.style.transition = 'opacity 0.3s ease';
+                        toast.style.opacity = '0';
+                        toast.innerText = 'Link copied to clipboard';
+                        
+                        document.body.appendChild(toast);
+                        setTimeout(() => { toast.style.opacity = '1'; }, 10);
+                        setTimeout(() => {
+                          toast.style.opacity = '0';
+                          setTimeout(() => document.body.removeChild(toast), 300);
+                        }, 2000);
+                      }
+                    }}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    Copy Link
+                  </button>
+                  
+                  <button 
+                    className="flex items-center px-4 py-2 bg-white/10 hover:bg-white/15 rounded-md text-white text-sm"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    View Analytics
+                  </button>
+                  
+                  <button 
+                    className="flex items-center px-4 py-2 bg-white/10 hover:bg-white/15 rounded-md text-white text-sm"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    Link Settings
+                  </button>
+                </div>
               </div>
             </div>
           </div>
