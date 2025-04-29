@@ -343,7 +343,7 @@ export default function SimplePublish() {
             <div className="flex justify-center mb-10">
               <div className="flex items-center space-x-2 w-full max-w-md">
                 {Array.from({ length: totalSteps }).map((_, index) => (
-                  <React.Fragment key={index}>
+                  <div key={index} className="flex items-center">
                     <div 
                       className={`rounded-full w-8 h-8 flex items-center justify-center transition-all ${
                         index + 1 === currentStep 
@@ -357,12 +357,12 @@ export default function SimplePublish() {
                     </div>
                     {index < totalSteps - 1 && (
                       <div 
-                        className={`flex-1 h-1 rounded transition-all ${
+                        className={`flex-1 h-1 rounded transition-all mx-1 w-16 ${
                           index + 1 < currentStep ? 'bg-[#14B8A6]' : 'bg-white/10'
                         }`}
                       ></div>
                     )}
-                  </React.Fragment>
+                  </div>
                 ))}
               </div>
             </div>
