@@ -1,15 +1,14 @@
 #!/bin/bash
 
-# Create a gh-pages directory if it doesn't exist
+# Clean any previous build
+rm -rf gh-pages
 mkdir -p gh-pages
 
-# Build the application using the standard build command
+# Build with vite directly for GitHub Pages
 echo "Building the application for GitHub Pages..."
-npm run build
-
-# Copy the client-side assets to the gh-pages directory
-echo "Copying build files to gh-pages directory..."
-cp -r dist/public/* gh-pages/
+cd client
+npx vite build --outDir ../gh-pages --base="./"
+cd ..
 
 # Create a .nojekyll file to prevent Jekyll processing
 touch gh-pages/.nojekyll
