@@ -117,6 +117,9 @@ export default function SimplePublish() {
         },
         createdAt: new Date().toISOString(),
         iconName: formData.iconName,
+        tags: formData.tags,
+        license: formData.license,
+        fileType: formData.fileType
       };
 
       console.log("Product object created:", newProduct);
@@ -148,7 +151,7 @@ export default function SimplePublish() {
       successMessage.style.top = '50%';
       successMessage.style.left = '50%';
       successMessage.style.transform = 'translate(-50%, -50%)';
-      successMessage.style.backgroundColor = '#4F46E5';
+      successMessage.style.backgroundColor = '#14B8A6';
       successMessage.style.color = 'white';
       successMessage.style.padding = '20px';
       successMessage.style.borderRadius = '10px';
@@ -162,7 +165,7 @@ export default function SimplePublish() {
         <h3 style="margin-top: 0; font-size: 18px; font-weight: bold;">Success!</h3>
         <p style="margin-bottom: 20px;">Your product has been published successfully!</p>
         <div>
-          <button style="padding: 8px 16px; background: white; color: #4F46E5; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">OK</button>
+          <button style="padding: 8px 16px; background: white; color: #14B8A6; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">OK</button>
         </div>
       `;
       
@@ -370,7 +373,7 @@ export default function SimplePublish() {
               <div className="w-full lg:w-3/5 space-y-6 p-6 bg-white/5 rounded-xl border border-white/10">
                 {/* Step 1: Basic Information */}
                 {currentStep === 1 && (
-                  <>
+                  <div>
                     <div className="space-y-2">
                       <label className="block text-white/80 font-medium pl-1">Product Title*</label>
                       <input
@@ -444,12 +447,12 @@ export default function SimplePublish() {
                         placeholder="marketing, automation, ai"
                       />
                     </div>
-                  </>
+                  </div>
                 )}
                 
                 {/* Step 2: Visual and Icon */}
                 {currentStep === 2 && (
-                  <>
+                  <div>
                     <div className="space-y-2">
                       <label className="block text-white/80 font-medium pl-1">Product Icon</label>
                       <div className="grid grid-cols-5 gap-3">
@@ -511,12 +514,12 @@ export default function SimplePublish() {
                         <p className="text-white/30 text-sm mt-2">(This feature is coming soon)</p>
                       </div>
                     </div>
-                  </>
+                  </div>
                 )}
                 
                 {/* Step 3: License & Finalize */}
                 {currentStep === 3 && (
-                  <>
+                  <div>
                     <div className="space-y-2">
                       <label className="block text-white/80 font-medium pl-1">
                         <span className="flex items-center gap-2">
@@ -574,7 +577,7 @@ export default function SimplePublish() {
                         </p>
                       </div>
                     </div>
-                  </>
+                  </div>
                 )}
                 
                 {/* Navigation buttons */}
