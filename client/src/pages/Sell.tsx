@@ -91,7 +91,12 @@ export default function Sell() {
   };
   
   // Handle publishing
-  const handlePublish = () => {
+  const handlePublish = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
     setIsPublishing(true);
     
     // Simulate publishing process
@@ -99,24 +104,75 @@ export default function Sell() {
       setIsPublishing(false);
       // Redirect to product page or show success message
       setCurrentStep(SellingStep.Intro);
-      alert("Product published successfully!");
+      
+      // Use custom toast instead of alert
+      const toast = document.createElement('div');
+      toast.style.position = 'fixed';
+      toast.style.bottom = '20px';
+      toast.style.right = '20px';
+      toast.style.backgroundColor = '#22c55e';
+      toast.style.color = 'white';
+      toast.style.padding = '10px 16px';
+      toast.style.borderRadius = '4px';
+      toast.style.zIndex = '9999';
+      toast.style.transition = 'opacity 0.3s ease';
+      toast.style.opacity = '0';
+      toast.style.display = 'flex';
+      toast.style.alignItems = 'center';
+      toast.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><polyline points="20 6 9 17 4 12"></polyline></svg>Product published successfully!';
+      
+      document.body.appendChild(toast);
+      setTimeout(() => { toast.style.opacity = '1'; }, 10);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => document.body.removeChild(toast), 300);
+      }, 2000);
     }, 2000);
   };
   
   // Handle save draft
-  const handleSaveDraft = () => {
+  const handleSaveDraft = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
     setIsSaving(true);
     
     // Simulate saving process
     setTimeout(() => {
       setIsSaving(false);
-      // Show success message
-      alert("Draft saved successfully!");
+      
+      // Use custom toast instead of alert
+      const toast = document.createElement('div');
+      toast.style.position = 'fixed';
+      toast.style.bottom = '20px';
+      toast.style.right = '20px';
+      toast.style.backgroundColor = '#3b82f6';
+      toast.style.color = 'white';
+      toast.style.padding = '10px 16px';
+      toast.style.borderRadius = '4px';
+      toast.style.zIndex = '9999';
+      toast.style.transition = 'opacity 0.3s ease';
+      toast.style.opacity = '0';
+      toast.style.display = 'flex';
+      toast.style.alignItems = 'center';
+      toast.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>Draft saved successfully!';
+      
+      document.body.appendChild(toast);
+      setTimeout(() => { toast.style.opacity = '1'; }, 10);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => document.body.removeChild(toast), 300);
+      }, 2000);
     }, 1500);
   };
   
   // Handle preview
-  const handlePreview = () => {
+  const handlePreview = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     // Generate a preview URL (this would normally be a real URL)
     const previewUrl = `/preview/${formData.title.toLowerCase().replace(/\s+/g, '-')}`;
     setFormData(prev => ({ ...prev, previewUrl }));
@@ -961,6 +1017,33 @@ export default function Sell() {
                 />
                 <p className="text-white/50 text-xs pl-1">
                   {((formData.metaDescription || formData.description)?.length || 0)} / 160 characters
+                </p>
+              </div>
+              
+              <div className="space-y-2 mt-6 p-4 bg-[#4F46E5]/5 border border-[#4F46E5]/20 rounded-lg">
+                <div className="flex items-center mb-2">
+                  <span className="text-[#4F46E5] mr-2">🔗</span>
+                  <label className="block text-white/90 font-medium">Product Link</label>
+                </div>
+                <p className="text-white/60 text-xs mb-3">
+                  Add a direct link to your product file or download page. This is where customers will be directed after purchase.
+                </p>
+                <div className="relative">
+                  <input
+                    type="text"
+                    name="productLink"
+                    value={formData.productLink}
+                    onChange={handleChange}
+                    className="w-full h-12 pl-10 pr-4 rounded-xl bg-white/5 border border-white/10 text-white shadow-inner transition-all duration-200 focus:outline-none focus:border-[#4F46E5]/40 focus:bg-white/10"
+                    placeholder="https://example.com/your-product"
+                    style={{ boxShadow: "inset 0 2px 4px rgba(0, 0, 0, 0.1)" }}
+                  />
+                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/40">
+                    🔗
+                  </div>
+                </div>
+                <p className="text-white/50 text-xs pl-1 mt-1">
+                  Make sure this link is secure and accessible
                 </p>
               </div>
               
