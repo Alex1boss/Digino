@@ -4,15 +4,28 @@ import { Product } from "../schema";
 import { Skeleton } from "./ui/skeleton";
 import { staggerContainer, fadeIn } from "../lib/utils";
 import { Button } from "./ui/button";
-import { Search, Sliders, Star, TrendingUp, Clock, Zap } from "lucide-react";
+import { 
+  Search, 
+  Sliders, 
+  Star, 
+  TrendingUp, 
+  Clock, 
+  Zap,
+  Filter,
+  DollarSign, // Using DollarSign instead of PriceTag which isn't available
+  ShieldCheck,
+  BarChart3
+} from "lucide-react";
 import { useState, useEffect } from "react";
 import { Badge } from "./ui/badge";
 import { Input } from "./ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 
 interface ProductsSectionProps {
   products: Product[];
   isLoading: boolean;
+  isExploreMode?: boolean;
 }
 
 // Product categories for filtering
@@ -26,11 +39,29 @@ const CATEGORIES = [
   "APIs"
 ];
 
-export default function ProductsSection({ products, isLoading }: ProductsSectionProps) {
+// Price ranges for filtering
+const PRICE_RANGES = [
+  { label: "All Prices", value: "all" },
+  { label: "Free", value: "free" },
+  { label: "Under $10", value: "under10" },
+  { label: "$10 - $50", value: "10to50" },
+  { label: "$50 - $100", value: "50to100" },
+  { label: "$100+", value: "over100" }
+];
+
+export default function ProductsSection({ 
+  products, 
+  isLoading, 
+  isExploreMode = false 
+}: ProductsSectionProps) {
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedPriceRange, setSelectedPriceRange] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [showFeaturedOnly, setShowFeaturedOnly] = useState(false);
+  const [showVerifiedOnly, setShowVerifiedOnly] = useState(false);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
   const [activeTab, setActiveTab] = useState("trending");
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
   // Apply filters whenever dependencies change
   useEffect(() => {
@@ -41,6 +72,45 @@ export default function ProductsSection({ products, isLoading }: ProductsSection
       result = result.filter(product => 
         product.category?.toLowerCase() === selectedCategory.toLowerCase()
       );
+    }
+    
+    // Apply price range filter
+    if (selectedPriceRange !== "all") {
+      switch (selectedPriceRange) {
+        case "free":
+          result = result.filter(product => product.isFree || !product.price);
+          break;
+        case "under10":
+          result = result.filter(product => 
+            !product.isFree && product.price && product.price < 10
+          );
+          break;
+        case "10to50":
+          result = result.filter(product => 
+            product.price && product.price >= 10 && product.price <= 50
+          );
+          break;
+        case "50to100":
+          result = result.filter(product => 
+            product.price && product.price > 50 && product.price <= 100
+          );
+          break;
+        case "over100":
+          result = result.filter(product => 
+            product.price && product.price > 100
+          );
+          break;
+      }
+    }
+    
+    // Apply featured filter (this would be based on a real featured flag in a real app)
+    if (showFeaturedOnly) {
+      result = result.filter((_, index) => index === 1 || index === 4);
+    }
+    
+    // Apply verified filter (this would be based on a real verified flag in a real app)
+    if (showVerifiedOnly) {
+      result = result.filter((_, index) => index % 2 === 0);
     }
     
     // Apply search filter
@@ -68,7 +138,7 @@ export default function ProductsSection({ products, isLoading }: ProductsSection
     }
     
     setFilteredProducts(result);
-  }, [products, selectedCategory, searchQuery, activeTab]);
+  }, [products, selectedCategory, selectedPriceRange, showFeaturedOnly, showVerifiedOnly, searchQuery, activeTab]);
 
   return (
     <section id="products" className="py-20 relative">
@@ -83,13 +153,19 @@ export default function ProductsSection({ products, isLoading }: ProductsSection
             className="max-w-xl"
           >
             <Badge className="mb-3 px-3 py-1 bg-[#BB86FC]/20 text-[#BB86FC] border-none">
-              Marketplace
+              {isExploreMode ? "Explore" : "Marketplace"}
             </Badge>
             <h2 className="text-3xl md:text-4xl font-heading font-bold mb-4">
-              Discover <span className="text-[#BB86FC]">Premium</span> Digital Products
+              {isExploreMode 
+                ? <><span className="text-[#BB86FC]">Explore</span> All Digital Products</>
+                : <>Discover <span className="text-[#BB86FC]">Premium</span> Digital Products</>
+              }
             </h2>
             <p className="text-[#A0A0A0] text-lg">
-              Exclusive assets from verified creators, ready to elevate your projects
+              {isExploreMode
+                ? "Browse our complete catalog of high-quality digital assets from top creators"
+                : "Exclusive assets from verified creators, ready to elevate your projects"
+              }
             </p>
           </motion.div>
           
@@ -110,8 +186,13 @@ export default function ProductsSection({ products, isLoading }: ProductsSection
                 className="pl-10 pr-4 py-2 rounded-full glass border-white/10 focus:border-[#BB86FC]/50 w-full md:w-[240px]"
               />
             </div>
-            <Button variant="outline" size="icon" className="ml-2 rounded-full glass border-white/10 hover:bg-white/5">
-              <Sliders size={18} />
+            <Button 
+              variant="outline" 
+              size="icon" 
+              className="ml-2 rounded-full glass border-white/10 hover:bg-white/5"
+              onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+            >
+              <Sliders size={18} className={showAdvancedFilters ? "text-[#BB86FC]" : ""} />
             </Button>
           </motion.div>
         </div>
@@ -169,6 +250,74 @@ export default function ProductsSection({ products, isLoading }: ProductsSection
               </TabsList>
             </Tabs>
           </div>
+          
+          {/* Advanced filters - only visible in explore mode or when expanded */}
+          {(isExploreMode || showAdvancedFilters) && (
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
+              className="mt-6 p-4 bg-[#1E1E1E]/60 backdrop-blur-sm rounded-xl border border-white/10"
+            >
+              <div className="flex flex-col md:flex-row md:items-center gap-4 mb-2">
+                <h3 className="text-sm font-medium flex items-center">
+                  <Filter size={16} className="mr-2 text-[#BB86FC]" /> Advanced Filters
+                </h3>
+                
+                <div className="flex flex-wrap gap-4">
+                  <div className="w-full md:w-48">
+                    <Select
+                      value={selectedPriceRange}
+                      onValueChange={setSelectedPriceRange}
+                    >
+                      <SelectTrigger className="w-full rounded-md glass border-white/10 focus:border-[#BB86FC]/50">
+                        <DollarSign size={14} className="mr-2 text-[#BB86FC]" />
+                        <SelectValue placeholder="Price Range" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-[#1E1E1E] border-white/10">
+                        {PRICE_RANGES.map((range) => (
+                          <SelectItem key={range.value} value={range.value}>
+                            {range.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <Button
+                    variant={showVerifiedOnly ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setShowVerifiedOnly(!showVerifiedOnly)}
+                    className={`rounded-md h-10 ${
+                      showVerifiedOnly 
+                        ? "bg-[#03DAC5] hover:bg-[#03DAC5]/90 text-black" 
+                        : "border-white/10 hover:bg-white/5"
+                    }`}
+                  >
+                    <ShieldCheck size={14} className="mr-2" /> Verified Only
+                  </Button>
+                  
+                  <Button
+                    variant={showFeaturedOnly ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setShowFeaturedOnly(!showFeaturedOnly)}
+                    className={`rounded-md h-10 ${
+                      showFeaturedOnly 
+                        ? "bg-[#FFD700] hover:bg-[#FFD700]/90 text-black" 
+                        : "border-white/10 hover:bg-white/5"
+                    }`}
+                  >
+                    <BarChart3 size={14} className="mr-2" /> Featured Only
+                  </Button>
+                </div>
+              </div>
+              
+              <div className="mt-3 text-xs text-[#A0A0A0]">
+                {filteredProducts.length} products found matching your criteria
+              </div>
+            </motion.div>
+          )}
         </motion.div>
         
         {isLoading ? (
@@ -202,6 +351,9 @@ export default function ProductsSection({ products, isLoading }: ProductsSection
               onClick={() => {
                 setSelectedCategory("All");
                 setSearchQuery("");
+                setSelectedPriceRange("all");
+                setShowFeaturedOnly(false);
+                setShowVerifiedOnly(false);
               }}
               className="rounded-full px-6 py-2 bg-[#BB86FC] hover:bg-[#BB86FC]/90 text-black"
             >
