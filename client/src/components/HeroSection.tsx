@@ -1,6 +1,6 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "./ui/button";
 import { motion } from "framer-motion";
-import { slideIn, fadeIn, textVariant } from "@/lib/utils";
+import { slideIn, fadeIn, textVariant } from "../lib/utils";
 
 export default function HeroSection() {
   return (
