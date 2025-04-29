@@ -370,9 +370,11 @@ export default function Navbar() {
             animate={{ scale: 1, opacity: 1 }}
             transition={{ type: "spring", stiffness: 260, damping: 20 }}
           >
-            <Button className="h-14 w-14 rounded-full shadow-lg bg-gradient-to-tr from-[#0056D2] to-[#00C49A] hover:shadow-[#0056D2]/20 hover:shadow-xl transition-all duration-300 text-white">
-              <Plus size={24} />
-            </Button>
+            <Link href="/publish">
+              <Button className="h-14 w-14 rounded-full shadow-lg bg-gradient-to-tr from-[#0056D2] to-[#00C49A] hover:shadow-[#0056D2]/20 hover:shadow-xl transition-all duration-300 text-white">
+                <Plus size={24} />
+              </Button>
+            </Link>
           </motion.div>
         </div>
       )}
