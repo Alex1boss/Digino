@@ -90,104 +90,92 @@ export default function Sell() {
     }, 100);
   };
   
-  // Handle publishing
-  const handlePublish = (e?: React.MouseEvent) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
+  // Handle publishing - using direct DOM methods for simplicity
+  const handlePublish = () => {
+    // Prevent multiple clicks
+    if (isPublishing) return;
     
+    // Set loading state
     setIsPublishing(true);
     
-    // Create a random icon for the product
-    const iconOptions = ["Zap", "Code", "FileText", "BarChart2", "PieChart", "Database", "Cloud", "Layers"];
-    const randomIcon = iconOptions[Math.floor(Math.random() * iconOptions.length)];
-    
-    // Create a new product object
-    const newProduct = {
-      id: Date.now(),
-      name: formData.title || "Untitled Product",
-      description: formData.description || "No description provided",
-      price: parseFloat(formData.price) || 29.99,
-      currency: "USD",
-      category: formData.category || "Digital Assets",
-      rating: 0,
-      reviews: 0,
-      sales: 0,
-      coverImage: "/path/to/placeholder.jpg",
-      author: {
-        id: 1,
-        name: "Current User",
-        avatar: "/avatar.jpg"
-      },
-      createdAt: new Date().toISOString(),
-      iconName: randomIcon,
-    };
-    
-    // Add product to local storage for persistence between page reloads
-    const existingProducts = JSON.parse(localStorage.getItem('products') || '[]');
-    localStorage.setItem('products', JSON.stringify([...existingProducts, newProduct]));
-    
-    // Simulate publishing process
-    setTimeout(() => {
-      setIsPublishing(false);
-      // Redirect to product page or show success message
-      setCurrentStep(SellingStep.Intro);
+    try {
+      // Create a random icon for the product
+      const iconOptions = ["Zap", "Code", "FileText", "BarChart2", "PieChart", "Database", "Cloud", "Layers"];
+      const randomIcon = iconOptions[Math.floor(Math.random() * iconOptions.length)];
       
-      // Use custom toast instead of alert
-      const toast = document.createElement('div');
-      toast.style.position = 'fixed';
-      toast.style.bottom = '20px';
-      toast.style.right = '20px';
-      toast.style.backgroundColor = '#22c55e';
-      toast.style.color = 'white';
-      toast.style.padding = '10px 16px';
-      toast.style.borderRadius = '4px';
-      toast.style.zIndex = '9999';
-      toast.style.transition = 'opacity 0.3s ease';
-      toast.style.opacity = '0';
-      toast.style.display = 'flex';
-      toast.style.alignItems = 'center';
-      toast.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><polyline points="20 6 9 17 4 12"></polyline></svg>Product published successfully!';
+      // Create a new product object
+      const newProduct = {
+        id: Date.now(),
+        name: formData.title || "Untitled Product",
+        description: formData.description || "No description provided",
+        price: parseFloat(formData.price) || 29.99,
+        currency: "USD",
+        category: formData.category || "Digital Assets",
+        rating: 0,
+        reviews: 0,
+        sales: 0,
+        coverImage: "/path/to/placeholder.jpg",
+        author: {
+          id: 1,
+          name: "Current User",
+          avatar: "/avatar.jpg"
+        },
+        createdAt: new Date().toISOString(),
+        iconName: randomIcon,
+      };
       
-      document.body.appendChild(toast);
-      setTimeout(() => { toast.style.opacity = '1'; }, 10);
+      console.log("Publishing product:", newProduct);
+      
+      // Add product to localStorage
+      try {
+        const existingProducts = JSON.parse(localStorage.getItem('products') || '[]');
+        localStorage.setItem('products', JSON.stringify([...existingProducts, newProduct]));
+        console.log("Product saved to localStorage");
+      } catch (error) {
+        console.error("Failed to save to localStorage:", error);
+      }
+      
+      // Simulate publishing process
       setTimeout(() => {
-        toast.style.opacity = '0';
-        setTimeout(() => document.body.removeChild(toast), 300);
-      }, 2000);
-      
-      // Reset form data after successful publish
-      setFormData({
-        title: "",
-        description: "",
-        category: "",
-        price: "",
-        discountPrice: "",
-        discountEndsAt: "",
-        bonusContent: false,
-        licenses: { personal: true, commercial: false, extended: false },
-        keywords: "",
-        metaDescription: "",
-        seoTitle: "",
-        files: [],
-        previewUrl: "",
-        productLink: ""
-      });
-      
-      // Reload the page to see the new product in the product list
-      setTimeout(() => {
+        // Reset loading state
+        setIsPublishing(false);
+        
+        // Redirect to product page or show success message
+        setCurrentStep(SellingStep.Intro);
+        
+        // Show success message
+        alert("Product published successfully!");
+        
+        // Reset form
+        setFormData({
+          title: "",
+          description: "",
+          category: "",
+          price: "",
+          discountPrice: "",
+          discountEndsAt: "",
+          bonusContent: false,
+          licenses: { personal: true, commercial: false, extended: false },
+          keywords: "",
+          metaDescription: "",
+          seoTitle: "",
+          files: [],
+          previewUrl: "",
+          productLink: ""
+        });
+        
+        // Navigate to explore page
         window.location.href = "/explore";
-      }, 2500);
-    }, 2000);
+      }, 1500);
+    } catch (error) {
+      console.error("Error publishing product:", error);
+      setIsPublishing(false);
+      alert("Failed to publish product. Please try again.");
+    }
   };
   
   // Handle save draft
-  const handleSaveDraft = (e?: React.MouseEvent) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
+  const handleSaveDraft = () => {
     
     setIsSaving(true);
     
@@ -231,47 +219,7 @@ export default function Sell() {
     }, 1500);
   };
   
-  // Handle preview
-  const handlePreview = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    // Generate a preview URL (this would normally be a real URL)
-    const previewUrl = `/preview/${formData.title.toLowerCase().replace(/\s+/g, '-')}`;
-    setFormData(prev => ({ ...prev, previewUrl }));
-    
-    // Show popup with preview info (matching screenshot)
-    const message = document.createElement('div');
-    message.style.position = 'fixed';
-    message.style.top = '50%';
-    message.style.left = '50%';
-    message.style.transform = 'translate(-50%, -50%)';
-    message.style.backgroundColor = 'white';
-    message.style.color = 'black';
-    message.style.padding = '20px';
-    message.style.borderRadius = '10px';
-    message.style.zIndex = '9999';
-    message.style.width = '90%';
-    message.style.maxWidth = '400px';
-    message.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-    
-    message.innerHTML = `
-      <h3 style="margin-top: 0; font-size: 18px; font-weight: bold;">An embedded page at ${window.location.hostname} says</h3>
-      <p style="margin-bottom: 20px;">Preview would open at: /preview/</p>
-      <div style="text-align: right;">
-        <button style="padding: 8px 16px; background: #4F46E5; color: white; border: none; border-radius: 4px; cursor: pointer;">OK</button>
-      </div>
-    `;
-    
-    document.body.appendChild(message);
-    
-    const button = message.querySelector('button');
-    if (button) {
-      button.addEventListener('click', () => {
-        document.body.removeChild(message);
-      });
-    }
-  };
+  // Handle preview function has been removed and replaced with inline implementation
   
   const handleBackToIntro = () => {
     setCurrentStep(SellingStep.Intro);
@@ -1205,11 +1153,11 @@ export default function Sell() {
             
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <motion.button
+                <button
+                  type="button"
                   onClick={(e) => handlePublish(e)}
                   disabled={isPublishing}
-                  whileHover={{ scale: isPublishing ? 1 : 1.03, boxShadow: isPublishing ? "none" : "0 5px 15px rgba(79, 70, 229, 0.2)" }}
-                  className="flex flex-col items-center justify-center p-6 border border-[#4F46E5] rounded-xl bg-gradient-to-b from-[#4F46E5]/10 to-transparent relative cursor-pointer"
+                  className="flex flex-col items-center justify-center p-6 border border-[#4F46E5] rounded-xl bg-gradient-to-b from-[#4F46E5]/10 to-transparent relative cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
                 >
                   {isPublishing && (
                     <div className="absolute inset-0 flex items-center justify-center bg-[#4F46E5]/10 backdrop-blur-sm rounded-xl">
@@ -1219,13 +1167,13 @@ export default function Sell() {
                   <Rocket className="text-[#4F46E5] mb-3 w-8 h-8" />
                   <h3 className="text-white font-medium mb-1">Publish Now</h3>
                   <p className="text-white/60 text-xs text-center">Make your product live immediately</p>
-                </motion.button>
+                </button>
                 
-                <motion.button
+                <button
+                  type="button"
                   onClick={(e) => handleSaveDraft(e)}
                   disabled={isSaving}
-                  whileHover={{ scale: isSaving ? 1 : 1.03, boxShadow: isSaving ? "none" : "0 5px 15px rgba(255, 255, 255, 0.05)" }}
-                  className="flex flex-col items-center justify-center p-6 border border-white/10 rounded-xl relative cursor-pointer"
+                  className="flex flex-col items-center justify-center p-6 border border-white/10 rounded-xl relative cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
                 >
                   {isSaving && (
                     <div className="absolute inset-0 flex items-center justify-center bg-white/5 backdrop-blur-sm rounded-xl">
@@ -1235,38 +1183,65 @@ export default function Sell() {
                   <Save className="text-white/80 mb-3 w-8 h-8" />
                   <h3 className="text-white font-medium mb-1">Save Draft</h3>
                   <p className="text-white/60 text-xs text-center">Continue editing later</p>
-                </motion.button>
+                </button>
                 
-                <motion.button
-                  onClick={(e) => handlePreview(e)}
-                  whileHover={{ scale: 1.03, boxShadow: "0 5px 15px rgba(255, 255, 255, 0.05)" }}
-                  className="flex flex-col items-center justify-center p-6 border border-white/10 rounded-xl cursor-pointer"
+                <button
+                  type="button"
+                  onClick={() => {
+                    // Create a fake preview popup
+                    const message = document.createElement('div');
+                    message.style.position = 'fixed';
+                    message.style.top = '50%';
+                    message.style.left = '50%';
+                    message.style.transform = 'translate(-50%, -50%)';
+                    message.style.backgroundColor = 'white';
+                    message.style.color = 'black';
+                    message.style.padding = '20px';
+                    message.style.borderRadius = '10px';
+                    message.style.zIndex = '9999';
+                    message.style.width = '90%';
+                    message.style.maxWidth = '400px';
+                    message.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                    
+                    message.innerHTML = `
+                      <h3 style="margin-top: 0; font-size: 18px; font-weight: bold;">An embedded page at ${window.location.hostname} says</h3>
+                      <p style="margin-bottom: 20px;">Preview would open at: /preview/${formData.title?.toLowerCase().replace(/\s+/g, '-') || 'product'}</p>
+                      <div style="text-align: right;">
+                        <button style="padding: 8px 16px; background: #4F46E5; color: white; border: none; border-radius: 4px; cursor: pointer;">OK</button>
+                      </div>
+                    `;
+                    
+                    document.body.appendChild(message);
+                    
+                    const button = message.querySelector('button');
+                    if (button) {
+                      button.addEventListener('click', () => {
+                        document.body.removeChild(message);
+                      });
+                    }
+                  }}
+                  className="flex flex-col items-center justify-center p-6 border border-white/10 rounded-xl cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
                 >
                   <Eye className="text-white/80 mb-3 w-8 h-8" />
                   <h3 className="text-white font-medium mb-1">Preview</h3>
                   <p className="text-white/60 text-xs text-center">See how it looks first</p>
-                </motion.button>
+                </button>
               </div>
               
               <div className="mt-8 flex justify-between">
-                <motion.button
-                  onClick={handlePreviousStep}
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
-                  className="px-6 py-3 rounded-xl border border-white/10 text-white/80"
+                <button
+                  type="button"
+                  onClick={() => handlePreviousStep()}
+                  className="px-6 py-3 rounded-xl border border-white/10 text-white/80 hover:bg-white/5 transition-all duration-200"
                 >
                   Back
-                </motion.button>
+                </button>
                 
-                <motion.button
-                  onClick={(e) => handlePublish(e)}
+                <button
+                  type="button"
+                  onClick={() => handlePublish()}
                   disabled={isPublishing}
-                  className="px-8 py-3 rounded-xl bg-gradient-to-r from-[#4F46E5] to-[#6366F1] text-white font-medium relative overflow-hidden cursor-pointer"
-                  whileHover={{ 
-                    scale: isPublishing ? 1 : 1.03,
-                    boxShadow: isPublishing ? "none" : "0 0 20px rgba(79, 70, 229, 0.5)" 
-                  }}
-                  whileTap={{ scale: isPublishing ? 1 : 0.97 }}
+                  className="px-8 py-3 rounded-xl bg-gradient-to-r from-[#4F46E5] to-[#6366F1] text-white font-medium relative overflow-hidden cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
                 >
                   {isPublishing ? (
                     <div className="flex items-center">
@@ -1276,7 +1251,7 @@ export default function Sell() {
                   ) : (
                     <span className="relative z-10">Publish Product</span>
                   )}
-                </motion.button>
+                </button>
               </div>
             </div>
           </motion.div>
