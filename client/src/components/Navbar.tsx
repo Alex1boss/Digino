@@ -271,12 +271,14 @@ export default function Navbar() {
               
               {/* Floating Action Button - for quick selling */}
               <div className="hidden lg:flex">
-                <Button
-                  className="bg-gradient-to-r from-[#0056D2] to-[#00C49A] hover:from-[#0056D2]/90 hover:to-[#00C49A]/90 text-white rounded-full px-5 flex items-center gap-2"
-                >
-                  <Plus size={16} />
-                  Sell Product
-                </Button>
+                <Link href="/publish">
+                  <Button
+                    className="bg-gradient-to-r from-[#0056D2] to-[#00C49A] hover:from-[#0056D2]/90 hover:to-[#00C49A]/90 text-white rounded-full px-5 flex items-center gap-2"
+                  >
+                    <Plus size={16} />
+                    Sell Product
+                  </Button>
+                </Link>
               </div>
             </div>
           ) : (

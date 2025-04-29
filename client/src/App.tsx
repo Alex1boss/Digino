@@ -10,6 +10,7 @@ import Sell from "./pages/Sell";
 import Profile3D from "./pages/Profile3D";
 import ProfileEdit from "./pages/ProfileEdit";
 import UploadProduct from "./pages/UploadProduct";
+import SimplePublish from "./pages/SimplePublish";
 import BottomNav from "./components/BottomNav";
 
 function Router() {
@@ -23,6 +24,7 @@ function Router() {
       <Route path="/profile" component={Profile3D} />
       <Route path="/profile/edit" component={ProfileEdit} />
       <Route path="/product/new" component={UploadProduct} />
+      <Route path="/publish" component={SimplePublish} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -1116,7 +1116,7 @@ export default function Sell() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <button
                   type="button"
-                  onClick={(e) => handlePublish(e)}
+                  onClick={() => handlePublish()}
                   disabled={isPublishing}
                   className="flex flex-col items-center justify-center p-6 border border-[#4F46E5] rounded-xl bg-gradient-to-b from-[#4F46E5]/10 to-transparent relative cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
                 >
@@ -1132,7 +1132,7 @@ export default function Sell() {
                 
                 <button
                   type="button"
-                  onClick={(e) => handleSaveDraft(e)}
+                  onClick={() => handleSaveDraft()}
                   disabled={isSaving}
                   className="flex flex-col items-center justify-center p-6 border border-white/10 rounded-xl relative cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
                 >
@@ -1338,7 +1338,7 @@ export default function Sell() {
                         navigator.clipboard.writeText(link);
                         alert('Link copied to clipboard');
                       }
-                    }
+                    }}
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
