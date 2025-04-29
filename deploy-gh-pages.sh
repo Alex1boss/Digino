@@ -3,13 +3,13 @@
 # Create a gh-pages directory if it doesn't exist
 mkdir -p gh-pages
 
-# Build the application (static frontend only)
+# Build the application using the standard build command
 echo "Building the application for GitHub Pages..."
-cd client
-npx vite build --outDir ../gh-pages --base="./"
+npm run build
 
-# Go back to root
-cd ..
+# Copy the client-side assets to the gh-pages directory
+echo "Copying build files to gh-pages directory..."
+cp -r dist/public/* gh-pages/
 
 # Create a .nojekyll file to prevent Jekyll processing
 touch gh-pages/.nojekyll
@@ -41,8 +41,8 @@ EOL
 # First, save original index.html
 cp gh-pages/index.html gh-pages/index.html.bak
 
-# Add redirect script to head
-sed -i 's|</head>|<script>\
+# Add redirect script and base path to head
+sed -i 's|</head>|<base href="./"><script>\
   (function() {\
     var redirect = sessionStorage.getItem("redirect");\
     if (redirect && redirect !== "/") {\
