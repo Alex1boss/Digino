@@ -187,6 +187,29 @@ export default function Profile3D() {
                       <Mail size={18} />
                     </Button>
                   </div>
+                  
+                  {/* Mobile Profile Actions */}
+                  <div className="flex gap-2 mt-4 md:hidden">
+                    <Link href="/profile/edit">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="border-white/10 hover:bg-white/5 text-white"
+                      >
+                        <Edit size={14} className="mr-1" />
+                        Edit
+                      </Button>
+                    </Link>
+                    <Link href="/product/new">
+                      <Button 
+                        size="sm"
+                        className="bg-gradient-to-r from-[#0056D2] to-[#00C49A] hover:opacity-90 text-white"
+                      >
+                        <Package size={14} className="mr-1" />
+                        Add Product
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
 
                 {/* Middle Section: Bio & Stats */}
@@ -252,6 +275,27 @@ export default function Profile3D() {
                     <Button variant="outline" className="border-white/10 hover:bg-white/5">
                       <Mail size={18} />
                     </Button>
+                  </div>
+                  
+                  {/* Profile Actions */}
+                  <div className="flex gap-3 mt-2">
+                    <Link href="/profile/edit">
+                      <Button 
+                        variant="outline" 
+                        className="border-white/10 hover:bg-white/5 text-white flex items-center gap-2"
+                      >
+                        <Edit size={16} />
+                        <span>Edit Profile</span>
+                      </Button>
+                    </Link>
+                    <Link href="/product/new">
+                      <Button 
+                        className="bg-gradient-to-r from-[#0056D2] to-[#00C49A] hover:opacity-90 text-white flex items-center gap-2"
+                      >
+                        <Package size={16} />
+                        <span>Add Product</span>
+                      </Button>
+                    </Link>
                   </div>
 
                   {/* 3D Badges */}
@@ -351,7 +395,7 @@ export default function Profile3D() {
                   >
                     My Products
                   </motion.h2>
-                  <Link href="/sell">
+                  <Link href="/product/new">
                     <Button className="bg-gradient-to-r from-[#0056D2] to-[#00C49A] hover:opacity-90 text-white">
                       Add New Product
                     </Button>
