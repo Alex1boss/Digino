@@ -9,6 +9,7 @@ import Buy from "./pages/Buy";
 import Sell from "./pages/Sell";
 import Profile3D from "./pages/Profile3D";
 import ProfileEdit from "./pages/ProfileEdit";
+import UploadProduct from "./pages/UploadProduct";
 import BottomNav from "./components/BottomNav";
 
 function Router() {
@@ -21,6 +22,7 @@ function Router() {
       <Route path="/sell" component={Sell} />
       <Route path="/profile" component={Profile3D} />
       <Route path="/profile/edit" component={ProfileEdit} />
+      <Route path="/product/new" component={UploadProduct} />
       <Route component={NotFound} />
     </Switch>
   );
