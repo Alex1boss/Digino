@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
-import { cn } from "@/lib/utils";
-import { Product } from "@shared/schema";
+import { cn } from "../../lib/utils";
+import { Product } from "../../schema";
 import { 
   ChevronRight, 
   Box, 
