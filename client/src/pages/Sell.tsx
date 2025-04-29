@@ -1,17 +1,17 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Navbar from "@/components/Navbar";
+import Navbar from "../components/Navbar";
 import { 
   Tag, ChevronRight, ArrowRight, Upload, Wand, 
   DollarSign, Timer, Gift, FileCheck, Zap, Search,
   CheckCircle, TrendingUp, Award, Rocket, Save, Eye,
   ShieldCheck, Calendar, AlertCircle, Sparkles
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import ProductForm3D from "@/components/ProductForm3D";
-import { Switch } from "@/components/ui/switch";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "../components/ui/button";
+import ProductForm3D from "../components/ProductForm3D";
+import { Switch } from "../components/ui/switch";
+import { Checkbox } from "../components/ui/checkbox";
+import { Badge } from "../components/ui/badge";
 
 // Enum to track the steps of the selling process
 enum SellingStep {
