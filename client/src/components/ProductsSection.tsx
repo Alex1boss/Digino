@@ -1,9 +1,9 @@
 import { motion } from "framer-motion";
-import { ProductCard } from "@/components/ui/ProductCard";
-import { Product } from "@shared/schema";
-import { Skeleton } from "@/components/ui/skeleton";
-import { staggerContainer } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { ProductCard } from "./ui/product-card";
+import { Product } from "../../shared/schema";
+import { Skeleton } from "./ui/skeleton";
+import { staggerContainer } from "../lib/utils";
+import { Button } from "./ui/button";
 
 interface ProductsSectionProps {
   products: Product[];

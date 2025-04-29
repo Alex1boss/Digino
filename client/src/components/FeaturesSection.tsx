@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { cn, fadeIn } from "@/lib/utils";
+import { cn, fadeIn } from "../lib/utils";
 import { Check, CpuIcon } from "lucide-react";
 
 export default function FeaturesSection() {
