@@ -7,6 +7,7 @@ import NotFound from "./pages/not-found";
 import Home from "./pages/Home";
 import Buy from "./pages/Buy";
 import Sell from "./pages/Sell";
+import Profile from "./pages/Profile";
 import BottomNav from "./components/BottomNav";
 
 function Router() {
@@ -17,6 +18,7 @@ function Router() {
       <Route path="/explore" component={Home} />
       <Route path="/buy" component={Buy} />
       <Route path="/sell" component={Sell} />
+      <Route path="/profile" component={Profile} />
       <Route component={NotFound} />
     </Switch>
   );
