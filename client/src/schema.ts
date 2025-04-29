@@ -26,6 +26,7 @@ export const products = pgTable("products", {
   link: text("link").notNull(),
   ctaText: text("cta_text").notNull().default("Learn More"),
   isFree: boolean("is_free").notNull().default(false),
+  category: text("category"),
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({
@@ -41,6 +42,7 @@ export const insertProductSchema = createInsertSchema(products).pick({
   link: true, 
   ctaText: true,
   isFree: true,
+  category: true,
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
