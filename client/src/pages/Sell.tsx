@@ -90,24 +90,18 @@ export default function Sell() {
     }, 100);
   };
   
-  // Handle publishing - using direct DOM methods for simplicity
+  // SIMPLIFIED direct publish button handler
   const handlePublish = () => {
-    // Prevent multiple clicks
-    if (isPublishing) return;
+    // Show we're publishing
+    alert("Publishing your product...");
     
-    // Set loading state
-    setIsPublishing(true);
-    
+    // Direct navigation after publishing - no delays or complex logic
     try {
-      // Create a random icon for the product
-      const iconOptions = ["Zap", "Code", "FileText", "BarChart2", "PieChart", "Database", "Cloud", "Layers"];
-      const randomIcon = iconOptions[Math.floor(Math.random() * iconOptions.length)];
-      
-      // Create a new product object
+      // Create a very simple product object - minimal fields
       const newProduct = {
         id: Date.now(),
         name: formData.title || "Untitled Product",
-        description: formData.description || "No description provided",
+        description: formData.description || "No description",
         price: parseFloat(formData.price) || 29.99,
         currency: "USD",
         category: formData.category || "Digital Assets",
@@ -121,56 +115,23 @@ export default function Sell() {
           avatar: "/avatar.jpg"
         },
         createdAt: new Date().toISOString(),
-        iconName: randomIcon,
+        iconName: "Zap",
       };
       
-      console.log("Publishing product:", newProduct);
+      // Save directly to localStorage with minimal error handling
+      const productsString = localStorage.getItem('products') || '[]';
+      const products = JSON.parse(productsString);
+      products.push(newProduct);
+      localStorage.setItem('products', JSON.stringify(products));
       
-      // Add product to localStorage
-      try {
-        const existingProducts = JSON.parse(localStorage.getItem('products') || '[]');
-        localStorage.setItem('products', JSON.stringify([...existingProducts, newProduct]));
-        console.log("Product saved to localStorage");
-      } catch (error) {
-        console.error("Failed to save to localStorage:", error);
-      }
+      // Force raw navigation to explore page using hash-router compatible approach
+      window.location.hash = "/explore";
+      window.location.reload();
       
-      // Simulate publishing process
-      setTimeout(() => {
-        // Reset loading state
-        setIsPublishing(false);
-        
-        // Redirect to product page or show success message
-        setCurrentStep(SellingStep.Intro);
-        
-        // Show success message
-        alert("Product published successfully!");
-        
-        // Reset form
-        setFormData({
-          title: "",
-          description: "",
-          category: "",
-          price: "",
-          discountPrice: "",
-          discountEndsAt: "",
-          bonusContent: false,
-          licenses: { personal: true, commercial: false, extended: false },
-          keywords: "",
-          metaDescription: "",
-          seoTitle: "",
-          files: [],
-          previewUrl: "",
-          productLink: ""
-        });
-        
-        // Navigate to explore page
-        window.location.href = "/explore";
-      }, 1500);
     } catch (error) {
-      console.error("Error publishing product:", error);
-      setIsPublishing(false);
-      alert("Failed to publish product. Please try again.");
+      // If anything fails, show error and allow retry
+      alert("Error saving product. Please try again.");
+      console.error("Publish error:", error);
     }
   };
   
@@ -1375,29 +1336,9 @@ export default function Sell() {
                       if (vanityInput && vanityInput.value) {
                         const link = `https://digino.com/${vanityInput.value}`;
                         navigator.clipboard.writeText(link);
-                        
-                        // Show toast
-                        const toast = document.createElement('div');
-                        toast.style.position = 'fixed';
-                        toast.style.bottom = '20px';
-                        toast.style.right = '20px';
-                        toast.style.backgroundColor = '#4F46E5';
-                        toast.style.color = 'white';
-                        toast.style.padding = '10px 16px';
-                        toast.style.borderRadius = '4px';
-                        toast.style.zIndex = '9999';
-                        toast.style.transition = 'opacity 0.3s ease';
-                        toast.style.opacity = '0';
-                        toast.innerText = 'Link copied to clipboard';
-                        
-                        document.body.appendChild(toast);
-                        setTimeout(() => { toast.style.opacity = '1'; }, 10);
-                        setTimeout(() => {
-                          toast.style.opacity = '0';
-                          setTimeout(() => document.body.removeChild(toast), 300);
-                        }, 2000);
+                        alert('Link copied to clipboard');
                       }
-                    }}
+                    }
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
