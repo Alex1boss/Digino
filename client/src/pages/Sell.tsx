@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "../components/Navbar";
 import { 
@@ -1029,32 +1029,47 @@ export default function Sell() {
             
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <motion.div
-                  whileHover={{ scale: 1.03, boxShadow: "0 5px 15px rgba(79, 70, 229, 0.2)" }}
-                  className="flex flex-col items-center justify-center p-6 border border-[#4F46E5] rounded-xl bg-gradient-to-b from-[#4F46E5]/10 to-transparent"
+                <motion.button
+                  onClick={handlePublish}
+                  disabled={isPublishing}
+                  whileHover={{ scale: isPublishing ? 1 : 1.03, boxShadow: isPublishing ? "none" : "0 5px 15px rgba(79, 70, 229, 0.2)" }}
+                  className="flex flex-col items-center justify-center p-6 border border-[#4F46E5] rounded-xl bg-gradient-to-b from-[#4F46E5]/10 to-transparent relative"
                 >
+                  {isPublishing && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-[#4F46E5]/10 backdrop-blur-sm rounded-xl">
+                      <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                    </div>
+                  )}
                   <Rocket className="text-[#4F46E5] mb-3 w-8 h-8" />
                   <h3 className="text-white font-medium mb-1">Publish Now</h3>
                   <p className="text-white/60 text-xs text-center">Make your product live immediately</p>
-                </motion.div>
+                </motion.button>
                 
-                <motion.div
-                  whileHover={{ scale: 1.03, boxShadow: "0 5px 15px rgba(255, 255, 255, 0.05)" }}
-                  className="flex flex-col items-center justify-center p-6 border border-white/10 rounded-xl"
+                <motion.button
+                  onClick={handleSaveDraft}
+                  disabled={isSaving}
+                  whileHover={{ scale: isSaving ? 1 : 1.03, boxShadow: isSaving ? "none" : "0 5px 15px rgba(255, 255, 255, 0.05)" }}
+                  className="flex flex-col items-center justify-center p-6 border border-white/10 rounded-xl relative"
                 >
+                  {isSaving && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-white/5 backdrop-blur-sm rounded-xl">
+                      <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                    </div>
+                  )}
                   <Save className="text-white/80 mb-3 w-8 h-8" />
                   <h3 className="text-white font-medium mb-1">Save Draft</h3>
                   <p className="text-white/60 text-xs text-center">Continue editing later</p>
-                </motion.div>
+                </motion.button>
                 
-                <motion.div
+                <motion.button
+                  onClick={handlePreview}
                   whileHover={{ scale: 1.03, boxShadow: "0 5px 15px rgba(255, 255, 255, 0.05)" }}
                   className="flex flex-col items-center justify-center p-6 border border-white/10 rounded-xl"
                 >
                   <Eye className="text-white/80 mb-3 w-8 h-8" />
                   <h3 className="text-white font-medium mb-1">Preview</h3>
                   <p className="text-white/60 text-xs text-center">See how it looks first</p>
-                </motion.div>
+                </motion.button>
               </div>
               
               <div className="mt-8 flex justify-between">
@@ -1068,15 +1083,23 @@ export default function Sell() {
                 </motion.button>
                 
                 <motion.button
-                  onClick={handleBackToIntro}
+                  onClick={handlePublish}
+                  disabled={isPublishing}
                   className="px-8 py-3 rounded-xl bg-gradient-to-r from-[#4F46E5] to-[#6366F1] text-white font-medium relative overflow-hidden"
                   whileHover={{ 
-                    scale: 1.03,
-                    boxShadow: "0 0 20px rgba(79, 70, 229, 0.5)" 
+                    scale: isPublishing ? 1 : 1.03,
+                    boxShadow: isPublishing ? "none" : "0 0 20px rgba(79, 70, 229, 0.5)" 
                   }}
-                  whileTap={{ scale: 0.97 }}
+                  whileTap={{ scale: isPublishing ? 1 : 0.97 }}
                 >
-                  <span className="relative z-10">Publish Product</span>
+                  {isPublishing ? (
+                    <div className="flex items-center">
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></div>
+                      <span className="relative z-10">Publishing...</span>
+                    </div>
+                  ) : (
+                    <span className="relative z-10">Publish Product</span>
+                  )}
                 </motion.button>
               </div>
             </div>
@@ -1096,6 +1119,70 @@ export default function Sell() {
         <AnimatePresence mode="wait">
           {renderStepContent()}
         </AnimatePresence>
+        
+        {/* Deployment Link Section */}
+        <div className="mt-16 p-6 border border-[#4F46E5]/30 rounded-xl bg-gradient-to-r from-[#4F46E5]/5 to-transparent">
+          <div className="flex items-start gap-4">
+            <div className="bg-[#4F46E5]/20 p-3 rounded-full">
+              <Sparkles className="text-[#4F46E5] w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-white text-lg font-medium mb-2">Your Platform is Live!</h3>
+              <p className="text-white/70 mb-4">
+                Your Innventa marketplace is now deployed and available at the link below.
+                Share it with your audience to start selling your digital products.
+              </p>
+              
+              <div className="flex items-center bg-white/5 border border-white/10 rounded-lg p-3 mt-4">
+                <span className="text-white/80 mr-2">🌐</span>
+                <a 
+                  href="https://innventa-marketplace.replit.app" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-[#4F46E5] hover:underline flex-1 truncate"
+                >
+                  https://innventa-marketplace.replit.app
+                </a>
+                <button 
+                  onClick={() => {
+                    navigator.clipboard.writeText("https://innventa-marketplace.replit.app");
+                    alert("Link copied to clipboard!");
+                  }}
+                  className="px-3 py-1 bg-white/10 hover:bg-white/20 rounded-md text-white/80 text-sm ml-2"
+                >
+                  Copy
+                </button>
+              </div>
+              
+              <div className="flex flex-wrap gap-2 mt-4">
+                <a 
+                  href="https://innventa-marketplace.replit.app/product/new" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 bg-[#4F46E5] hover:bg-[#4F46E5]/90 rounded-lg text-white text-sm"
+                >
+                  Upload Product
+                </a>
+                <a 
+                  href="https://innventa-marketplace.replit.app/profile" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white text-sm"
+                >
+                  View Profile
+                </a>
+                <a 
+                  href="https://innventa-marketplace.replit.app/explore" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white text-sm"
+                >
+                  Browse Marketplace
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
