@@ -24,9 +24,10 @@ export default function SimplePublish() {
     }
 
     setIsPublishing(true);
+    console.log("Publishing product...");
 
     try {
-      // Create a simple product object
+      // Create a simple product object with all required fields
       const newProduct = {
         id: Date.now(),
         name: formData.title,
@@ -37,28 +38,45 @@ export default function SimplePublish() {
         rating: 0,
         reviews: 0,
         sales: 0,
-        coverImage: "/path/to/placeholder.jpg",
+        coverImage: "/assets/product-placeholder.jpg",
         author: {
           id: 1,
           name: "Current User",
-          avatar: "/avatar.jpg"
+          avatar: "/assets/avatar.jpg"
         },
         createdAt: new Date().toISOString(),
         iconName: "Zap",
       };
 
-      // Save to localStorage
-      const productsString = localStorage.getItem('products') || '[]';
-      const products = JSON.parse(productsString);
-      products.push(newProduct);
-      localStorage.setItem('products', JSON.stringify(products));
-
+      console.log("Product object created:", newProduct);
+      
+      // Get existing products from localStorage
+      let existingProducts = [];
+      try {
+        const savedProducts = localStorage.getItem('products');
+        console.log("Existing products in localStorage:", savedProducts);
+        
+        if (savedProducts) {
+          existingProducts = JSON.parse(savedProducts);
+        }
+      } catch (parseError) {
+        console.error("Error parsing products from localStorage:", parseError);
+        existingProducts = [];
+      }
+      
+      // Add new product to array
+      existingProducts.push(newProduct);
+      
+      // Save updated array back to localStorage
+      console.log("Saving updated products to localStorage:", existingProducts);
+      localStorage.setItem('products', JSON.stringify(existingProducts));
+      
+      // Success message
       alert("Product published successfully!");
       
-      // Navigate to explore page
-      setTimeout(() => {
-        setLocation("/explore");
-      }, 1000);
+      // Trigger page reload to ensure updated data is shown in Explore page
+      window.location.href = "/#/explore";
+      window.location.reload();
     } catch (error) {
       console.error("Error publishing product:", error);
       alert("Failed to publish product. Please try again.");

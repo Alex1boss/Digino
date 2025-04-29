@@ -15,10 +15,36 @@ export default function Home() {
   const [location] = useLocation();
   const [showHero, setShowHero] = useState(true);
   const [activeTab, setActiveTab] = useState(location === "/" ? "home" : "explore");
+  const [localProducts, setLocalProducts] = useState<Product[]>([]);
   
-  const { data: products, isLoading } = useQuery<Product[]>({
+  // Get products from API
+  const { data: apiProducts, isLoading } = useQuery<Product[]>({
     queryKey: ['/api/products'],
   });
+  
+  // Also load products from localStorage
+  useEffect(() => {
+    try {
+      const savedProducts = localStorage.getItem('products');
+      if (savedProducts) {
+        const parsedProducts = JSON.parse(savedProducts);
+        console.log("Products loaded from localStorage:", parsedProducts);
+        
+        // Import needed for the getIconComponent function
+        import("../schema").then(({ getIconComponent }) => {
+          // Add Icon property to each product from localStorage
+          const productsWithIcons = parsedProducts.map((product: any) => ({
+            ...product,
+            Icon: getIconComponent(product.iconName || "Zap")
+          }));
+          
+          setLocalProducts(productsWithIcons);
+        });
+      }
+    } catch (error) {
+      console.error("Error loading products from localStorage:", error);
+    }
+  }, []);
 
   // Update the active tab when the location changes
   useEffect(() => {
@@ -56,7 +82,7 @@ export default function Home() {
         
         {/* Unified products section with expanded features for explore mode */}
         <ProductsSection 
-          products={products || []} 
+          products={[...(apiProducts || []), ...localProducts]} 
           isLoading={isLoading} 
           isExploreMode={activeTab === "explore"}
         />
