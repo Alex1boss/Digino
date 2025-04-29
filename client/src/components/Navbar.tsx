@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "./ui/button";
 import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
@@ -13,19 +13,10 @@ import {
   Package, 
   Plus,
   X,
-  ChevronDown
+  ChevronDown,
+  ChevronUp
 } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Badge } from "./ui/badge";
-import { 
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
 
 export default function Navbar() {
   const [location] = useLocation();
@@ -35,11 +26,34 @@ export default function Navbar() {
   const [notificationCount, setNotificationCount] = useState(3);
   const [showWelcomeMessage, setShowWelcomeMessage] = useState(true);
   const [userName, setUserName] = useState("Alex");
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  
+  const userMenuRef = useRef<HTMLDivElement>(null);
+  const notificationMenuRef = useRef<HTMLDivElement>(null);
 
   // Toggle logged in state for demo purposes
   const toggleLoggedIn = () => {
     setIsLoggedIn(!isLoggedIn);
+    if (!isLoggedIn) {
+      setShowWelcomeMessage(true);
+    }
   };
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setShowUserMenu(false);
+      }
+      if (notificationMenuRef.current && !notificationMenuRef.current.contains(event.target as Node)) {
+        setShowNotifications(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -108,22 +122,22 @@ export default function Navbar() {
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-8">
           <Link href="/" className={`font-medium transition-colors duration-200 hover:text-[#0056D2] ${
-            location === "/" ? "text-[#0056D2]" : ""
+            location === "/" ? "text-[#0056D2]" : "text-white"
           }`}>
             Home
           </Link>
           <Link href="/explore" className={`font-medium transition-colors duration-200 hover:text-[#0056D2] ${
-            location === "/explore" ? "text-[#0056D2]" : ""
+            location === "/explore" ? "text-[#0056D2]" : "text-white"
           }`}>
             Explore
           </Link>
           <Link href="/buy" className={`font-medium transition-colors duration-200 hover:text-[#0056D2] ${
-            location === "/buy" ? "text-[#0056D2]" : ""
+            location === "/buy" ? "text-[#0056D2]" : "text-white"
           }`}>
             Buy
           </Link>
           <Link href="/sell" className={`font-medium transition-colors duration-200 hover:text-[#0056D2] ${
-            location === "/sell" ? "text-[#0056D2]" : ""
+            location === "/sell" ? "text-[#0056D2]" : "text-white"
           }`}>
             Sell
           </Link>
@@ -135,113 +149,123 @@ export default function Navbar() {
             <div className="flex items-center space-x-4">
               {/* Search Button */}
               <Button variant="ghost" size="icon" className="rounded-full hover:bg-white/5">
-                <Search size={20} />
+                <Search size={20} className="text-white" />
               </Button>
               
               {/* Notifications */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="rounded-full hover:bg-white/5 relative">
-                    <Bell size={20} />
-                    {notificationCount > 0 && (
-                      <Badge className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center p-0 rounded-full">
-                        {notificationCount}
-                      </Badge>
-                    )}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-72 bg-[#1A1A2E] border border-[#0056D2]/20">
-                  <DropdownMenuLabel className="flex items-center justify-between">
-                    <span>Notifications</span>
-                    <Button variant="ghost" size="sm" onClick={() => setNotificationCount(0)}>
-                      Mark all read
-                    </Button>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuGroup>
-                    <DropdownMenuItem className="py-3 px-3 focus:bg-[#0056D2]/10">
-                      <div className="flex flex-col gap-1">
-                        <div className="font-medium">Your product was purchased</div>
-                        <div className="text-sm text-muted-foreground">2 hours ago</div>
-                      </div>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="py-3 px-3 focus:bg-[#0056D2]/10">
-                      <div className="flex flex-col gap-1">
-                        <div className="font-medium">New message from admin</div>
-                        <div className="text-sm text-muted-foreground">Yesterday</div>
-                      </div>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="py-3 px-3 focus:bg-[#0056D2]/10">
-                      <div className="flex flex-col gap-1">
-                        <div className="font-medium">Payment received $129.00</div>
-                        <div className="text-sm text-muted-foreground">Last week</div>
-                      </div>
-                    </DropdownMenuItem>
-                  </DropdownMenuGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              
-              {/* User Profile Dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="rounded-full p-0 hover:bg-white/5 flex items-center gap-2">
-                    <Avatar className="h-9 w-9 border-2 border-white/10">
-                      <AvatarImage src="/avatar-placeholder.svg" />
-                      <AvatarFallback className="bg-gradient-to-br from-[#0056D2] to-[#00C49A] text-white">
-                        {userName.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <ChevronDown size={16} className="text-white/70" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent 
-                  align="end" 
-                  className="w-56 overflow-hidden rounded-xl border border-white/10 bg-[#1A1A2E] p-1 text-white shadow-lg shadow-black/20 backdrop-blur-lg"
+              <div className="relative" ref={notificationMenuRef}>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="rounded-full hover:bg-white/5 relative"
+                  onClick={() => setShowNotifications(!showNotifications)}
                 >
-                  <div className="flex items-center gap-2 rounded-md p-3 mb-1">
-                    <Avatar className="h-10 w-10 border-2 border-white/10">
-                      <AvatarImage src="/avatar-placeholder.svg" />
-                      <AvatarFallback className="bg-gradient-to-br from-[#0056D2] to-[#00C49A] text-white">
-                        {userName.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex flex-col space-y-0.5">
-                      <span className="text-sm font-medium">{userName}</span>
-                      <span className="text-xs text-white/60">premium@example.com</span>
+                  <Bell size={20} className="text-white" />
+                  {notificationCount > 0 && (
+                    <Badge className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center p-0 rounded-full">
+                      {notificationCount}
+                    </Badge>
+                  )}
+                </Button>
+                
+                {/* Notification dropdown */}
+                {showNotifications && (
+                  <div className="absolute right-0 mt-2 w-72 bg-[#1A1A2E] border border-[#0056D2]/20 rounded-lg shadow-lg z-50">
+                    <div className="flex items-center justify-between p-3 border-b border-[#0056D2]/10">
+                      <span className="font-medium text-white">Notifications</span>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="text-sm text-[#0056D2] hover:bg-[#0056D2]/10"
+                        onClick={() => setNotificationCount(0)}
+                      >
+                        Mark all read
+                      </Button>
+                    </div>
+                    <div className="max-h-[300px] overflow-y-auto">
+                      <div className="p-3 hover:bg-[#0056D2]/10 cursor-pointer border-b border-[#0056D2]/10">
+                        <div className="font-medium text-white">Your product was purchased</div>
+                        <div className="text-sm text-white/60">2 hours ago</div>
+                      </div>
+                      <div className="p-3 hover:bg-[#0056D2]/10 cursor-pointer border-b border-[#0056D2]/10">
+                        <div className="font-medium text-white">New message from admin</div>
+                        <div className="text-sm text-white/60">Yesterday</div>
+                      </div>
+                      <div className="p-3 hover:bg-[#0056D2]/10 cursor-pointer">
+                        <div className="font-medium text-white">Payment received $129.00</div>
+                        <div className="text-sm text-white/60">Last week</div>
+                      </div>
                     </div>
                   </div>
-                  
-                  <DropdownMenuSeparator className="bg-white/10" />
-                  
-                  <DropdownMenuGroup>
-                    <DropdownMenuItem className="flex cursor-pointer items-center gap-3 rounded-md p-2.5 text-sm focus:bg-[#0056D2]/20">
-                      <User size={16} className="text-[#0056D2]" />
-                      <span>My Profile</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="flex cursor-pointer items-center gap-3 rounded-md p-2.5 text-sm focus:bg-[#0056D2]/20">
-                      <ShoppingBag size={16} className="text-[#00C49A]" />
-                      <span>My Purchases</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="flex cursor-pointer items-center gap-3 rounded-md p-2.5 text-sm focus:bg-[#0056D2]/20">
-                      <Package size={16} className="text-[#BB86FC]" />
-                      <span>My Products</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuGroup>
-                  
-                  <DropdownMenuSeparator className="bg-white/10" />
-                  
-                  <DropdownMenuGroup>
-                    <DropdownMenuItem className="flex cursor-pointer items-center gap-3 rounded-md p-2.5 text-sm focus:bg-[#0056D2]/20">
-                      <Settings size={16} className="text-white/70" />
-                      <span>Settings</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="flex cursor-pointer items-center gap-3 rounded-md p-2.5 text-sm focus:bg-[#0056D2]/20" onClick={toggleLoggedIn}>
-                      <LogOut size={16} className="text-red-400" />
-                      <span>Log out</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                )}
+              </div>
+              
+              {/* User Profile Dropdown */}
+              <div className="relative" ref={userMenuRef}>
+                <Button 
+                  variant="ghost" 
+                  className="rounded-full p-1 hover:bg-white/5 flex items-center gap-2"
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                >
+                  <div className="h-9 w-9 rounded-full bg-gradient-to-br from-[#0056D2] to-[#00C49A] flex items-center justify-center text-white font-medium border-2 border-white/10">
+                    {userName.charAt(0)}
+                  </div>
+                  {showUserMenu ? (
+                    <ChevronUp size={16} className="text-white/70" />
+                  ) : (
+                    <ChevronDown size={16} className="text-white/70" />
+                  )}
+                </Button>
+                
+                {/* User menu dropdown */}
+                {showUserMenu && (
+                  <div className="absolute right-0 mt-2 w-56 bg-[#1A1A2E] border border-white/10 rounded-xl shadow-lg overflow-hidden p-1 z-50">
+                    <div className="flex items-center gap-2 p-3 mb-1">
+                      <div className="h-10 w-10 rounded-full bg-gradient-to-br from-[#0056D2] to-[#00C49A] flex items-center justify-center text-white font-medium border-2 border-white/10">
+                        {userName.charAt(0)}
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium text-white">{userName}</span>
+                        <span className="text-xs text-white/60">premium@example.com</span>
+                      </div>
+                    </div>
+                    
+                    <div className="w-full h-px bg-white/10 my-1"></div>
+                    
+                    <div className="px-1">
+                      <Button variant="ghost" className="w-full justify-start text-sm text-white hover:bg-[#0056D2]/20 rounded-md p-2.5">
+                        <User size={16} className="text-[#0056D2] mr-3" />
+                        <span>My Profile</span>
+                      </Button>
+                      <Button variant="ghost" className="w-full justify-start text-sm text-white hover:bg-[#0056D2]/20 rounded-md p-2.5">
+                        <ShoppingBag size={16} className="text-[#00C49A] mr-3" />
+                        <span>My Purchases</span>
+                      </Button>
+                      <Button variant="ghost" className="w-full justify-start text-sm text-white hover:bg-[#0056D2]/20 rounded-md p-2.5">
+                        <Package size={16} className="text-[#BB86FC] mr-3" />
+                        <span>My Products</span>
+                      </Button>
+                    </div>
+                    
+                    <div className="w-full h-px bg-white/10 my-1"></div>
+                    
+                    <div className="px-1">
+                      <Button variant="ghost" className="w-full justify-start text-sm text-white hover:bg-[#0056D2]/20 rounded-md p-2.5">
+                        <Settings size={16} className="text-white/70 mr-3" />
+                        <span>Settings</span>
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        className="w-full justify-start text-sm text-white hover:bg-[#0056D2]/20 rounded-md p-2.5"
+                        onClick={toggleLoggedIn}
+                      >
+                        <LogOut size={16} className="text-red-400 mr-3" />
+                        <span>Log out</span>
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
               
               {/* Floating Action Button - for quick selling */}
               <div className="hidden lg:flex">
@@ -300,31 +324,31 @@ export default function Navbar() {
             className="md:hidden bg-[#0A0A23]/95 backdrop-blur-lg overflow-hidden"
           >
             <nav className="container mx-auto px-4 py-4 flex flex-col space-y-3">
-              <Link href="/" onClick={() => setShowMobileMenu(false)} className="py-2 px-4 rounded-lg hover:bg-white/5">
+              <Link href="/" onClick={() => setShowMobileMenu(false)} className="py-2 px-4 rounded-lg hover:bg-white/5 text-white">
                 Home
               </Link>
-              <Link href="/explore" onClick={() => setShowMobileMenu(false)} className="py-2 px-4 rounded-lg hover:bg-white/5">
+              <Link href="/explore" onClick={() => setShowMobileMenu(false)} className="py-2 px-4 rounded-lg hover:bg-white/5 text-white">
                 Explore
               </Link>
-              <Link href="/buy" onClick={() => setShowMobileMenu(false)} className="py-2 px-4 rounded-lg hover:bg-white/5">
+              <Link href="/buy" onClick={() => setShowMobileMenu(false)} className="py-2 px-4 rounded-lg hover:bg-white/5 text-white">
                 Buy
               </Link>
-              <Link href="/sell" onClick={() => setShowMobileMenu(false)} className="py-2 px-4 rounded-lg hover:bg-white/5">
+              <Link href="/sell" onClick={() => setShowMobileMenu(false)} className="py-2 px-4 rounded-lg hover:bg-white/5 text-white">
                 Sell
               </Link>
               {isLoggedIn && (
                 <>
                   <div className="w-full h-px bg-white/10 my-2"></div>
-                  <Link href="/profile" onClick={() => setShowMobileMenu(false)} className="py-2 px-4 rounded-lg hover:bg-white/5 flex items-center gap-3">
+                  <Link href="/profile" onClick={() => setShowMobileMenu(false)} className="py-2 px-4 rounded-lg hover:bg-white/5 flex items-center gap-3 text-white">
                     <User size={16} /> My Profile
                   </Link>
-                  <Link href="/purchases" onClick={() => setShowMobileMenu(false)} className="py-2 px-4 rounded-lg hover:bg-white/5 flex items-center gap-3">
+                  <Link href="/purchases" onClick={() => setShowMobileMenu(false)} className="py-2 px-4 rounded-lg hover:bg-white/5 flex items-center gap-3 text-white">
                     <ShoppingBag size={16} /> My Purchases
                   </Link>
-                  <Link href="/products" onClick={() => setShowMobileMenu(false)} className="py-2 px-4 rounded-lg hover:bg-white/5 flex items-center gap-3">
+                  <Link href="/products" onClick={() => setShowMobileMenu(false)} className="py-2 px-4 rounded-lg hover:bg-white/5 flex items-center gap-3 text-white">
                     <Package size={16} /> My Products
                   </Link>
-                  <Link href="/settings" onClick={() => setShowMobileMenu(false)} className="py-2 px-4 rounded-lg hover:bg-white/5 flex items-center gap-3">
+                  <Link href="/settings" onClick={() => setShowMobileMenu(false)} className="py-2 px-4 rounded-lg hover:bg-white/5 flex items-center gap-3 text-white">
                     <Settings size={16} /> Settings
                   </Link>
                 </>
@@ -342,7 +366,7 @@ export default function Navbar() {
             animate={{ scale: 1, opacity: 1 }}
             transition={{ type: "spring", stiffness: 260, damping: 20 }}
           >
-            <Button className="h-14 w-14 rounded-full shadow-lg bg-gradient-to-tr from-[#0056D2] to-[#00C49A] hover:shadow-[#0056D2]/20 hover:shadow-xl transition-all duration-300">
+            <Button className="h-14 w-14 rounded-full shadow-lg bg-gradient-to-tr from-[#0056D2] to-[#00C49A] hover:shadow-[#0056D2]/20 hover:shadow-xl transition-all duration-300 text-white">
               <Plus size={24} />
             </Button>
           </motion.div>
