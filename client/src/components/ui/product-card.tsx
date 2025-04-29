@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
-import { cn } from "@/lib/utils";
-import { Product } from "@shared/schema";
+import { cn } from "../../lib/utils";
+import { Product } from "../../../shared/schema";
 import { ChevronRight, Box, Code, Cpu, Rocket, Users, Mic, LucideIcon } from "lucide-react";
 
 // Function to render the icon based on iconName

@@ -5,7 +5,7 @@ import FeaturesSection from "../components/FeaturesSection";
 import CTASection from "../components/CTASection";
 import Footer from "../components/Footer";
 import { useQuery } from "@tanstack/react-query";
-import { Product } from "../../../shared/schema";
+import { Product } from "../../shared/schema";
 
 export default function Home() {
   const { data: products, isLoading } = useQuery<Product[]>({
