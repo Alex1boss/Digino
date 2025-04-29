@@ -41,8 +41,88 @@ export default function Sell() {
     },
     seoTitle: "",
     keywords: "",
-    metaDescription: ""
+    metaDescription: "",
+    files: [] as File[],
+    previewUrl: ""
   });
+  
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  
+  // Handle file selection
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      setSelectedFiles(Array.from(files));
+      setFormData(prev => ({
+        ...prev,
+        files: [...prev.files, ...Array.from(files)]
+      }));
+    }
+  };
+  
+  // Handle browse files button click
+  const handleBrowseClick = () => {
+    fileInputRef.current?.click();
+  };
+  
+  // Simulate file upload with progress
+  const simulateFileUpload = () => {
+    if (selectedFiles.length === 0) return;
+    
+    setIsUploading(true);
+    setUploadProgress(0);
+    
+    const interval = setInterval(() => {
+      setUploadProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          setIsUploading(false);
+          return 100;
+        }
+        return prev + 5;
+      });
+    }, 100);
+  };
+  
+  // Handle publishing
+  const handlePublish = () => {
+    setIsPublishing(true);
+    
+    // Simulate publishing process
+    setTimeout(() => {
+      setIsPublishing(false);
+      // Redirect to product page or show success message
+      setCurrentStep(SellingStep.Intro);
+      alert("Product published successfully!");
+    }, 2000);
+  };
+  
+  // Handle save draft
+  const handleSaveDraft = () => {
+    setIsSaving(true);
+    
+    // Simulate saving process
+    setTimeout(() => {
+      setIsSaving(false);
+      // Show success message
+      alert("Draft saved successfully!");
+    }, 1500);
+  };
+  
+  // Handle preview
+  const handlePreview = () => {
+    // Generate a preview URL (this would normally be a real URL)
+    const previewUrl = `/preview/${formData.title.toLowerCase().replace(/\s+/g, '-')}`;
+    setFormData(prev => ({ ...prev, previewUrl }));
+    
+    // Open preview in new tab (simulated)
+    alert(`Preview would open at: ${previewUrl}`);
+  };
   
   const handleBackToIntro = () => {
     setCurrentStep(SellingStep.Intro);
@@ -246,7 +326,16 @@ export default function Sell() {
               <div className="p-6 border border-dashed border-white/20 rounded-xl text-center">
                 <Upload className="mx-auto text-white/40 mb-3 w-10 h-10" />
                 <p className="text-white/60 mb-4">Drag and drop your product file or click to browse</p>
+                <input 
+                  type="file" 
+                  ref={fileInputRef}
+                  onChange={handleFileSelect}
+                  className="hidden"
+                  multiple
+                  accept=".pdf,.zip,.ai,.epub,.mp4"
+                />
                 <motion.button
+                  onClick={handleBrowseClick}
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
                   className="px-4 py-2 rounded-lg bg-white/10 text-white/80"
@@ -254,6 +343,55 @@ export default function Sell() {
                   Browse Files
                 </motion.button>
                 <p className="text-white/40 text-xs mt-3">Supported formats: PDF, ZIP, AI, EPUB, MP4 (max 1GB)</p>
+                
+                {selectedFiles.length > 0 && (
+                  <div className="mt-4">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-white/80 text-sm">{selectedFiles.length} file(s) selected</span>
+                      <button 
+                        onClick={() => setSelectedFiles([])}
+                        className="text-[#4F46E5] text-xs hover:underline"
+                      >
+                        Clear
+                      </button>
+                    </div>
+                    
+                    <div className="bg-white/5 rounded-lg p-3 text-left">
+                      {selectedFiles.map((file, index) => (
+                        <div key={index} className="flex items-center text-sm text-white/70 mb-1 last:mb-0">
+                          <span className="truncate flex-1">{file.name}</span>
+                          <span className="text-xs text-white/50 ml-2">
+                            {(file.size / 1024 / 1024).toFixed(2)} MB
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    {isUploading && (
+                      <div className="mt-3">
+                        <div className="flex justify-between text-xs text-white/70 mb-1">
+                          <span>Uploading...</span>
+                          <span>{uploadProgress}%</span>
+                        </div>
+                        <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-[#4F46E5] rounded-full transition-all duration-300 ease-in-out"
+                            style={{ width: `${uploadProgress}%` }}
+                          />
+                        </div>
+                      </div>
+                    )}
+                    
+                    {!isUploading && selectedFiles.length > 0 && (
+                      <button
+                        onClick={simulateFileUpload}
+                        className="mt-3 px-3 py-1.5 bg-[#4F46E5]/80 hover:bg-[#4F46E5] rounded-lg text-white text-sm"
+                      >
+                        Upload Files
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
               
               <div className="mt-8 flex justify-between">
