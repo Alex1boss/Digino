@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
-import Navbar from "@/components/Navbar";
+import Navbar from "../components/Navbar";
 import { ShoppingCart } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "../components/ui/button";
 
 export default function Buy() {
   return (

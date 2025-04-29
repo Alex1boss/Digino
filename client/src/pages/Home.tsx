@@ -1,11 +1,11 @@
-import Navbar from "@/components/Navbar";
-import HeroSection from "@/components/HeroSection";
-import ProductsSection from "@/components/ProductsSection";
-import FeaturesSection from "@/components/FeaturesSection";
-import CTASection from "@/components/CTASection";
-import Footer from "@/components/Footer";
+import Navbar from "../components/Navbar";
+import HeroSection from "../components/HeroSection";
+import ProductsSection from "../components/ProductsSection";
+import FeaturesSection from "../components/FeaturesSection";
+import CTASection from "../components/CTASection";
+import Footer from "../components/Footer";
 import { useQuery } from "@tanstack/react-query";
-import { Product } from "@shared/schema";
+import { Product } from "../../../shared/schema";
 
 export default function Home() {
   const { data: products, isLoading } = useQuery<Product[]>({
