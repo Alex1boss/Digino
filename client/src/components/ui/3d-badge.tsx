@@ -31,15 +31,15 @@ export function Badge3D({
   const rotateY = useSpring(useTransform(x, [-50, 50], [-5, 5]), springConfig);
   
   // Calculate lighting intensity based on mouse position
-  const lightingIntensity = useTransform(
-    [x, y],
-    ([latestX, latestY]) => {
-      const distance = Math.sqrt(
-        Math.pow(latestX / 100, 2) + Math.pow(latestY / 100, 2)
-      );
-      return 1 - Math.min(distance, 1);
-    }
-  );
+  const lightingIntensity = useMotionValue(0.5);
+  
+  // Update lighting intensity based on mouse position
+  const updateLightingIntensity = (mouseX: number, mouseY: number) => {
+    const distance = Math.sqrt(
+      Math.pow(mouseX / 100, 2) + Math.pow(mouseY / 100, 2)
+    );
+    lightingIntensity.set(1 - Math.min(distance, 1));
+  };
   
   // Shadow values
   const shadowX = useTransform(x, [-100, 100], [2, -2]);
@@ -52,8 +52,14 @@ export function Badge3D({
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
     
-    x.set(e.clientX - centerX);
-    y.set(e.clientY - centerY);
+    const mouseX = e.clientX - centerX;
+    const mouseY = e.clientY - centerY;
+    
+    x.set(mouseX);
+    y.set(mouseY);
+    
+    // Update lighting intensity
+    updateLightingIntensity(mouseX, mouseY);
   };
   
   return (
@@ -66,6 +72,7 @@ export function Badge3D({
         setHovering(false);
         x.set(0);
         y.set(0);
+        lightingIntensity.set(0.5);
       }}
       className={cn("relative inline-block", className)}
     >
@@ -78,11 +85,11 @@ export function Badge3D({
             ([latestX, latestY, intensity]) =>
               `0 0 10px ${glowColor}`
           ),
-          opacity: useTransform(
-            hovering ? lightingIntensity : 0,
+          opacity: hovering ? useTransform(
+            lightingIntensity,
             [0, 1],
             [0.1, 0.6]
-          ),
+          ) : 0,
         }}
       />
       
@@ -93,11 +100,9 @@ export function Badge3D({
           rotateX,
           rotateY,
           transformStyle: "preserve-3d",
-          boxShadow: useTransform(
-            hovering,
-            [false, true],
-            ["0 2px 5px rgba(0,0,0,0.1)", `0 4px 10px ${glowColor}`]
-          ),
+          boxShadow: hovering 
+            ? `0 4px 10px ${glowColor}` 
+            : "0 2px 5px rgba(0,0,0,0.1)",
           scale: useSpring(hovering ? 1.05 : 1, springConfig),
         }}
         whileTap={{ scale: 0.95 }}
