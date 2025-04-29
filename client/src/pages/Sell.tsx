@@ -4,10 +4,14 @@ import Navbar from "@/components/Navbar";
 import { 
   Tag, ChevronRight, ArrowRight, Upload, Wand, 
   DollarSign, Timer, Gift, FileCheck, Zap, Search,
-  CheckCircle, TrendingUp, Award, Rocket, Save, Eye
+  CheckCircle, TrendingUp, Award, Rocket, Save, Eye,
+  ShieldCheck, Calendar, AlertCircle, Sparkles
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ProductForm3D from "@/components/ProductForm3D";
+import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 
 // Enum to track the steps of the selling process
 enum SellingStep {
@@ -685,7 +689,7 @@ export default function Sell() {
                 <div className="flex items-center justify-between">
                   <label className="block text-white/80 font-medium pl-1">SEO Title</label>
                   <div className="flex items-center bg-[#4F46E5]/10 rounded-full px-3 py-1">
-                    <MagicWand className="text-[#4F46E5] w-3 h-3 mr-1" />
+                    <Wand className="text-[#4F46E5] w-3 h-3 mr-1" />
                     <span className="text-xs text-white/70">Auto-Generated</span>
                   </div>
                 </div>
@@ -713,7 +717,7 @@ export default function Sell() {
                     style={{ boxShadow: "inset 0 2px 4px rgba(0, 0, 0, 0.1)" }}
                   />
                   <div className="absolute right-3 top-3">
-                    <MagicWand className="text-[#4F46E5] w-5 h-5" />
+                    <Wand className="text-[#4F46E5] w-5 h-5" />
                   </div>
                 </div>
                 <p className="text-white/50 text-xs pl-1">Separate keywords with commas</p>
