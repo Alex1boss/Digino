@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { ProductCard } from "./ui/product-card";
-import { Product } from "../../shared/schema";
+import { Product } from "../../../shared/schema";
 import { Skeleton } from "./ui/skeleton";
 import { staggerContainer } from "../lib/utils";
 import { Button } from "./ui/button";
