@@ -99,6 +99,35 @@ export default function Sell() {
     
     setIsPublishing(true);
     
+    // Create a random icon for the product
+    const iconOptions = ["Zap", "Code", "FileText", "BarChart2", "PieChart", "Database", "Cloud", "Layers"];
+    const randomIcon = iconOptions[Math.floor(Math.random() * iconOptions.length)];
+    
+    // Create a new product object
+    const newProduct = {
+      id: Date.now(),
+      name: formData.title || "Untitled Product",
+      description: formData.description || "No description provided",
+      price: parseFloat(formData.price) || 29.99,
+      currency: "USD",
+      category: formData.category || "Digital Assets",
+      rating: 0,
+      reviews: 0,
+      sales: 0,
+      coverImage: "/path/to/placeholder.jpg",
+      author: {
+        id: 1,
+        name: "Current User",
+        avatar: "/avatar.jpg"
+      },
+      createdAt: new Date().toISOString(),
+      iconName: randomIcon,
+    };
+    
+    // Add product to local storage for persistence between page reloads
+    const existingProducts = JSON.parse(localStorage.getItem('products') || '[]');
+    localStorage.setItem('products', JSON.stringify([...existingProducts, newProduct]));
+    
     // Simulate publishing process
     setTimeout(() => {
       setIsPublishing(false);
@@ -127,6 +156,29 @@ export default function Sell() {
         toast.style.opacity = '0';
         setTimeout(() => document.body.removeChild(toast), 300);
       }, 2000);
+      
+      // Reset form data after successful publish
+      setFormData({
+        title: "",
+        description: "",
+        category: "",
+        price: "",
+        discountPrice: "",
+        discountEndsAt: "",
+        bonusContent: false,
+        licenses: { personal: true, commercial: false, extended: false },
+        keywords: "",
+        metaDescription: "",
+        seoTitle: "",
+        files: [],
+        previewUrl: "",
+        productLink: ""
+      });
+      
+      // Reload the page to see the new product in the product list
+      setTimeout(() => {
+        window.location.href = "/explore";
+      }, 2500);
     }, 2000);
   };
   
@@ -138,6 +190,17 @@ export default function Sell() {
     }
     
     setIsSaving(true);
+    
+    // Save the current form data to localStorage as a draft
+    const draft = {
+      id: `draft-${Date.now()}`,
+      date: new Date().toISOString(),
+      data: formData
+    };
+    
+    // Get existing drafts and add this one
+    const existingDrafts = JSON.parse(localStorage.getItem('productDrafts') || '[]');
+    localStorage.setItem('productDrafts', JSON.stringify([...existingDrafts, draft]));
     
     // Simulate saving process
     setTimeout(() => {
@@ -1143,10 +1206,10 @@ export default function Sell() {
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <motion.button
-                  onClick={handlePublish}
+                  onClick={(e) => handlePublish(e)}
                   disabled={isPublishing}
                   whileHover={{ scale: isPublishing ? 1 : 1.03, boxShadow: isPublishing ? "none" : "0 5px 15px rgba(79, 70, 229, 0.2)" }}
-                  className="flex flex-col items-center justify-center p-6 border border-[#4F46E5] rounded-xl bg-gradient-to-b from-[#4F46E5]/10 to-transparent relative"
+                  className="flex flex-col items-center justify-center p-6 border border-[#4F46E5] rounded-xl bg-gradient-to-b from-[#4F46E5]/10 to-transparent relative cursor-pointer"
                 >
                   {isPublishing && (
                     <div className="absolute inset-0 flex items-center justify-center bg-[#4F46E5]/10 backdrop-blur-sm rounded-xl">
@@ -1159,10 +1222,10 @@ export default function Sell() {
                 </motion.button>
                 
                 <motion.button
-                  onClick={handleSaveDraft}
+                  onClick={(e) => handleSaveDraft(e)}
                   disabled={isSaving}
                   whileHover={{ scale: isSaving ? 1 : 1.03, boxShadow: isSaving ? "none" : "0 5px 15px rgba(255, 255, 255, 0.05)" }}
-                  className="flex flex-col items-center justify-center p-6 border border-white/10 rounded-xl relative"
+                  className="flex flex-col items-center justify-center p-6 border border-white/10 rounded-xl relative cursor-pointer"
                 >
                   {isSaving && (
                     <div className="absolute inset-0 flex items-center justify-center bg-white/5 backdrop-blur-sm rounded-xl">
@@ -1175,9 +1238,9 @@ export default function Sell() {
                 </motion.button>
                 
                 <motion.button
-                  onClick={handlePreview}
+                  onClick={(e) => handlePreview(e)}
                   whileHover={{ scale: 1.03, boxShadow: "0 5px 15px rgba(255, 255, 255, 0.05)" }}
-                  className="flex flex-col items-center justify-center p-6 border border-white/10 rounded-xl"
+                  className="flex flex-col items-center justify-center p-6 border border-white/10 rounded-xl cursor-pointer"
                 >
                   <Eye className="text-white/80 mb-3 w-8 h-8" />
                   <h3 className="text-white font-medium mb-1">Preview</h3>
@@ -1196,9 +1259,9 @@ export default function Sell() {
                 </motion.button>
                 
                 <motion.button
-                  onClick={handlePublish}
+                  onClick={(e) => handlePublish(e)}
                   disabled={isPublishing}
-                  className="px-8 py-3 rounded-xl bg-gradient-to-r from-[#4F46E5] to-[#6366F1] text-white font-medium relative overflow-hidden"
+                  className="px-8 py-3 rounded-xl bg-gradient-to-r from-[#4F46E5] to-[#6366F1] text-white font-medium relative overflow-hidden cursor-pointer"
                   whileHover={{ 
                     scale: isPublishing ? 1 : 1.03,
                     boxShadow: isPublishing ? "none" : "0 0 20px rgba(79, 70, 229, 0.5)" 
