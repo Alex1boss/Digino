@@ -233,10 +233,12 @@ export default function Navbar() {
                     <div className="w-full h-px bg-white/10 my-1"></div>
                     
                     <div className="px-1">
-                      <Button variant="ghost" className="w-full justify-start text-sm text-white hover:bg-[#0056D2]/20 rounded-md p-2.5">
-                        <User size={16} className="text-[#0056D2] mr-3" />
-                        <span>My Profile</span>
-                      </Button>
+                      <Link href="/profile">
+                        <Button variant="ghost" className="w-full justify-start text-sm text-white hover:bg-[#0056D2]/20 rounded-md p-2.5">
+                          <User size={16} className="text-[#0056D2] mr-3" />
+                          <span>My Profile</span>
+                        </Button>
+                      </Link>
                       <Button variant="ghost" className="w-full justify-start text-sm text-white hover:bg-[#0056D2]/20 rounded-md p-2.5">
                         <ShoppingBag size={16} className="text-[#00C49A] mr-3" />
                         <span>My Purchases</span>

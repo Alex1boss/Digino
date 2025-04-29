@@ -7,7 +7,7 @@ import NotFound from "./pages/not-found";
 import Home from "./pages/Home";
 import Buy from "./pages/Buy";
 import Sell from "./pages/Sell";
-import Profile from "./pages/Profile";
+import Profile3D from "./pages/Profile3D";
 import BottomNav from "./components/BottomNav";
 
 function Router() {
@@ -18,7 +18,7 @@ function Router() {
       <Route path="/explore" component={Home} />
       <Route path="/buy" component={Buy} />
       <Route path="/sell" component={Sell} />
-      <Route path="/profile" component={Profile} />
+      <Route path="/profile" component={Profile3D} />
       <Route component={NotFound} />
     </Switch>
   );

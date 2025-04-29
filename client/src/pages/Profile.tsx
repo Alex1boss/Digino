@@ -10,8 +10,8 @@ import {
   MapPin, 
   Globe, 
   Twitter, 
+  Linkedin, 
   Instagram, 
-  LinkedIn, 
   Gift, 
   Shield, 
   Award, 
@@ -31,15 +31,30 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ProductCard } from "@/components/ui/product-card";
+import { ProductCard } from "@/components/ui/ProductCard";
 import { useQuery } from "@tanstack/react-query";
 import { type Product } from "@/schema";
 import { cn } from "@/lib/utils";
+import { Card3D } from "@/components/ui/3d-card";
+import { Avatar3D } from "@/components/ui/3d-avatar";
+import { Badge3D } from "@/components/ui/3d-badge";
+import { StatsCard3D } from "@/components/ui/3d-stats-card";
 
 export default function Profile() {
   const [isFollowing, setIsFollowing] = useState(false);
-  const [progressValue, setProgressValue] = useState(72);
+  const [progressValue, setProgressValue] = useState(0);
   const [activeTab, setActiveTab] = useState("products");
+  const profileRef = useRef<HTMLDivElement>(null);
+  
+  // For parallax scrolling effect
+  const { scrollYProgress } = useScroll({
+    target: profileRef,
+    offset: ["start start", "end start"]
+  });
+  
+  const headerY = useTransform(scrollYProgress, [0, 1], [0, -50]);
+  const headerOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
+  const contentY = useTransform(scrollYProgress, [0, 1], [0, 50]);
 
   // Animate progress bar on load
   useEffect(() => {
@@ -89,35 +104,110 @@ export default function Profile() {
   const userSaved = products.slice(1, 4);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0A0A1E] to-[#0B0B2E] text-white">
-      {/* Header with background gradient */}
-      <div className="h-48 md:h-72 bg-gradient-to-r from-[#0056D2]/20 to-[#00C49A]/20 relative">
-        <div className="absolute inset-0 bg-[url('/profile-header-pattern.svg')] bg-cover bg-center opacity-20"></div>
+    <div className="min-h-screen bg-gradient-to-b from-[#0A0A1E] to-[#0B0B2E] text-white" ref={profileRef}>
+      {/* Animated Background Elements - 3D Feel */}
+      <div className="fixed inset-0 z-0 overflow-hidden">
+        <motion.div 
+          className="absolute -top-[30%] -left-[20%] w-[70%] h-[70%] rounded-full bg-gradient-to-br from-[#0056D2]/10 to-transparent blur-3xl"
+          animate={{
+            x: [0, 10, 0],
+            y: [0, 15, 0],
+            scale: [1, 1.05, 1],
+          }}
+          transition={{
+            duration: 15,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+        <motion.div 
+          className="absolute top-[40%] -right-[10%] w-[50%] h-[50%] rounded-full bg-gradient-to-br from-[#00C49A]/10 to-transparent blur-3xl"
+          animate={{
+            x: [0, -10, 0],
+            y: [0, -15, 0],
+            scale: [1, 1.08, 1],
+          }}
+          transition={{
+            duration: 18,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 2
+          }}
+        />
       </div>
 
-      <div className="container mx-auto px-4 md:px-6">
+      {/* Header with parallax effect */}
+      <motion.div 
+        className="h-64 md:h-80 bg-gradient-to-r from-[#0056D2]/30 to-[#00C49A]/30 relative"
+        style={{
+          y: headerY,
+          opacity: headerOpacity,
+        }}
+      >
+        <div className="absolute inset-0 bg-[url('/profile-header-pattern.svg')] bg-cover bg-center opacity-20"></div>
+        <motion.div 
+          className="absolute inset-0" 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.7 }}
+          transition={{ duration: 1 }}
+          style={{
+            background: "radial-gradient(circle at center, rgba(0,86,210,0.3) 0%, rgba(0,196,154,0.2) 60%, transparent 70%)"
+          }}
+        />
+        
+        {/* Floating 3D elements in header */}
+        <div className="absolute inset-0 overflow-hidden">
+          {[...Array(20)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute rounded-full bg-white"
+              style={{
+                width: Math.random() * 4 + 1,
+                height: Math.random() * 4 + 1,
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                opacity: Math.random() * 0.3 + 0.1,
+              }}
+              animate={{
+                y: [0, Math.random() * -20 - 10],
+                opacity: [Math.random() * 0.3 + 0.1, 0],
+              }}
+              transition={{
+                duration: Math.random() * 5 + 5,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: Math.random() * 5,
+              }}
+            />
+          ))}
+        </div>
+      </motion.div>
+
+      <motion.div 
+        className="container mx-auto px-4 md:px-6"
+        style={{
+          y: contentY,
+        }}
+      >
         {/* Profile Header Section */}
         <div className="relative -mt-24 md:-mt-32">
-          <div className="bg-[#131340] rounded-2xl shadow-xl border border-white/5 backdrop-blur-sm overflow-hidden">
+          <Card3D
+            className="mb-8"
+            glowClassName="from-[#0056D2]/20 via-[#00C49A]/20 to-transparent"
+          >
             <div className="p-6 md:p-8">
               <div className="flex flex-col md:flex-row gap-6 md:gap-10">
                 {/* Avatar and Basic Info */}
                 <div className="flex flex-col items-center md:items-start">
-                  {/* Avatar with glow effect */}
-                  <div className="relative">
-                    <div className="h-32 w-32 rounded-full bg-gradient-to-br from-[#0056D2] to-[#00C49A] flex items-center justify-center text-white text-5xl font-bold shadow-2xl border-4 border-[#131340]">
-                      {user.name.charAt(0)}
-                    </div>
-                    <div className="absolute -inset-1 bg-gradient-to-r from-[#0056D2] to-[#00C49A] rounded-full blur opacity-30 -z-10"></div>
-                    
-                    {/* Verified badge */}
-                    <div className="absolute bottom-0 right-0 bg-[#0056D2] h-8 w-8 rounded-full flex items-center justify-center border-2 border-[#131340]">
-                      <Shield size={16} className="text-white" />
-                    </div>
-                  </div>
+                  {/* 3D Avatar */}
+                  <Avatar3D 
+                    letter={user.name.charAt(0)} 
+                    size="xl" 
+                    verified={true} 
+                  />
 
                   <div className="mt-4 flex flex-col items-center md:items-start">
-                    <h1 className="text-2xl md:text-3xl font-bold">{user.name}</h1>
+                    <h1 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-white/80">{user.name}</h1>
                     <p className="text-[#00C49A] font-medium mb-1">@{user.username}</p>
                     <Badge variant="outline" className="bg-[#0056D2]/10 border-[#0056D2]/20 text-[#00C49A] px-3 py-1">
                       {user.role}
@@ -154,13 +244,13 @@ export default function Profile() {
                     </div>
                     <div className="flex items-center gap-2 text-white/70">
                       <Globe size={16} className="text-[#00C49A]" />
-                      <a href={\`https://\${user.website}\`} target="_blank" rel="noopener" className="hover:text-[#00C49A] transition-colors">
+                      <a href={`https://${user.website}`} target="_blank" rel="noopener" className="hover:text-[#00C49A] transition-colors">
                         {user.website}
                       </a>
                     </div>
                     <div className="flex items-center gap-2 text-white/70">
                       <Mail size={16} className="text-[#00C49A]" />
-                      <a href={\`mailto:\${user.email}\`} className="hover:text-[#00C49A] transition-colors">
+                      <a href={`mailto:${user.email}`} className="hover:text-[#00C49A] transition-colors">
                         {user.email}
                       </a>
                     </div>
@@ -172,29 +262,35 @@ export default function Profile() {
 
                   {/* Stats Cards */}
                   <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-6">
-                    <div className="bg-white/5 rounded-xl p-3 flex flex-col items-center justify-center border border-white/10">
-                      <span className="text-xl md:text-2xl font-bold">{user.stats.products}</span>
-                      <span className="text-xs text-white/60">Products</span>
-                    </div>
-                    <div className="bg-white/5 rounded-xl p-3 flex flex-col items-center justify-center border border-white/10">
-                      <span className="text-xl md:text-2xl font-bold">{user.stats.sold}</span>
-                      <span className="text-xs text-white/60">Sales</span>
-                    </div>
-                    <div className="bg-white/5 rounded-xl p-3 flex flex-col items-center justify-center border border-white/10">
-                      <span className="text-xl md:text-2xl font-bold">{user.stats.followers}</span>
-                      <span className="text-xs text-white/60">Followers</span>
-                    </div>
-                    <div className="bg-white/5 rounded-xl p-3 flex flex-col items-center justify-center border border-white/10">
-                      <span className="text-xl md:text-2xl font-bold">{user.stats.following}</span>
-                      <span className="text-xs text-white/60">Following</span>
-                    </div>
-                    <div className="bg-white/5 rounded-xl p-3 flex flex-col items-center justify-center border border-white/10">
-                      <div className="flex items-center">
-                        <span className="text-xl md:text-2xl font-bold">{user.stats.rating}</span>
-                        <Star size={16} className="text-yellow-400 ml-1" fill="currentColor" />
-                      </div>
-                      <span className="text-xs text-white/60">Rating</span>
-                    </div>
+                    <StatsCard3D
+                      title="Products"
+                      value={user.stats.products}
+                    />
+                    <StatsCard3D
+                      title="Sales"
+                      value={user.stats.sold}
+                      color="#00C49A"
+                    />
+                    <StatsCard3D
+                      title="Followers"
+                      value={user.stats.followers}
+                      color="#BB86FC"
+                    />
+                    <StatsCard3D
+                      title="Following"
+                      value={user.stats.following}
+                      color="#4F46E5"
+                    />
+                    <StatsCard3D
+                      title="Rating"
+                      value={
+                        <div className="flex items-center">
+                          <span>{user.stats.rating}</span>
+                          <Star size={16} className="text-yellow-400 ml-1" fill="currentColor" />
+                        </div>
+                      }
+                      color="#FFD700"
+                    />
                   </div>
                 </div>
 
@@ -217,10 +313,12 @@ export default function Profile() {
                   {/* Seller Badges */}
                   <div className="flex flex-col gap-3 mt-2">
                     {user.badges.map((badge, index) => (
-                      <div key={index} className="flex items-center gap-2 bg-[#1A1A3A] rounded-lg px-3 py-2 border border-white/5">
-                        <badge.icon size={18} style={{ color: badge.color }} />
-                        <span className="text-sm font-medium">{badge.name}</span>
-                      </div>
+                      <Badge3D
+                        key={index}
+                        icon={badge.icon}
+                        label={badge.name}
+                        color={badge.color}
+                      />
                     ))}
                   </div>
                 </div>
@@ -229,17 +327,23 @@ export default function Profile() {
               {/* Mobile Badges - visible only on mobile */}
               <div className="flex gap-2 mt-6 flex-wrap md:hidden">
                 {user.badges.map((badge, index) => (
-                  <div key={index} className="flex items-center gap-2 bg-[#1A1A3A] rounded-lg px-3 py-2 border border-white/5">
-                    <badge.icon size={18} style={{ color: badge.color }} />
-                    <span className="text-sm font-medium">{badge.name}</span>
-                  </div>
+                  <Badge3D
+                    key={index}
+                    icon={badge.icon}
+                    label={badge.name}
+                    color={badge.color}
+                  />
                 ))}
               </div>
             </div>
 
             {/* Seller Level Progress */}
             <div className="px-6 pb-6 md:px-8 md:pb-8 mt-4">
-              <div className="bg-[#1A1A3A] rounded-lg p-4 border border-white/5">
+              <Card3D
+                className="p-4"
+                bgClassName="bg-[#1A1A3A]/80 backdrop-blur-sm"
+                glowClassName="from-[#0056D2]/10 via-[#00C49A]/10 to-transparent"
+              >
                 <div className="flex justify-between mb-2">
                   <div>
                     <span className="text-[#00C49A] font-semibold">Level 4: Enterprise Seller</span>
@@ -250,14 +354,14 @@ export default function Profile() {
                     <p className="text-sm text-white/60">Points</p>
                   </div>
                 </div>
-                <Progress value={progressValue} className="h-2 bg-white/10" indicatorClassName="bg-gradient-to-r from-[#0056D2] to-[#00C49A]" />
-              </div>
+                <Progress value={progressValue} className="h-2 bg-white/10" />
+              </Card3D>
             </div>
-          </div>
+          </Card3D>
         </div>
 
         {/* Main Content Tabs */}
-        <div className="mt-8">
+        <div className="mt-8 pb-20">
           <Tabs defaultValue="products" onValueChange={setActiveTab} className="w-full">
             <TabsList className="bg-[#131340] border border-white/5 p-1 mb-6">
               <TabsTrigger value="products" className="flex gap-2 items-center data-[state=active]:bg-[#0056D2] data-[state=active]:text-white">
@@ -373,7 +477,7 @@ export default function Profile() {
                 </Button>
               </div>
 
-              <div className="bg-[#131340] rounded-2xl border border-white/5 overflow-hidden">
+              <Card3D className="overflow-hidden">
                 {user.activity.map((item, index) => (
                   <div key={index} className="flex items-center justify-between p-4 hover:bg-white/5 transition-colors border-b border-white/5 last:border-b-0">
                     <div className="flex items-center gap-4">
@@ -392,7 +496,7 @@ export default function Profile() {
                     </Link>
                   </div>
                 ))}
-              </div>
+              </Card3D>
             </TabsContent>
 
             {/* Stats Tab */}
@@ -406,7 +510,7 @@ export default function Profile() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Earnings Card */}
-                <div className="bg-[#131340] rounded-2xl border border-white/5 p-6">
+                <Card3D className="p-6">
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="font-bold text-lg">Monthly Earnings</h3>
                     <Button variant="ghost" size="sm" className="text-[#0056D2]">
@@ -433,10 +537,10 @@ export default function Profile() {
                       <div className="font-bold">$12,480</div>
                     </div>
                   </div>
-                </div>
+                </Card3D>
 
                 {/* Visitor Stats Card */}
-                <div className="bg-[#131340] rounded-2xl border border-white/5 p-6">
+                <Card3D className="p-6">
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="font-bold text-lg">Profile Visitors</h3>
                     <Button variant="ghost" size="sm" className="text-[#0056D2]">
@@ -463,10 +567,10 @@ export default function Profile() {
                       <div className="font-bold">28%</div>
                     </div>
                   </div>
-                </div>
+                </Card3D>
 
                 {/* Top Products Card */}
-                <div className="bg-[#131340] rounded-2xl border border-white/5 p-6">
+                <Card3D className="p-6">
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="font-bold text-lg">Top Products</h3>
                     <Button variant="ghost" size="sm" className="text-[#0056D2]">
@@ -481,7 +585,7 @@ export default function Profile() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="font-medium truncate">{product.name}</div>
-                          <div className="text-sm text-white/60">{product.sold} sales</div>
+                          <div className="text-sm text-white/60">{product.sold || Math.floor(Math.random() * 100) + 20} sales</div>
                         </div>
                         <div className="text-right">
                           <div className="font-bold">${product.price}</div>
@@ -490,10 +594,10 @@ export default function Profile() {
                       </div>
                     ))}
                   </div>
-                </div>
+                </Card3D>
 
                 {/* Customer Rating Card */}
-                <div className="bg-[#131340] rounded-2xl border border-white/5 p-6">
+                <Card3D className="p-6">
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="font-bold text-lg">Customer Ratings</h3>
                     <Button variant="ghost" size="sm" className="text-[#0056D2]">
@@ -516,18 +620,17 @@ export default function Profile() {
                           <Progress 
                             value={100 - (5 - star) * 20 - Math.floor(Math.random() * 10)} 
                             className="h-1.5 bg-white/10 flex-1" 
-                            indicatorClassName="bg-yellow-400" 
                           />
                         </div>
                       ))}
                     </div>
                   </div>
-                </div>
+                </Card3D>
               </div>
             </TabsContent>
           </Tabs>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
