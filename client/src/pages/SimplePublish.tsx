@@ -1,6 +1,18 @@
 import React, { useState } from "react";
 import Navbar from "../components/Navbar";
 import { useLocation } from "wouter";
+import { 
+  Zap, 
+  Code, 
+  BarChart2, 
+  Gift, 
+  FileText, 
+  Image, 
+  Music, 
+  Video, 
+  Package, 
+  BookOpen 
+} from "lucide-react";
 
 export default function SimplePublish() {
   const [_, setLocation] = useLocation();
@@ -9,6 +21,7 @@ export default function SimplePublish() {
     description: "",
     price: "29.99",
     category: "Digital Assets",
+    iconName: "Zap",
   });
   const [isPublishing, setIsPublishing] = useState(false);
 
@@ -19,7 +32,46 @@ export default function SimplePublish() {
 
   const handlePublish = () => {
     if (!formData.title || !formData.description) {
-      alert("Please fill out the title and description fields.");
+      // Create styled validation error message
+      const validationError = document.createElement('div');
+      validationError.style.position = 'fixed';
+      validationError.style.top = '50%';
+      validationError.style.left = '50%';
+      validationError.style.transform = 'translate(-50%, -50%)';
+      validationError.style.backgroundColor = '#f59e0b';
+      validationError.style.color = 'white';
+      validationError.style.padding = '20px';
+      validationError.style.borderRadius = '10px';
+      validationError.style.zIndex = '9999';
+      validationError.style.width = '90%';
+      validationError.style.maxWidth = '400px';
+      validationError.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+      validationError.style.textAlign = 'center';
+      
+      validationError.innerHTML = `
+        <h3 style="margin-top: 0; font-size: 18px; font-weight: bold;">Validation Error</h3>
+        <p style="margin-bottom: 20px;">Please fill out the title and description fields.</p>
+        <div>
+          <button style="padding: 8px 16px; background: white; color: #f59e0b; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">OK</button>
+        </div>
+      `;
+      
+      document.body.appendChild(validationError);
+      
+      const okButton = validationError.querySelector('button');
+      if (okButton) {
+        okButton.addEventListener('click', () => {
+          document.body.removeChild(validationError);
+        });
+      }
+      
+      // Auto-dismiss after 3 seconds
+      setTimeout(() => {
+        if (document.body.contains(validationError)) {
+          document.body.removeChild(validationError);
+        }
+      }, 3000);
+      
       return;
     }
 
@@ -45,7 +97,7 @@ export default function SimplePublish() {
           avatar: "/assets/avatar.jpg"
         },
         createdAt: new Date().toISOString(),
-        iconName: "Zap",
+        iconName: formData.iconName,
       };
 
       console.log("Product object created:", newProduct);
@@ -71,15 +123,101 @@ export default function SimplePublish() {
       console.log("Saving updated products to localStorage:", existingProducts);
       localStorage.setItem('products', JSON.stringify(existingProducts));
       
-      // Success message
-      alert("Product published successfully!");
+      // Success message - using a better approach than alert
+      const successMessage = document.createElement('div');
+      successMessage.style.position = 'fixed';
+      successMessage.style.top = '50%';
+      successMessage.style.left = '50%';
+      successMessage.style.transform = 'translate(-50%, -50%)';
+      successMessage.style.backgroundColor = '#4F46E5';
+      successMessage.style.color = 'white';
+      successMessage.style.padding = '20px';
+      successMessage.style.borderRadius = '10px';
+      successMessage.style.zIndex = '9999';
+      successMessage.style.width = '90%';
+      successMessage.style.maxWidth = '400px';
+      successMessage.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+      successMessage.style.textAlign = 'center';
       
-      // Trigger page reload to ensure updated data is shown in Explore page
-      window.location.href = "/#/explore";
-      window.location.reload();
+      successMessage.innerHTML = `
+        <h3 style="margin-top: 0; font-size: 18px; font-weight: bold;">Success!</h3>
+        <p style="margin-bottom: 20px;">Your product has been published successfully!</p>
+        <div>
+          <button style="padding: 8px 16px; background: white; color: #4F46E5; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">OK</button>
+        </div>
+      `;
+      
+      document.body.appendChild(successMessage);
+      
+      // Set up a timer to automatically navigate after showing success message
+      const redirectTimer = setTimeout(() => {
+        // Remove the message first
+        if (document.body.contains(successMessage)) {
+          document.body.removeChild(successMessage);
+        }
+        
+        // Then redirect to the explore page
+        window.location.href = "/#/explore";
+        window.location.reload(); 
+      }, 2000);
+      
+      // Allow manual dismissal with OK button
+      const okButton = successMessage.querySelector('button');
+      if (okButton) {
+        okButton.addEventListener('click', () => {
+          // Clear the automatic redirect timer
+          clearTimeout(redirectTimer);
+          
+          // Remove the message
+          document.body.removeChild(successMessage);
+          
+          // Immediately redirect
+          window.location.href = "/#/explore";
+          window.location.reload();
+        });
+      }
     } catch (error) {
       console.error("Error publishing product:", error);
-      alert("Failed to publish product. Please try again.");
+      
+      // Create styled error message
+      const errorMessage = document.createElement('div');
+      errorMessage.style.position = 'fixed';
+      errorMessage.style.top = '50%';
+      errorMessage.style.left = '50%';
+      errorMessage.style.transform = 'translate(-50%, -50%)';
+      errorMessage.style.backgroundColor = '#ef4444';
+      errorMessage.style.color = 'white';
+      errorMessage.style.padding = '20px';
+      errorMessage.style.borderRadius = '10px';
+      errorMessage.style.zIndex = '9999';
+      errorMessage.style.width = '90%';
+      errorMessage.style.maxWidth = '400px';
+      errorMessage.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+      errorMessage.style.textAlign = 'center';
+      
+      errorMessage.innerHTML = `
+        <h3 style="margin-top: 0; font-size: 18px; font-weight: bold;">Error</h3>
+        <p style="margin-bottom: 20px;">Failed to publish product. Please try again.</p>
+        <div>
+          <button style="padding: 8px 16px; background: white; color: #ef4444; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">OK</button>
+        </div>
+      `;
+      
+      document.body.appendChild(errorMessage);
+      
+      const okButton = errorMessage.querySelector('button');
+      if (okButton) {
+        okButton.addEventListener('click', () => {
+          document.body.removeChild(errorMessage);
+        });
+      }
+      
+      // Auto-dismiss after 5 seconds
+      setTimeout(() => {
+        if (document.body.contains(errorMessage)) {
+          document.body.removeChild(errorMessage);
+        }
+      }, 5000);
     } finally {
       setIsPublishing(false);
     }
@@ -143,6 +281,37 @@ export default function SimplePublish() {
                   <option value="Templates">Templates</option>
                   <option value="Graphics">Graphics</option>
                 </select>
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="block text-white/80 font-medium pl-1">Product Icon</label>
+              <div className="grid grid-cols-5 gap-3">
+                {[
+                  { name: "Zap", icon: <Zap className="h-6 w-6" /> },
+                  { name: "Code", icon: <Code className="h-6 w-6" /> },
+                  { name: "BarChart2", icon: <BarChart2 className="h-6 w-6" /> },
+                  { name: "Gift", icon: <Gift className="h-6 w-6" /> },
+                  { name: "FileText", icon: <FileText className="h-6 w-6" /> },
+                  { name: "Image", icon: <Image className="h-6 w-6" /> },
+                  { name: "Music", icon: <Music className="h-6 w-6" /> },
+                  { name: "Video", icon: <Video className="h-6 w-6" /> },
+                  { name: "Package", icon: <Package className="h-6 w-6" /> },
+                  { name: "BookOpen", icon: <BookOpen className="h-6 w-6" /> }
+                ].map((item) => (
+                  <button
+                    key={item.name}
+                    type="button"
+                    onClick={() => setFormData(prev => ({ ...prev, iconName: item.name }))}
+                    className={`flex items-center justify-center p-3 rounded-lg transition-all ${
+                      formData.iconName === item.name ? 
+                      "bg-[#4F46E5] text-white" : 
+                      "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
+                    }`}
+                  >
+                    {item.icon}
+                  </button>
+                ))}
               </div>
             </div>
             
