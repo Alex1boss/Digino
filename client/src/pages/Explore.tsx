@@ -38,6 +38,7 @@ import { Card3D } from "../components/ui/3d-card";
 import { Badge3D } from "../components/ui/3d-badge";
 import { StatsCard3D } from "../components/ui/3d-stats-card";
 import BottomNav from "../components/BottomNav";
+import ProductDetail from "../components/ui/ProductDetail";
 
 // Dynamic 3D category card
 const Category3DCard = ({ 
