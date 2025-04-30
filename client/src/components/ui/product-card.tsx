@@ -78,24 +78,30 @@ export function ProductCard({ product, index }: ProductCardProps) {
         "hover:shadow-[0_0_20px_rgba(3,218,197,0.1)]"
       )}
     >
-      {/* Product image/preview area (placeholder gradient) */}
+      {/* Product image/preview area (actual image or gradient fallback) */}
       <div 
         className="h-40 w-full bg-gradient-to-tr from-black to-[#2A2A2A] relative overflow-hidden"
         style={{ 
-          backgroundImage: `radial-gradient(circle at 50% 50%, ${accentColor}20, transparent 70%)`
+          backgroundImage: product.coverImage || product.imageUrl 
+            ? `url(${product.coverImage || product.imageUrl})` 
+            : `radial-gradient(circle at 50% 50%, ${accentColor}20, transparent 70%)`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
         }}
       >
-        {/* Product icon - centered and larger */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div 
-            className={cn(
-              "w-20 h-20 rounded-full flex items-center justify-center",
-              `text-[${accentColor}] bg-[${accentColor}]/10 backdrop-blur-sm`
-            )}
-          >
-            {renderIcon(product.iconName)}
+        {/* Icon only shown if no image is available */}
+        {!product.coverImage && !product.imageUrl && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div 
+              className={cn(
+                "w-20 h-20 rounded-full flex items-center justify-center",
+                `text-[${accentColor}] bg-[${accentColor}]/10 backdrop-blur-sm`
+              )}
+            >
+              {renderIcon(product.iconName)}
+            </div>
           </div>
-        </div>
+        )}
         
         {/* Action buttons */}
         <div className="absolute top-3 right-3 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">

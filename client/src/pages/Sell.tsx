@@ -244,7 +244,8 @@ export default function Sell() {
             rating: 0,
             reviews: 0,
             sales: 0,
-            coverImage: productImage || "/path/to/placeholder.jpg",
+            coverImage: productImage, // Use the actual image data URL
+            imageUrl: productImage,   // Add imageUrl field for compatibility
             author: {
               id: 1,
               name: "Current User",
