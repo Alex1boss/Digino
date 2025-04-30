@@ -69,6 +69,27 @@ export default function Sell() {
     }
   };
   
+  // Handle file drop
+  const handleFileDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const files = Array.from(e.dataTransfer.files);
+      setSelectedFiles(prev => [...prev, ...files]);
+      setFormData(prev => ({
+        ...prev,
+        files: [...prev.files, ...files]
+      }));
+    }
+  };
+  
+  // Handle file drag over
+  const handleFileDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+  
   // Handle browse files button click
   const handleBrowseClick = () => {
     fileInputRef.current?.click();
@@ -78,18 +99,60 @@ export default function Sell() {
   const handleProductImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file (JPEG, PNG, etc.)');
+        return;
+      }
+      
       const reader = new FileReader();
       reader.onload = (e) => {
         if (e.target?.result) {
-          setProductImage(e.target.result as string);
+          const imageDataUrl = e.target.result as string;
+          setProductImage(imageDataUrl);
           setFormData(prev => ({
             ...prev,
-            productImage: URL.createObjectURL(file)
+            productImage: imageDataUrl
+          }));
+        }
+      };
+      reader.onerror = () => {
+        alert('Error reading file. Please try again.');
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  
+  // Handle product image drop
+  const handleProductImageDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const file = e.dataTransfer.files[0];
+      if (!file.type.startsWith('image/')) {
+        alert('Please drop an image file (JPEG, PNG, etc.)');
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (e.target?.result) {
+          const imageDataUrl = e.target.result as string;
+          setProductImage(imageDataUrl);
+          setFormData(prev => ({
+            ...prev,
+            productImage: imageDataUrl
           }));
         }
       };
       reader.readAsDataURL(file);
     }
+  };
+  
+  // Handle product image drag over
+  const handleProductImageDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
   };
   
   // Handle product image button click
@@ -410,7 +473,11 @@ export default function Sell() {
               {/* Product Image Upload */}
               <div className="space-y-2">
                 <label className="block text-white/80 font-medium pl-1">Product Image</label>
-                <div className={`border-2 border-dashed border-white/20 rounded-lg ${productImage ? 'p-4' : 'p-8'} bg-white/5 relative text-center`}>
+                <div 
+                  className={`border-2 border-dashed border-white/20 rounded-lg ${productImage ? 'p-4' : 'p-8'} bg-white/5 relative text-center`}
+                  onDrop={handleProductImageDrop}
+                  onDragOver={handleProductImageDragOver}
+                >
                   {productImage ? (
                     <div className="relative">
                       <img 
@@ -474,7 +541,11 @@ export default function Sell() {
               {/* Product Files Upload */}
               <div className="space-y-2">
                 <label className="block text-white/80 font-medium pl-1">Product Files</label>
-                <div className="p-6 border border-dashed border-white/20 rounded-xl text-center">
+                <div 
+                  className="p-6 border border-dashed border-white/20 rounded-xl text-center"
+                  onDrop={handleFileDrop}
+                  onDragOver={handleFileDragOver}
+                >
                   <Upload className="mx-auto text-white/40 mb-3 w-10 h-10" />
                   <p className="text-white/60 mb-4">Drag and drop your product file or click to browse</p>
                   <input 
