@@ -1,5 +1,5 @@
 import { motion, useAnimation, useTransform, useScroll, AnimatePresence } from "framer-motion";
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Product } from "../schema";
 import { useQuery } from "@tanstack/react-query";
 import { getIconComponent } from "../schema";
@@ -272,7 +272,7 @@ const FeaturedProductCard = ({
                       boxShadow: `0 10px 30px ${colorSet.primary}30, inset 0 0 0 1px ${colorSet.primary}40`
                     }}
                   >
-                    <product.Icon className="w-14 h-14" style={{ color: colorSet.primary }} />
+                    {React.createElement(product.Icon, { className: "w-14 h-14", style: { color: colorSet.primary } })}
                   </div>
                 </div>
               </div>
@@ -387,7 +387,7 @@ const FeaturedProductCard = ({
           
           {/* Product Icon */}
           <div className="mb-3">
-            <product.Icon className="w-7 h-7 text-white mb-2" />
+            {React.createElement(product.Icon, { className: "w-7 h-7 text-white mb-2" })}
           </div>
           
           {/* Title with premium styling and hover effect - Bold, futuristic font */}
