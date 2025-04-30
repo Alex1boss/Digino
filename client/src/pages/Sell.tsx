@@ -493,7 +493,53 @@ export default function Sell() {
   const handleNextStep = () => {
     // Validate that at least 3 product images are uploaded before proceeding
     if (currentStep === SellingStep.BasicInfo && productImages.length < 3) {
-      alert('Please upload at least 3 product images before continuing');
+      // Create a stylish custom alert dialog
+      const alertDialog = document.createElement('div');
+      alertDialog.style.position = 'fixed';
+      alertDialog.style.top = '0';
+      alertDialog.style.left = '0';
+      alertDialog.style.width = '100%';
+      alertDialog.style.height = '100%';
+      alertDialog.style.backgroundColor = 'rgba(0, 0, 0, 0.75)';
+      alertDialog.style.display = 'flex';
+      alertDialog.style.justifyContent = 'center';
+      alertDialog.style.alignItems = 'center';
+      alertDialog.style.zIndex = '9999';
+      
+      const dialogContent = document.createElement('div');
+      dialogContent.style.backgroundColor = '#1A1A2E';
+      dialogContent.style.borderRadius = '12px';
+      dialogContent.style.padding = '24px';
+      dialogContent.style.width = '90%';
+      dialogContent.style.maxWidth = '400px';
+      dialogContent.style.textAlign = 'center';
+      dialogContent.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.3)';
+      
+      // Add validation message with an icon
+      dialogContent.innerHTML = `
+        <div style="margin-bottom: 16px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 16px;">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+          <h3 style="color: white; font-size: 18px; font-weight: 600; margin-bottom: 8px;">Image Requirement</h3>
+          <p style="color: rgba(255,255,255,0.7); font-size: 14px;">Please upload at least 3 product images before continuing.</p>
+        </div>
+        <button id="alert-ok-button" style="background: #4F46E5; color: white; border: none; border-radius: 8px; padding: 10px 20px; font-weight: 500; cursor: pointer; transition: all 0.2s ease;">OK</button>
+      `;
+      
+      alertDialog.appendChild(dialogContent);
+      document.body.appendChild(alertDialog);
+      
+      // Handle the OK button click
+      const okButton = document.getElementById('alert-ok-button');
+      if (okButton) {
+        okButton.addEventListener('click', () => {
+          document.body.removeChild(alertDialog);
+        });
+      }
+      
       return;
     }
     
@@ -732,18 +778,18 @@ export default function Sell() {
                 {/* Upload area - shown if under 15 images */}
                 {productImages.length < 15 && (
                   <div 
-                    className="border-2 border-dashed border-white/20 rounded-lg p-8 bg-white/5 relative text-center"
+                    className={`border-2 border-dashed ${productImages.length < 3 ? 'border-amber-400/70' : 'border-white/20'} rounded-lg p-8 ${productImages.length < 3 ? 'bg-amber-500/5' : 'bg-white/5'} relative text-center`}
                     onDrop={handleProductImageDrop}
                     onDragOver={handleProductImageDragOver}
                   >
-                    <Upload className="mx-auto text-white/30 mb-4 w-10 h-10" />
+                    <Upload className={`mx-auto ${productImages.length < 3 ? 'text-amber-400/70' : 'text-white/30'} mb-4 w-10 h-10`} />
                     <p className="text-white/70 text-center mb-2">
                       Drag and drop or click to upload your product images
                     </p>
-                    <p className="text-white/50 text-xs text-center mb-4">
+                    <p className={`${productImages.length < 3 ? 'text-amber-400' : 'text-white/50'} text-xs text-center mb-4 font-medium`}>
                       {productImages.length >= 3 
                         ? "You've met the minimum requirement of 3 images" 
-                        : `Please upload at least ${3 - productImages.length} more image${3 - productImages.length !== 1 ? 's' : ''}`}
+                        : `Required: Upload at least ${3 - productImages.length} more image${3 - productImages.length !== 1 ? 's' : ''}`}
                     </p>
                     
                     <input 
@@ -951,14 +997,28 @@ export default function Sell() {
                 
                 <motion.button
                   onClick={handleNextStep}
-                  className="px-8 py-3 rounded-xl bg-gradient-to-r from-[#4F46E5] to-[#6366F1] text-white font-medium relative overflow-hidden"
+                  disabled={currentStep === SellingStep.BasicInfo && productImages.length < 3}
+                  className={`px-8 py-3 rounded-xl ${
+                    currentStep === SellingStep.BasicInfo && productImages.length < 3 
+                      ? 'bg-gray-600/80 cursor-not-allowed' 
+                      : 'bg-gradient-to-r from-[#4F46E5] to-[#6366F1] cursor-pointer'
+                  } text-white font-medium relative overflow-hidden`}
                   whileHover={{ 
-                    scale: 1.03,
-                    boxShadow: "0 0 20px rgba(79, 70, 229, 0.5)" 
+                    scale: currentStep === SellingStep.BasicInfo && productImages.length < 3 ? 1 : 1.03,
+                    boxShadow: currentStep === SellingStep.BasicInfo && productImages.length < 3 ? 'none' : "0 0 20px rgba(79, 70, 229, 0.5)" 
                   }}
-                  whileTap={{ scale: 0.97 }}
+                  whileTap={{ scale: currentStep === SellingStep.BasicInfo && productImages.length < 3 ? 1 : 0.97 }}
                 >
-                  <span className="relative z-10">Continue</span>
+                  <span className="relative z-10 flex items-center">
+                    {currentStep === SellingStep.BasicInfo && productImages.length < 3 ? (
+                      <>
+                        <AlertCircle size={16} className="mr-2" />
+                        Upload Required Images
+                      </>
+                    ) : (
+                      "Continue"
+                    )}
+                  </span>
                 </motion.button>
               </div>
             </div>
