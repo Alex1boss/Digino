@@ -23,7 +23,8 @@ import {
   Layers,
   Grid3X3,
   ShoppingCart,
-  Heart
+  Heart,
+  X as XIcon
 } from "lucide-react";
 import { cn } from "../lib/utils";
 import { Button } from "../components/ui/button";
@@ -1620,7 +1621,7 @@ export default function Explore() {
                   className="p-2 bg-gray-800 rounded-full"
                   onClick={() => setSelectedProduct(null)}
                 >
-                  <X className="w-5 h-5" />
+                  <XIcon className="w-5 h-5" />
                 </button>
               </div>
               

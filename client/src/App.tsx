@@ -11,14 +11,16 @@ import Profile3D from "./pages/Profile3D";
 import ProfileEdit from "./pages/ProfileEdit";
 import UploadProduct from "./pages/UploadProduct";
 import SimplePublish from "./pages/SimplePublish";
+import ProductDetailPage from "./pages/ProductDetail";
 import BottomNav from "./components/BottomNav";
+import Explore from "./pages/Explore";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
-      {/* Reuse Home component for Explore path since we've merged them */}
-      <Route path="/explore" component={Home} />
+      <Route path="/explore" component={Explore} />
+      <Route path="/product/:id" component={ProductDetailPage} />
       <Route path="/buy" component={Buy} />
       <Route path="/sell" component={Sell} />
       <Route path="/profile" component={Profile3D} />
