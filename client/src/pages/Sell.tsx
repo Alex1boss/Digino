@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "../components/Navbar";
 import { 
-  Tag, ChevronRight, ArrowRight, Upload, Wand, 
+  Tag, ChevronRight, ArrowRight, Upload, Wand, X,
   DollarSign, Timer, Gift, FileCheck, Zap, Search,
   CheckCircle, TrendingUp, Award, Rocket, Save, Eye,
   ShieldCheck, Calendar, AlertCircle, Sparkles
