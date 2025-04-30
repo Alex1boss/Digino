@@ -5,7 +5,10 @@ import {
   Tag, ChevronRight, ArrowRight, Upload, Wand, X,
   DollarSign, Timer, Gift, FileCheck, Zap, Search,
   CheckCircle, TrendingUp, Award, Rocket, Save, Eye,
-  ShieldCheck, Calendar, AlertCircle, Sparkles
+  ShieldCheck, Calendar, AlertCircle, Sparkles,
+  Cpu, Code, BarChart, LayoutGrid, Layers, 
+  Palette, FileText, BookOpen, MessageSquare, 
+  Music, Video, Image, Database, Globe, Box
 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import ProductForm3D from "../components/ProductForm3D";
@@ -45,7 +48,8 @@ export default function Sell() {
     files: [] as File[],
     previewUrl: "",
     productLink: "",
-    productImage: "" // Added for product image
+    productImage: "", // Added for product image
+    iconName: "Zap" // Default icon name
   });
   
   const [isUploading, setIsUploading] = useState(false);
@@ -252,7 +256,7 @@ export default function Sell() {
               avatar: "/avatar.jpg"
             },
             createdAt: new Date().toISOString(),
-            iconName: "Zap",
+            iconName: formData.iconName || "Zap",
           };
           
           // Save to localStorage
@@ -813,6 +817,80 @@ export default function Sell() {
                   <div className="px-3 py-1.5 bg-white/5 rounded-full text-white/70 text-sm cursor-pointer hover:bg-[#4F46E5]/20 hover:text-white transition-all">Templates</div>
                   <div className="px-3 py-1.5 bg-white/5 rounded-full text-white/70 text-sm cursor-pointer hover:bg-[#4F46E5]/20 hover:text-white transition-all">E-Books</div>
                   <div className="px-3 py-1.5 bg-white/5 rounded-full text-white/70 text-sm cursor-pointer hover:bg-[#4F46E5]/20 hover:text-white transition-all">Courses</div>
+                </div>
+              </div>
+              
+              {/* Product Icon Selection */}
+              <div className="space-y-3 mt-6">
+                <label className="block text-white/80 font-medium pl-1">Select Product Icon</label>
+                <p className="text-white/60 text-xs pl-1 mb-2">
+                  Choose an icon that best represents your product. This icon will be displayed in product cards.
+                </p>
+                
+                <div className="grid grid-cols-5 md:grid-cols-8 gap-3">
+                  {[
+                    { name: "Zap", icon: <Zap /> },
+                    { name: "Cpu", icon: <Cpu /> },
+                    { name: "Code", icon: <Code /> },
+                    { name: "BarChart", icon: <BarChart /> },
+                    { name: "Layers", icon: <Layers /> },
+                    { name: "Box", icon: <Box /> },
+                    { name: "Rocket", icon: <Rocket /> },
+                    { name: "FileText", icon: <FileText /> },
+                    { name: "BookOpen", icon: <BookOpen /> },
+                    { name: "MessageSquare", icon: <MessageSquare /> },
+                    { name: "Palette", icon: <Palette /> },
+                    { name: "Globe", icon: <Globe /> },
+                    { name: "Database", icon: <Database /> },
+                    { name: "Music", icon: <Music /> },
+                    { name: "Video", icon: <Video /> },
+                    { name: "Image", icon: <Image /> }
+                  ].map((iconItem) => (
+                    <motion.div
+                      key={iconItem.name}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setFormData(prev => ({ ...prev, iconName: iconItem.name }))}
+                      className={`
+                        cursor-pointer h-14 flex items-center justify-center rounded-lg
+                        ${formData.iconName === iconItem.name 
+                          ? 'bg-[#4F46E5] text-white shadow-lg' 
+                          : 'bg-white/5 text-white/70 hover:bg-white/10'}
+                      `}
+                    >
+                      {React.cloneElement(iconItem.icon, { size: 24 })}
+                    </motion.div>
+                  ))}
+                </div>
+                
+                <div className="flex items-center mt-3 bg-white/5 rounded-lg p-3">
+                  <div className="w-10 h-10 rounded-full bg-[#4F46E5]/20 flex items-center justify-center mr-3">
+                    {(() => {
+                      switch (formData.iconName) {
+                        case "Zap": return <Zap className="text-[#4F46E5]" />;
+                        case "Cpu": return <Cpu className="text-[#4F46E5]" />;
+                        case "Code": return <Code className="text-[#4F46E5]" />;
+                        case "BarChart": return <BarChart className="text-[#4F46E5]" />;
+                        case "Layers": return <Layers className="text-[#4F46E5]" />;
+                        case "Box": return <Box className="text-[#4F46E5]" />;
+                        case "Rocket": return <Rocket className="text-[#4F46E5]" />;
+                        case "FileText": return <FileText className="text-[#4F46E5]" />;
+                        case "BookOpen": return <BookOpen className="text-[#4F46E5]" />;
+                        case "MessageSquare": return <MessageSquare className="text-[#4F46E5]" />;
+                        case "Palette": return <Palette className="text-[#4F46E5]" />;
+                        case "Globe": return <Globe className="text-[#4F46E5]" />;
+                        case "Database": return <Database className="text-[#4F46E5]" />;
+                        case "Music": return <Music className="text-[#4F46E5]" />;
+                        case "Video": return <Video className="text-[#4F46E5]" />;
+                        case "Image": return <Image className="text-[#4F46E5]" />;
+                        default: return <Zap className="text-[#4F46E5]" />;
+                      }
+                    })()}
+                  </div>
+                  <div>
+                    <p className="text-white/80 text-sm font-medium">Selected Icon: {formData.iconName}</p>
+                    <p className="text-white/50 text-xs">This icon will be used to represent your product in listings</p>
+                  </div>
                 </div>
               </div>
               
