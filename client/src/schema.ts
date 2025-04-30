@@ -53,6 +53,18 @@ export type ProductDB = typeof products.$inferSelect;
 
 export interface Product extends ProductDB {
   Icon: LucideIcon;
+  coverImage?: string;
+  imageUrl?: string;
+  createdAt?: string;
+  currency?: string;
+  rating?: number;
+  reviews?: number;
+  sales?: number;
+  author?: {
+    id: number;
+    name: string;
+    avatar: string;
+  };
 }
 
 // Function to get icon component based on name

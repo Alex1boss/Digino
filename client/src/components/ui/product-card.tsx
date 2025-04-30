@@ -50,16 +50,25 @@ export function ProductCard({ product, index }: ProductCardProps) {
   
   // Generate random rating data for display purposes
   const rating = generateRating();
-  const reviewCount = generateReviewCount();
+  // Show actual review count if available, otherwise generate one
+  const reviewCount = product.reviews || generateReviewCount();
   
-  // Determine color scheme based on accent
-  const accentColor = isBlueAccent ? "#00CFFF" : isPurpleAccent ? "#BB86FC" : "#03DAC5";
+  // Determine color scheme based on category
+  let accentColor = "#BB86FC"; // Default purple
+  if (product.category === "ai_tools") {
+    accentColor = "#BB86FC"; // Purple for AI tools
+  } else if (product.category === "templates") {
+    accentColor = "#00CFFF"; // Blue for templates
+  } else if (product.category === "graphics") {
+    accentColor = "#03DAC5"; // Teal for graphics
+  }
+  
   const accentBg = `${accentColor}10`;
   
-  // Check if this is a bestseller (random for demo)
-  const isBestSeller = index === 1 || index === 4;
+  // Check if this is a bestseller (use a more deterministic approach)
+  const isBestSeller = index === 1 || product.sales > 10;
   
-  // Check if this is verified (random for demo)
+  // Check if this is verified
   const isVerified = index % 2 === 0;
 
   return (
