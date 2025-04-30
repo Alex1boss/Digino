@@ -24,9 +24,15 @@ export default function ProductDetailPage() {
   const { data: product, isLoading } = useQuery({
     queryKey: ['/api/products', productId],
     queryFn: async () => {
-      const products = await apiRequest('/api/products') as Product[];
-      const product = products.find(p => p.id.toString() === productId);
-      return product as Product;
+      try {
+        const response = await fetch('/api/products');
+        const products = await response.json() as Product[];
+        const foundProduct = products.find(p => p.id?.toString() === productId);
+        return foundProduct || null;
+      } catch (error) {
+        console.error("Error fetching product details:", error);
+        return null;
+      }
     },
     enabled: !!productId
   });
@@ -115,8 +121,9 @@ export default function ProductDetailPage() {
   }
 
   const colors = getCategoryColors(product.category);
+  const productImage = product.coverImage || product.imageUrl || "";
   const images = [
-    product.coverImage || product.imageUrl, 
+    productImage, 
     ...dummyImages.slice(0, 4)
   ].filter(Boolean) as string[];
 

@@ -1186,7 +1186,8 @@ export default function Explore() {
                     style={{ perspective: "1200px" }}
                     onClick={() => {
                       console.log("Product wrapper clicked:", product.name);
-                      setSelectedProduct(product);
+                      // Navigate to product detail page instead of showing modal
+                      window.location.href = `/product/${product.id}`;
                     }}
                   >
                     {/* 3D product card with glassmorphism */}
@@ -1603,7 +1604,12 @@ export default function Explore() {
       
       {/* Debug button to test ProductDetail */}
       <button 
-        onClick={() => setSelectedProduct(sortedProducts[0])}
+        onClick={() => {
+          const firstProduct = sortedProducts[0];
+          if (firstProduct) {
+            window.location.href = `/product/${firstProduct.id}`;
+          }
+        }}
         className="fixed bottom-24 left-4 bg-blue-500 text-white px-4 py-2 rounded-full z-50 flex items-center gap-2"
       >
         <Search className="w-4 h-4" />
