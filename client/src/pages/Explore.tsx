@@ -1,5 +1,6 @@
 import { motion, useAnimation, useTransform, useScroll, AnimatePresence } from "framer-motion";
 import React, { useState, useEffect, useRef } from "react";
+import type { ElementType } from "react";
 import { Product } from "../schema";
 import { useQuery } from "@tanstack/react-query";
 import { getIconComponent } from "../schema";
@@ -41,6 +42,14 @@ import { Badge3D } from "../components/ui/3d-badge";
 import { StatsCard3D } from "../components/ui/3d-stats-card";
 import BottomNav from "../components/BottomNav";
 import ProductDetail from "../components/ui/ProductDetail";
+
+// Helper function to safely render icons from product
+function renderProductIcon(product: Product, props: React.ComponentProps<ElementType> = {}) {
+  return React.createElement(
+    product.Icon || Cpu, // Fallback to Cpu if Icon is undefined
+    props
+  );
+}
 
 // Dynamic 3D category card
 const Category3DCard = ({ 
@@ -272,7 +281,7 @@ const FeaturedProductCard = ({
                       boxShadow: `0 10px 30px ${colorSet.primary}30, inset 0 0 0 1px ${colorSet.primary}40`
                     }}
                   >
-                    {React.createElement(product.Icon, { className: "w-14 h-14", style: { color: colorSet.primary } })}
+                    {renderProductIcon(product, { className: "w-14 h-14", style: { color: colorSet.primary } })}
                   </div>
                 </div>
               </div>
@@ -387,7 +396,7 @@ const FeaturedProductCard = ({
           
           {/* Product Icon */}
           <div className="mb-3">
-            {React.createElement(product.Icon, { className: "w-7 h-7 text-white mb-2" })}
+            {renderProductIcon(product, { className: "w-7 h-7 text-white mb-2" })}
           </div>
           
           {/* Title with premium styling and hover effect - Bold, futuristic font */}
@@ -1262,7 +1271,7 @@ export default function Explore() {
                                 boxShadow: `0 20px 25px -5px ${gradient.glow}, 0 0 25px 0 rgba(0, 0, 0, 0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.1)`
                               }}
                             >
-                              {React.createElement(product.Icon, { className: "w-14 h-14 text-white pulse-animation" })}
+                              {renderProductIcon(product, { className: "w-14 h-14 text-white pulse-animation" })}
                             </motion.div>
                           )}
                         </div>
