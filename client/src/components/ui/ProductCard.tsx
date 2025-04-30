@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { cn } from "../../lib/utils";
 import { Product } from "../../schema";
+import { useLocation } from "wouter";
 import { 
   ChevronRight, 
   Box, 
@@ -18,6 +19,7 @@ interface ProductCardProps {
 
 export function ProductCard({ product, index }: ProductCardProps) {
   const isBlueAccent = index % 2 !== 0;
+  const [, setLocation] = useLocation();
 
   // Render the appropriate icon based on the iconName
   const renderIcon = () => {
@@ -92,15 +94,18 @@ export function ProductCard({ product, index }: ProductCardProps) {
       
       <p className="text-[#A0A0A0] text-sm mb-6 flex-grow">{product.description}</p>
       
-      <motion.a 
-        href={product.link} 
+      <motion.button 
+        onClick={() => {
+          console.log("Navigating to product:", product.id);
+          setLocation(`/product/${product.id}`);
+        }} 
         className="premium-button w-full text-center mt-auto flex items-center justify-center"
         whileHover={{ scale: 1.01 }}
         whileTap={{ scale: 0.98 }}
       >
-        <span>{product.ctaText}</span>
+        <span>{product.ctaText || "View Details"}</span>
         <ChevronRight className="w-4 h-4 ml-1" />
-      </motion.a>
+      </motion.button>
     </motion.div>
   );
 }

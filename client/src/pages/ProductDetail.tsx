@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils";
 
 export default function ProductDetailPage() {
   const [location, setLocation] = useLocation();
-  const productId = location.split("/").pop();
+  const productId = location.split("/").pop() || "";
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [liked, setLiked] = useState(false);
 
@@ -25,9 +25,30 @@ export default function ProductDetailPage() {
     queryKey: ['/api/products', productId],
     queryFn: async () => {
       try {
+        console.log("Fetching product details for ID:", productId);
+        
+        // First check if product exists in localStorage
+        try {
+          const storedProducts = JSON.parse(localStorage.getItem('products') || '[]');
+          const localProduct = storedProducts.find((p: any) => p.id?.toString() === productId);
+          
+          if (localProduct) {
+            console.log("Found product in localStorage:", localProduct);
+            // Add Icon property
+            import("../schema").then(({ getIconComponent }) => {
+              localProduct.Icon = getIconComponent(localProduct.iconName || "Zap");
+            });
+            return localProduct;
+          }
+        } catch (e) {
+          console.error("Error checking localStorage:", e);
+        }
+        
+        // Fallback to API if not found in localStorage
         const response = await fetch('/api/products');
         const products = await response.json() as Product[];
         const foundProduct = products.find(p => p.id?.toString() === productId);
+        console.log("Product from API:", foundProduct);
         return foundProduct || null;
       } catch (error) {
         console.error("Error fetching product details:", error);
@@ -120,7 +141,7 @@ export default function ProductDetailPage() {
     );
   }
 
-  const colors = getCategoryColors(product.category);
+  const colors = getCategoryColors(product?.category);
   const productImage = product.coverImage || product.imageUrl || "";
   const images = [
     productImage, 
