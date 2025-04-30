@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { Product } from "../schema";
 import { useQuery } from "@tanstack/react-query";
 import { getIconComponent } from "../schema";
+import { useLocation } from "wouter";
 import { ProductCard } from "../components/ui/product-card";
 import { 
   Search, 
@@ -556,6 +557,7 @@ export default function Explore() {
   const [view3D, setView3D] = useState(true);
   const [showMoreFilters, setShowMoreFilters] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [, setLocation] = useLocation();
   
   const heroRef = useRef<HTMLDivElement>(null);
   const bannerYPos = useTransform(
@@ -1185,9 +1187,9 @@ export default function Explore() {
                     className="group relative"
                     style={{ perspective: "1200px" }}
                     onClick={() => {
-                      console.log("Product wrapper clicked:", product.name);
-                      // Navigate to product detail page instead of showing modal
-                      window.location.href = `/product/${product.id}`;
+                      console.log("Product wrapper clicked:", product.name, product.id);
+                      // Navigate to product detail page using wouter
+                      setLocation(`/product/${product.id}`);
                     }}
                   >
                     {/* 3D product card with glassmorphism */}
