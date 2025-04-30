@@ -21,7 +21,9 @@ import {
   Sparkles,
   Zap,
   Layers,
-  Grid3X3
+  Grid3X3,
+  ShoppingCart,
+  Heart
 } from "lucide-react";
 import { cn } from "../lib/utils";
 import { Button } from "../components/ui/button";
@@ -147,7 +149,7 @@ const CreatorCard = ({
   );
 };
 
-// Featured product card with 3D hover effects
+// Ultra premium 3D product card with advanced effects
 const FeaturedProductCard = ({ 
   product, 
   index 
@@ -155,6 +157,24 @@ const FeaturedProductCard = ({
   product: Product; 
   index: number;
 }) => {
+  // Dynamic colors based on index for variety
+  const colors = [
+    { primary: "#BB86FC", secondary: "#4A0072", accent: "#3700B3" },
+    { primary: "#03DAC6", secondary: "#018786", accent: "#00B3A6" },
+    { primary: "#6200EE", secondary: "#3700B3", accent: "#5600E8" },
+    { primary: "#FF4D4D", secondary: "#CF2929", accent: "#FF0000" },
+    { primary: "#00CFFF", secondary: "#0099CC", accent: "#0088FF" },
+  ];
+  
+  const colorSet = colors[index % colors.length];
+  
+  // Realistic prices based on category and index
+  const premiumPrice = product.price || (39.99 + (index * 10));
+  
+  // Calculate rating with visual feedback
+  const rating = Math.min(5, 4.2 + (index % 3 === 0 ? 0.8 : index % 2 === 0 ? 0.4 : 0));
+  const ratingValue = rating.toFixed(1);
+  
   return (
     <motion.div
       initial={{ y: 50, opacity: 0 }}
@@ -166,139 +186,350 @@ const FeaturedProductCard = ({
         stiffness: 100
       }}
       whileHover={{ 
-        y: -10,
+        y: -15,
         rotateY: 5,
-        rotateX: 5,
-        scale: 1.02,
+        rotateX: 3,
+        scale: 1.03,
         transition: { duration: 0.2 }
       }}
-      className="bg-gradient-to-br from-[#191919] to-[#0f0f0f] rounded-2xl overflow-hidden shadow-xl relative group cursor-pointer"
-      style={{
-        boxShadow: '0 10px 30px rgba(0,0,0,0.3)'
-      }}
+      className="relative group cursor-pointer"
     >
-      {/* Header image with 3D depth effect */}
-      <div className="h-48 w-full relative overflow-hidden">
-        {/* Actual image */}
-        <div 
-          className="absolute inset-0 z-10 transition-transform duration-500 ease-out group-hover:scale-110"
-          style={{
-            backgroundImage: product.coverImage || product.imageUrl 
-              ? `url(${product.coverImage || product.imageUrl})` 
-              : 'none',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        >
-          {/* Fallback gradient and icon if no image */}
-          {!product.coverImage && !product.imageUrl && (
-            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-purple-900/30 to-blue-900/30">
-              <div className="rounded-full bg-purple-500/20 p-8">
-                <product.Icon className="w-12 h-12 text-purple-500" />
+      {/* Premium outer glow */}
+      <div 
+        className="absolute -inset-1 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-xl"
+        style={{ 
+          background: `linear-gradient(45deg, ${colorSet.primary}50, transparent, ${colorSet.secondary}50)`,
+          zIndex: 0
+        }}
+      ></div>
+      
+      {/* Card body */}
+      <div 
+        className="relative rounded-2xl overflow-hidden z-10 bg-gradient-to-br from-[#191919] to-[#0c0c0c]"
+        style={{
+          boxShadow: `0 20px 50px rgba(0,0,0,0.5), 0 1px 1px rgba(255,255,255,0.05), 0 -1px 1px rgba(0,0,0,0.8), inset 0 0 0 1px rgba(255,255,255,0.07)`
+        }}
+      >
+        {/* Glass reflection effect */}
+        <div className="absolute top-0 left-0 right-0 h-1/2 bg-gradient-to-b from-white/5 to-transparent pointer-events-none z-30"></div>
+        
+        {/* Header image with 3D depth and parallax effect */}
+        <div className="h-52 md:h-56 w-full relative overflow-hidden">
+          {/* Animated background particles */}
+          <div className="absolute inset-0 z-5 opacity-20">
+            <div className="absolute top-1/4 left-1/4 w-1 h-1 rounded-full bg-white animate-pulse"></div>
+            <div className="absolute top-3/4 left-2/3 w-2 h-2 rounded-full bg-white animate-ping" style={{ animationDuration: '3s' }}></div>
+            <div className="absolute top-1/2 left-1/3 w-1 h-1 rounded-full bg-white animate-ping" style={{ animationDuration: '5s' }}></div>
+            <div className="absolute top-1/3 left-3/4 w-2 h-2 rounded-full bg-white animate-pulse" style={{ animationDuration: '2.5s' }}></div>
+          </div>
+          
+          {/* Actual image with enhanced effects */}
+          <motion.div 
+            className="absolute inset-0 z-10"
+            whileHover={{ scale: 1.08 }}
+            transition={{ duration: 1, ease: "easeOut" }}
+            style={{
+              backgroundImage: product.coverImage || product.imageUrl 
+                ? `url(${product.coverImage || product.imageUrl})` 
+                : 'none',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              filter: 'contrast(1.1) saturate(1.2)'
+            }}
+          >
+            {/* Fallback gradient and icon if no image */}
+            {!product.coverImage && !product.imageUrl && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="relative">
+                  {/* Animated glow ring */}
+                  <div 
+                    className="absolute inset-0 rounded-full animate-ping opacity-20" 
+                    style={{ 
+                      background: `radial-gradient(circle, ${colorSet.primary}, transparent 70%)`,
+                      animationDuration: '3s'
+                    }}
+                  ></div>
+                  
+                  {/* Outer gradient ring */}
+                  <div 
+                    className="absolute -inset-3 rounded-full"
+                    style={{ 
+                      background: `radial-gradient(circle, ${colorSet.primary}30, transparent 70%)`,
+                      filter: 'blur(10px)'
+                    }}
+                  ></div>
+                  
+                  {/* Icon container */}
+                  <div 
+                    className="relative rounded-full p-8 backdrop-blur-md"
+                    style={{ 
+                      background: `linear-gradient(135deg, ${colorSet.primary}20, ${colorSet.secondary}10)`,
+                      boxShadow: `0 10px 30px ${colorSet.primary}30, inset 0 0 0 1px ${colorSet.primary}40`
+                    }}
+                  >
+                    <product.Icon className="w-14 h-14" style={{ color: colorSet.primary }} />
+                  </div>
+                </div>
+              </div>
+            )}
+          </motion.div>
+          
+          {/* Premium vignette and depth effects */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c0c] via-transparent to-transparent z-20 opacity-90"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-transparent z-20 opacity-40"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/20 z-20 opacity-30"></div>
+          
+          {/* Premium highlight edge */}
+          <div 
+            className="absolute top-0 left-0 right-0 h-1 z-30 opacity-80"
+            style={{ background: `linear-gradient(90deg, transparent, ${colorSet.primary}60, transparent)` }}
+          ></div>
+          
+          {/* Badges */}
+          <div className="absolute top-4 left-4 z-30 flex flex-col gap-2">
+            {/* Premium badge */}
+            {index % 3 === 0 && (
+              <Badge3D 
+                label="Premium" 
+                icon={Sparkles} 
+                color={colorSet.primary}
+                glowColor={colorSet.primary}
+              />
+            )}
+            
+            {/* Bestseller badge */}
+            {index % 5 === 0 && (
+              <Badge3D 
+                label="Bestseller" 
+                icon={Award} 
+                color="#FFD700"
+                glowColor="#FFD700"
+              />
+            )}
+          </div>
+          
+          {/* Hot/New labels */}
+          {(index % 4 === 0 || product.price && product.price > 50) && (
+            <div className="absolute top-4 right-4 z-30">
+              <Badge3D 
+                label={index % 2 === 0 ? "Hot 🔥" : "New ✨"} 
+                icon={index % 2 === 0 ? Zap : Sparkles} 
+                color={index % 2 === 0 ? "#FF4D4D" : "#00CFFF"}
+                glowColor={index % 2 === 0 ? "#FF4D4D" : "#00CFFF"}
+              />
+            </div>
+          )}
+          
+          {/* Sale tag if applicable */}
+          {index % 6 === 0 && (
+            <div className="absolute bottom-4 right-4 z-30">
+              <div className="bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 shadow-lg">
+                <span>SAVE 40%</span>
               </div>
             </div>
           )}
         </div>
         
-        {/* Overlay with depth effect */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0f0f0f] to-transparent z-20"></div>
-        
-        {/* Premium badge */}
-        {index % 3 === 0 && (
-          <div className="absolute top-4 left-4 z-30">
-            <Badge3D 
-              label="Premium" 
-              icon={Sparkles} 
-              glowColor="#BB86FC"
-            />
+        {/* Content with 3D layered effect */}
+        <div className="p-6 relative z-20">
+          {/* Floating particles effect */}
+          <div className="absolute inset-0 overflow-hidden opacity-20 pointer-events-none">
+            <div className="absolute top-1/4 left-1/3 w-1 h-1 rounded-full bg-white animate-pulse" style={{ animationDuration: '4s' }}></div>
+            <div className="absolute top-3/4 left-1/2 w-1 h-1 rounded-full bg-white animate-ping" style={{ animationDuration: '6s' }}></div>
           </div>
-        )}
-        
-        {/* Hot label */}
-        {index % 4 === 0 && (
-          <div className="absolute top-4 right-4 z-30">
-            <Badge3D 
-              label="Hot 🔥" 
-              icon={Zap} 
-              color="#FF4D4D"
-              glowColor="#FF4D4D"
-            />
-          </div>
-        )}
-      </div>
-      
-      {/* Content with 3D pop effect */}
-      <div className="p-5 relative z-20">
-        {/* Category */}
-        <div className="flex items-center gap-2 mb-3">
-          <Badge className="px-2 py-1 text-xs font-medium rounded-md bg-purple-500/10 text-purple-400 border-purple-500/20">
-            {product.category || "Digital Product"}
-          </Badge>
           
-          {/* Verified badge if applicable */}
-          {index % 2 === 0 && (
-            <Badge className="px-2 py-1 text-xs font-medium rounded-md bg-teal-500/10 text-teal-400 border-teal-500/20">
-              <Check className="w-3 h-3 mr-1" /> Verified
-            </Badge>
-          )}
-        </div>
-        
-        {/* Title with 3D pop effect on hover */}
-        <motion.h3 
-          className="text-xl font-semibold text-white mb-2 transition-transform"
-          whileHover={{ 
-            scale: 1.03,
-            transition: { duration: 0.2 }
-          }}
-        >
-          {product.name}
-        </motion.h3>
-        
-        {/* Description */}
-        <p className="text-gray-400 text-sm mb-4 line-clamp-2">{product.description}</p>
-        
-        {/* Creator info */}
-        <div className="flex items-center gap-2 mb-4">
-          <Avatar3D letter="C" size="sm" verified={index % 2 === 0} />
-          <span className="text-gray-300 text-sm">
-            by <span className="text-white">{product.author?.name || "Creator"}</span>
-          </span>
-        </div>
-        
-        {/* Rating and price */}
-        <div className="flex justify-between items-center">
-          <div className="flex items-center">
-            <div className="flex">
-              {[...Array(5)].map((_, i) => (
-                <Star 
-                  key={i} 
-                  className={`w-4 h-4 ${
-                    i < Math.ceil(4.5 - (index * 0.1)) 
-                      ? "text-yellow-400 fill-yellow-400" 
-                      : "text-gray-600"
-                  }`} 
-                />
-              ))}
+          {/* Category with visual embellishment */}
+          <div className="flex items-center gap-2 mb-3">
+            <div 
+              className="px-3 py-1 text-xs font-medium rounded-full flex items-center gap-1.5"
+              style={{
+                background: `${colorSet.primary}20`,
+                color: colorSet.primary,
+                border: `1px solid ${colorSet.primary}40`,
+                boxShadow: `0 2px 6px ${colorSet.primary}20`
+              }}
+            >
+              {product.category === "ai_tools" ? <Cpu className="w-3.5 h-3.5" /> : 
+               product.category === "templates" ? <Layers className="w-3.5 h-3.5" /> :
+               product.category === "graphics" ? <Box className="w-3.5 h-3.5" /> :
+               product.category === "Software" ? <Code className="w-3.5 h-3.5" /> :
+               <Tag className="w-3.5 h-3.5" />}
+              <span>{product.category || "Digital Product"}</span>
             </div>
-            <span className="text-gray-400 text-sm ml-2">{(4.5 - (index * 0.1)).toFixed(1)}</span>
+            
+            {/* Verified badge with premium styling */}
+            {index % 2 === 0 && (
+              <motion.div 
+                className="px-2 py-1 text-xs font-medium rounded-full flex items-center gap-1.5"
+                initial={{ opacity: 0.8 }}
+                whileHover={{ 
+                  opacity: 1,
+                  scale: 1.05,
+                  boxShadow: `0 0 10px ${colorSet.accent}40`,
+                  transition: { duration: 0.2 }
+                }}
+                style={{
+                  background: `rgba(13, 153, 255, 0.15)`,
+                  color: `#0D99FF`,
+                  border: `1px solid rgba(13, 153, 255, 0.3)`,
+                  boxShadow: `0 2px 5px rgba(13, 153, 255, 0.2)`
+                }}
+              >
+                <Check className="w-3 h-3" /> Verified
+              </motion.div>
+            )}
           </div>
           
-          <div className="text-white font-bold">
-            ${product.price || "29.99"}
+          {/* Title with premium styling and hover effect */}
+          <motion.h3 
+            className="text-xl font-bold mb-2"
+            style={{
+              background: `linear-gradient(90deg, #fff, ${colorSet.primary}80)`,
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              textShadow: `0 2px 10px ${colorSet.primary}30`
+            }}
+            whileHover={{ 
+              scale: 1.01,
+              textShadow: `0 2px 15px ${colorSet.primary}50`,
+              transition: { duration: 0.2 }
+            }}
+          >
+            {product.name}
+          </motion.h3>
+          
+          {/* Description with improved styling */}
+          <p className="mb-4 text-sm line-clamp-2" style={{ color: 'rgba(255,255,255,0.7)' }}>
+            {product.description}
+          </p>
+          
+          {/* Creator info with enhanced visuals */}
+          <div className="flex items-center gap-2 mb-4">
+            <Avatar3D letter={product.author?.name?.[0] || "C"} size="sm" verified={index % 2 === 0} />
+            <div className="flex flex-col">
+              <span className="text-sm text-white">
+                by <span className="font-medium" style={{ color: colorSet.primary }}>
+                  {product.author?.name || "Creator"}
+                </span>
+              </span>
+              <span className="text-xs text-gray-400">
+                {index % 2 === 0 ? "Top Seller" : "Featured Creator"}
+              </span>
+            </div>
           </div>
+          
+          {/* Divider with gradient */}
+          <div 
+            className="h-px w-full my-4 opacity-30"
+            style={{ 
+              background: `linear-gradient(90deg, transparent, ${colorSet.primary}80, transparent)` 
+            }}
+          ></div>
+          
+          {/* Stats row with enhanced styling */}
+          <div className="grid grid-cols-3 gap-2 mb-4">
+            {/* Rating */}
+            <div className="flex flex-col items-center justify-center p-2 rounded-lg bg-white/5">
+              <div className="flex items-center gap-0.5 mb-1">
+                {[...Array(5)].map((_, i) => (
+                  <Star 
+                    key={i} 
+                    className={`w-3 h-3 ${
+                      i < Math.floor(rating) 
+                        ? "text-yellow-400 fill-yellow-400" 
+                        : i < rating 
+                          ? "text-yellow-400 fill-yellow-400 opacity-50" 
+                          : "text-gray-600"
+                    }`} 
+                  />
+                ))}
+              </div>
+              <span className="text-xs text-gray-400">{ratingValue}</span>
+            </div>
+            
+            {/* Downloads/Sales */}
+            <div className="flex flex-col items-center justify-center p-2 rounded-lg bg-white/5">
+              <div className="text-sm font-medium text-white">
+                {product.sales || (100 + (index * 28))}
+              </div>
+              <span className="text-xs text-gray-400">Sales</span>
+            </div>
+            
+            {/* Reviews */}
+            <div className="flex flex-col items-center justify-center p-2 rounded-lg bg-white/5">
+              <div className="text-sm font-medium text-white">
+                {product.reviews || (12 + (index * 5))}
+              </div>
+              <span className="text-xs text-gray-400">Reviews</span>
+            </div>
+          </div>
+          
+          {/* Price and action section */}
+          <div className="flex items-center justify-between mt-2">
+            {/* Price with premium display */}
+            <div>
+              {index % 6 === 0 && (
+                <div className="text-sm text-gray-400 line-through mb-0.5">
+                  ${(premiumPrice * 1.4).toFixed(2)}
+                </div>
+              )}
+              <div className="flex items-baseline">
+                <span 
+                  className="text-2xl font-bold mr-1"
+                  style={{ 
+                    color: index % 6 === 0 ? '#FF4D4D' : 'white',
+                    textShadow: index % 6 === 0 ? '0 0 10px rgba(255,77,77,0.5)' : 'none' 
+                  }}
+                >
+                  ${premiumPrice.toFixed(2)}
+                </span>
+                <span className="text-xs text-gray-400 font-medium">USD</span>
+              </div>
+            </div>
+            
+            {/* Ultra premium 3D button with animations */}
+            <motion.button
+              className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium"
+              style={{
+                background: `linear-gradient(135deg, ${colorSet.primary}, ${colorSet.secondary})`,
+                boxShadow: `0 5px 15px ${colorSet.primary}40, inset 0 1px 1px rgba(255,255,255,0.3)`
+              }}
+              whileHover={{ 
+                scale: 1.05,
+                boxShadow: `0 8px 25px ${colorSet.primary}60, inset 0 1px 1px rgba(255,255,255,0.5)`,
+              }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <ShoppingCart className="w-4 h-4" />
+              <span>Add to Cart</span>
+            </motion.button>
+          </div>
+          
+          {/* View details button that appears on hover */}
+          <motion.div 
+            className="absolute left-0 right-0 -bottom-12 flex justify-center z-30"
+            initial={{ opacity: 0, y: -20 }}
+            whileHover={{ opacity: 1, y: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+          >
+            <motion.button
+              className="px-6 py-2.5 rounded-full backdrop-blur-md text-sm font-medium border"
+              style={{
+                background: `rgba(0,0,0,0.7)`,
+                borderColor: `${colorSet.primary}50`,
+                color: colorSet.primary,
+                boxShadow: `0 10px 25px rgba(0,0,0,0.5), 0 0 0 1px ${colorSet.primary}30`
+              }}
+              whileHover={{ 
+                scale: 1.05,
+                boxShadow: `0 15px 30px rgba(0,0,0,0.6), 0 0 0 1px ${colorSet.primary}50, 0 0 20px ${colorSet.primary}30`,
+              }}
+              whileTap={{ scale: 0.98 }}
+            >
+              View Details
+            </motion.button>
+          </motion.div>
         </div>
-        
-        {/* 3D Button that pops up on hover */}
-        <motion.div 
-          className="mt-4 w-full"
-          initial={{ y: 80, opacity: 0 }}
-          whileHover={{ y: 0, opacity: 1 }}
-          transition={{ type: "spring", stiffness: 300, damping: 20 }}
-        >
-          <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white rounded-lg py-2 font-medium">
-            View Product
-          </Button>
-        </motion.div>
       </div>
     </motion.div>
   );
@@ -523,84 +754,302 @@ export default function Explore() {
       </header>
       
       <main className="relative z-10 pt-28 pb-24">
-        {/* Hero Banner with 3D effects */}
+        {/* Ultra Premium Hero Banner with advanced 3D effects */}
         <motion.section 
           ref={heroRef}
-          className="relative bg-gradient-to-b from-[#11112233] to-transparent mb-12 overflow-hidden"
+          className="relative mb-12 overflow-hidden"
           style={{
             y: bannerYPos,
             scale: bannerScale,
             opacity: bannerOpacity
           }}
         >
-          <div className="container mx-auto px-4 py-12 relative z-10">
+          {/* Background geometric elements */}
+          <div className="absolute inset-0 z-0">
+            {/* Floating animated particles */}
+            {[...Array(15)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute rounded-full bg-white opacity-30"
+                style={{
+                  width: Math.random() * 6 + 2 + 'px',
+                  height: Math.random() * 6 + 2 + 'px',
+                  top: Math.random() * 100 + '%',
+                  left: Math.random() * 100 + '%',
+                  filter: 'blur(1px)'
+                }}
+                animate={{
+                  y: [0, -20, 0],
+                  opacity: [0.1, 0.3, 0.1]
+                }}
+                transition={{
+                  duration: 3 + Math.random() * 5,
+                  repeat: Infinity,
+                  repeatType: "reverse",
+                  delay: Math.random() * 2
+                }}
+              />
+            ))}
+            
+            {/* Radial background with color layers */}
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,#1A1A2E_0%,#000_70%)] opacity-90"></div>
+            
+            {/* Colorful gradient orbs */}
+            <motion.div 
+              className="absolute top-10 -left-20 w-96 h-96 rounded-full opacity-40"
+              style={{ 
+                background: "radial-gradient(circle, rgba(137, 61, 255, 0.6) 0%, rgba(137, 61, 255, 0) 70%)",
+                filter: "blur(60px)"
+              }}
+              animate={{
+                scale: [1, 1.2, 1],
+                x: [0, 20, 0],
+                opacity: [0.3, 0.5, 0.3]
+              }}
+              transition={{
+                duration: 8,
+                repeat: Infinity,
+                repeatType: "reverse"
+              }}
+            ></motion.div>
+            
+            <motion.div 
+              className="absolute bottom-0 right-0 w-80 h-80 rounded-full opacity-30"
+              style={{ 
+                background: "radial-gradient(circle, rgba(0, 207, 255, 0.6) 0%, rgba(0, 207, 255, 0) 70%)",
+                filter: "blur(60px)"
+              }}
+              animate={{
+                scale: [1, 1.1, 1],
+                x: [0, -20, 0],
+                opacity: [0.2, 0.4, 0.2]
+              }}
+              transition={{
+                duration: 10,
+                repeat: Infinity,
+                repeatType: "reverse",
+                delay: 2
+              }}
+            ></motion.div>
+            
+            {/* Grid lines for depth */}
+            <div 
+              className="absolute inset-0 opacity-10"
+              style={{
+                backgroundImage: `
+                  linear-gradient(to right, rgba(255,255,255,0.1) 1px, transparent 1px),
+                  linear-gradient(to bottom, rgba(255,255,255,0.1) 1px, transparent 1px)
+                `,
+                backgroundSize: '40px 40px'
+              }}
+            ></div>
+          </div>
+          
+          {/* Content container */}
+          <div className="container mx-auto px-4 py-20 md:py-28 relative z-10">
             <motion.div 
               className="max-w-4xl mx-auto text-center"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <motion.h1 
-                className="text-4xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white via-purple-400 to-blue-500"
-                animate={{ 
-                  textShadow: [
-                    "0 0 5px rgba(135, 61, 255, 0.3)", 
-                    "0 0 15px rgba(135, 61, 255, 0.5)", 
-                    "0 0 5px rgba(135, 61, 255, 0.3)"
-                  ]
-                }}
-                transition={{ 
-                  duration: 2,
-                  repeat: Infinity,
-                  repeatType: "mirror"
-                }}
-              >
-                Next-Gen Digital Marketplace
-              </motion.h1>
-              
-              <motion.p 
-                className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-              >
-                Discover premium AI tools, templates, and digital assets from top creators around the world.
-              </motion.p>
-              
+              {/* Premium floating text badge */}
               <motion.div
-                className="flex flex-wrap justify-center gap-4"
-                initial={{ opacity: 0, y: 20 }}
+                className="inline-block mb-6"
+                initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
+                transition={{ duration: 0.6, delay: 0.1 }}
               >
-                <Button 
-                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-full px-8 py-6 text-lg font-medium shadow-lg hover:shadow-purple-500/20"
-                  onClick={() => {
-                    // Scroll to products section
-                    document.getElementById('featured-products')?.scrollIntoView({ behavior: 'smooth' });
-                  }}
-                >
-                  <Sparkles className="mr-2 h-5 w-5" />
-                  Explore Products
-                </Button>
-                
-                <Button 
-                  className="bg-white/10 hover:bg-white/15 text-white rounded-full px-8 py-6 text-lg font-medium backdrop-blur-sm"
-                  onClick={() => setView3D(!view3D)}
-                >
-                  <Layers className="mr-2 h-5 w-5" />
-                  {view3D ? "2D View" : "3D View"}
-                </Button>
+                <div className="px-4 py-1.5 rounded-full backdrop-blur-md inline-flex items-center gap-2 border border-purple-500/30 bg-purple-500/10">
+                  <Sparkles className="w-4 h-4 text-purple-400" />
+                  <span className="text-sm font-medium bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400">
+                    Explore All Digital Products
+                  </span>
+                </div>
               </motion.div>
               
-              {/* Stats badges */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-12">
+              {/* Ultra premium main title with animated gradient */}
+              <div className="relative">
+                {/* Text shadow clone for glow effect */}
+                <motion.h1 
+                  className="absolute inset-0 text-4xl md:text-6xl lg:text-7xl font-bold mb-6 text-transparent opacity-50 blur-sm"
+                  style={{
+                    WebkitTextStroke: '1px rgba(255,255,255,0.1)',
+                  }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 0.5 }}
+                  transition={{ duration: 1, delay: 0.5 }}
+                >
+                  Next-Gen Digital Marketplace
+                </motion.h1>
+                
+                {/* Primary title with animated gradient */}
+                <motion.h1 
+                  className="relative text-4xl md:text-6xl lg:text-7xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white via-purple-400 to-blue-500"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ 
+                    opacity: 1, 
+                    y: 0,
+                    textShadow: [
+                      "0 0 8px rgba(135, 61, 255, 0.4)", 
+                      "0 0 16px rgba(135, 61, 255, 0.6)", 
+                      "0 0 8px rgba(135, 61, 255, 0.4)"
+                    ]
+                  }}
+                  transition={{ 
+                    opacity: { duration: 0.6 },
+                    y: { duration: 0.6 },
+                    textShadow: { 
+                      duration: 3,
+                      repeat: Infinity,
+                      repeatType: "reverse"
+                    }
+                  }}
+                >
+                  Next-Gen Digital Marketplace
+                </motion.h1>
+              </div>
+              
+              {/* Animated description with typing effect */}
+              <motion.div
+                className="h-16 md:h-10 overflow-hidden mb-10"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.6, delay: 0.7 }}
+              >
+                <motion.p 
+                  className="text-xl md:text-2xl text-gray-200 max-w-3xl mx-auto"
+                  initial={{ opacity: 0, y: 40 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.9 }}
+                >
+                  Discover premium AI tools, templates, and digital assets from top creators.
+                </motion.p>
+              </motion.div>
+              
+              {/* Interactive 3D buttons */}
+              <motion.div
+                className="flex flex-wrap justify-center gap-4 mb-16"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 1.1 }}
+              >
+                {/* Primary action button */}
+                <motion.div
+                  whileHover={{ 
+                    scale: 1.05,
+                    boxShadow: "0 0 40px rgba(137, 61, 255, 0.5)"
+                  }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <Button 
+                    className="relative overflow-hidden bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-full px-10 py-6 text-lg font-medium"
+                    onClick={() => {
+                      // Scroll to products section
+                      document.getElementById('featured-products')?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                  >
+                    {/* Animated particles inside button */}
+                    <div className="absolute inset-0 overflow-hidden opacity-30 pointer-events-none">
+                      {[...Array(5)].map((_, i) => (
+                        <motion.div
+                          key={i}
+                          className="absolute w-1 h-1 rounded-full bg-white"
+                          style={{
+                            top: Math.random() * 100 + '%',
+                            left: Math.random() * 100 + '%',
+                          }}
+                          animate={{
+                            y: [0, -20, 0],
+                            opacity: [0, 1, 0]
+                          }}
+                          transition={{
+                            duration: 1.5,
+                            repeat: Infinity,
+                            delay: Math.random()
+                          }}
+                        />
+                      ))}
+                    </div>
+                    
+                    {/* Button shine effect */}
+                    <motion.div 
+                      className="absolute inset-0 opacity-0"
+                      animate={{
+                        background: [
+                          "linear-gradient(45deg, transparent 25%, rgba(255,255,255,0.2) 50%, transparent 75%)",
+                          "linear-gradient(45deg, transparent 25%, rgba(255,255,255,0.2) 50%, transparent 75%)"
+                        ],
+                        backgroundSize: ["200% 200%", "200% 200%"],
+                        backgroundPosition: ["-200% -200%", "200% 200%"],
+                        opacity: [0.3, 0]
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        repeatDelay: 5
+                      }}
+                    />
+                    
+                    <Sparkles className="mr-2 h-5 w-5" />
+                    <span className="relative z-10">Explore Products</span>
+                  </Button>
+                </motion.div>
+                
+                {/* Secondary action button */}
+                <motion.div
+                  whileHover={{ 
+                    scale: 1.05,
+                    boxShadow: "0 0 25px rgba(255,255,255,0.15)"
+                  }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <Button 
+                    className="relative overflow-hidden backdrop-blur-lg bg-white/10 hover:bg-white/15 text-white rounded-full px-10 py-6 text-lg font-medium border border-white/10"
+                    onClick={() => setView3D(!view3D)}
+                  >
+                    {/* Animated glass reflection */}
+                    <motion.div 
+                      className="absolute inset-0 opacity-0"
+                      animate={{
+                        background: [
+                          "linear-gradient(45deg, transparent 0%, rgba(255,255,255,0.1) 25%, transparent 50%)",
+                          "linear-gradient(45deg, transparent 50%, rgba(255,255,255,0.1) 75%, transparent 100%)"
+                        ],
+                        backgroundSize: ["200% 200%", "200% 200%"],
+                        backgroundPosition: ["-100% -100%", "200% 200%"],
+                        opacity: [0.5, 0]
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        repeatDelay: 3
+                      }}
+                    />
+                    
+                    <Layers className="mr-2 h-5 w-5" />
+                    <span className="relative z-10">{view3D ? "2D View" : "3D View"}</span>
+                  </Button>
+                </motion.div>
+              </motion.div>
+              
+              {/* Premium stats cards with 3D effect and staggered animation */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                 {statsData.map((stat, index) => (
                   <motion.div
                     key={stat.title}
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.6 + (index * 0.1) }}
+                    transition={{ 
+                      type: "spring",
+                      stiffness: 100,
+                      damping: 12,
+                      delay: 1.3 + (index * 0.15)
+                    }}
+                    whileHover={{ 
+                      y: -10,
+                      transition: { type: "spring", stiffness: 300 }
+                    }}
                   >
                     <StatsCard3D 
                       title={stat.title}
@@ -614,10 +1063,54 @@ export default function Explore() {
             </motion.div>
           </div>
           
-          {/* Decorative elements */}
-          <div className="absolute top-0 left-0 w-full h-full opacity-70">
-            <div className="absolute top-10 left-10 w-72 h-72 rounded-full bg-purple-500/10 filter blur-[100px]"></div>
-            <div className="absolute bottom-10 right-10 w-72 h-72 rounded-full bg-blue-500/10 filter blur-[100px]"></div>
+          {/* Interactive 3D geometric shapes floating in background */}
+          <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+            {[...Array(5)].map((_, i) => {
+              const size = 100 + Math.random() * 150;
+              const xPos = Math.random() * 100;
+              const yPos = Math.random() * 100;
+              const delay = Math.random() * 2;
+              
+              return (
+                <motion.div
+                  key={i}
+                  className="absolute opacity-5"
+                  style={{
+                    width: size + 'px',
+                    height: size + 'px',
+                    top: yPos + '%',
+                    left: xPos + '%',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    borderRadius: i % 2 === 0 ? '30%' : '0%',
+                    transform: `rotate(${Math.random() * 360}deg)`
+                  }}
+                  animate={{
+                    rotate: 360,
+                    opacity: [0.03, 0.06, 0.03],
+                    scale: [1, 1.1, 1]
+                  }}
+                  transition={{
+                    rotate: { 
+                      duration: 20 + (i * 5), 
+                      repeat: Infinity, 
+                      ease: "linear" 
+                    },
+                    opacity: { 
+                      duration: 5 + (i * 2), 
+                      repeat: Infinity, 
+                      repeatType: "reverse",
+                      delay
+                    },
+                    scale: { 
+                      duration: 8 + (i * 3), 
+                      repeat: Infinity, 
+                      repeatType: "reverse",
+                      delay
+                    }
+                  }}
+                />
+              );
+            })}
           </div>
         </motion.section>
         
