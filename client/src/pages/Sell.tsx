@@ -5,7 +5,7 @@ import {
   Tag, ChevronRight, ArrowRight, Upload, Wand, X,
   DollarSign, Timer, Gift, FileCheck, Zap, Search,
   CheckCircle, TrendingUp, Award, Rocket, Save, Eye,
-  ShieldCheck, Calendar, AlertCircle, Sparkles,
+  ShieldCheck, Calendar, AlertCircle, AlertTriangle, Sparkles,
   Cpu, Code, BarChart, LayoutGrid, Layers, 
   Palette, FileText, BookOpen, MessageSquare, 
   Music, Video, Image, Database, Globe, Box
@@ -48,7 +48,7 @@ export default function Sell() {
     files: [] as File[],
     previewUrl: "",
     productLink: "",
-    productImage: "", // Added for product image
+    productImages: [] as string[], // Changed to array for multiple images
     iconName: "", // Default icon name
     customIcon: "" // Added for custom product icon
   });
@@ -58,7 +58,7 @@ export default function Sell() {
   const [isPublishing, setIsPublishing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [productImage, setProductImage] = useState<string | null>(null);
+  const [productImages, setProductImages] = useState<string[]>([]);
   const [productIcon, setProductIcon] = useState<string | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const productImageRef = React.useRef<HTMLInputElement>(null);
@@ -104,10 +104,22 @@ export default function Sell() {
   
   // Handle product image upload
   const handleProductImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    
+    // Check if we already have 15 images
+    if (productImages.length + files.length > 15) {
+      alert('You can upload a maximum of 15 images');
+      return;
+    }
+    
+    const imageFilesArray = Array.from(files);
+    const newImages: string[] = [];
+    let loadedImages = 0;
+    
+    imageFilesArray.forEach(file => {
       if (!file.type.startsWith('image/')) {
-        alert('Please select an image file (JPEG, PNG, etc.)');
+        alert('Please select image files only (JPEG, PNG, etc.)');
         return;
       }
       
@@ -115,18 +127,24 @@ export default function Sell() {
       reader.onload = (e) => {
         if (e.target?.result) {
           const imageDataUrl = e.target.result as string;
-          setProductImage(imageDataUrl);
-          setFormData(prev => ({
-            ...prev,
-            productImage: imageDataUrl
-          }));
+          newImages.push(imageDataUrl);
+          loadedImages++;
+          
+          if (loadedImages === imageFilesArray.length) {
+            const updatedImages = [...productImages, ...newImages];
+            setProductImages(updatedImages);
+            setFormData(prev => ({
+              ...prev,
+              productImages: updatedImages
+            }));
+          }
         }
       };
       reader.onerror = () => {
         alert('Error reading file. Please try again.');
       };
       reader.readAsDataURL(file);
-    }
+    });
   };
   
   // Handle product image drop
@@ -134,10 +152,22 @@ export default function Sell() {
     e.preventDefault();
     e.stopPropagation();
     
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      const file = e.dataTransfer.files[0];
+    const files = e.dataTransfer.files;
+    if (!files || files.length === 0) return;
+    
+    // Check if we already have 15 images
+    if (productImages.length + files.length > 15) {
+      alert('You can upload a maximum of 15 images');
+      return;
+    }
+    
+    const imageFilesArray = Array.from(files);
+    const newImages: string[] = [];
+    let loadedImages = 0;
+    
+    imageFilesArray.forEach(file => {
       if (!file.type.startsWith('image/')) {
-        alert('Please drop an image file (JPEG, PNG, etc.)');
+        alert('Please select image files only (JPEG, PNG, etc.)');
         return;
       }
       
@@ -145,15 +175,35 @@ export default function Sell() {
       reader.onload = (e) => {
         if (e.target?.result) {
           const imageDataUrl = e.target.result as string;
-          setProductImage(imageDataUrl);
-          setFormData(prev => ({
-            ...prev,
-            productImage: imageDataUrl
-          }));
+          newImages.push(imageDataUrl);
+          loadedImages++;
+          
+          if (loadedImages === imageFilesArray.length) {
+            const updatedImages = [...productImages, ...newImages];
+            setProductImages(updatedImages);
+            setFormData(prev => ({
+              ...prev,
+              productImages: updatedImages
+            }));
+          }
         }
       };
+      reader.onerror = () => {
+        alert('Error reading file. Please try again.');
+      };
       reader.readAsDataURL(file);
-    }
+    });
+  };
+  
+  // Handle removing a specific product image
+  const handleRemoveProductImage = (index: number) => {
+    const updatedImages = [...productImages];
+    updatedImages.splice(index, 1);
+    setProductImages(updatedImages);
+    setFormData(prev => ({
+      ...prev,
+      productImages: updatedImages
+    }));
   };
   
   // Handle product image drag over
@@ -318,8 +368,9 @@ export default function Sell() {
             rating: 0,
             reviews: 0,
             sales: 0,
-            coverImage: productImage, // Use the actual image data URL
-            imageUrl: productImage,   // Add imageUrl field for compatibility
+            coverImage: productImages.length > 0 ? productImages[0] : "", // Use the first image as cover
+            imageUrl: productImages.length > 0 ? productImages[0] : "",   // Add imageUrl field for compatibility
+            productImages: formData.productImages, // Store all product images
             author: {
               id: 1,
               name: "Current User",
@@ -440,6 +491,12 @@ export default function Sell() {
   };
   
   const handleNextStep = () => {
+    // Validate that at least 3 product images are uploaded before proceeding
+    if (currentStep === SellingStep.BasicInfo && productImages.length < 3) {
+      alert('Please upload at least 3 product images before continuing');
+      return;
+    }
+    
     setCurrentStep(currentStep + 1);
   };
   
@@ -634,70 +691,91 @@ export default function Sell() {
                 />
               </div>
               
-              {/* Product Image Upload */}
+              {/* Product Images Upload (3-15) */}
               <div className="space-y-2">
-                <label className="block text-white/80 font-medium pl-1">Product Image</label>
-                <div 
-                  className={`border-2 border-dashed border-white/20 rounded-lg ${productImage ? 'p-4' : 'p-8'} bg-white/5 relative text-center`}
-                  onDrop={handleProductImageDrop}
-                  onDragOver={handleProductImageDragOver}
-                >
-                  {productImage ? (
-                    <div className="relative">
-                      <img 
-                        src={productImage} 
-                        alt="Product preview" 
-                        className="max-h-[200px] mx-auto rounded-md object-contain"
-                      />
-                      <button
-                        type="button"
-                        className="absolute top-2 right-2 h-8 w-8 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center"
-                        onClick={() => {
-                          setProductImage(null);
-                          setFormData(prev => ({
-                            ...prev,
-                            productImage: ""
-                          }));
-                        }}
-                      >
-                        <span className="sr-only">Remove</span>
-                        <X size={16} />
-                      </button>
-                    </div>
-                  ) : (
-                    <>
-                      <Upload className="mx-auto text-white/30 mb-4 w-10 h-10" />
-                      <p className="text-white/70 text-center mb-4">
-                        Drag and drop or click to upload your main product image
-                      </p>
-                      <p className="text-white/50 text-xs text-center">
-                        Recommended: 1200 x 800px, PNG or JPG
-                      </p>
-                    </>
-                  )}
-                  
-                  <input 
-                    type="file" 
-                    id="product-image-upload" 
-                    ref={productImageRef}
-                    className={productImage ? "hidden" : "absolute inset-0 w-full h-full opacity-0 cursor-pointer"}
-                    accept="image/*"
-                    onChange={handleProductImageUpload}
-                  />
-                  
-                  {!productImage && (
+                <div className="flex justify-between items-center">
+                  <label className="block text-white/80 font-medium pl-1">Product Images (3-15)</label>
+                  <span className="text-xs text-white/60">
+                    {productImages.length}/15 - Min 3 required
+                  </span>
+                </div>
+                
+                {/* Image gallery */}
+                {productImages.length > 0 && (
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
+                    {productImages.map((image, index) => (
+                      <div key={index} className="relative group aspect-video rounded-lg overflow-hidden bg-white/5">
+                        <img 
+                          src={image} 
+                          alt={`Product image ${index + 1}`} 
+                          className="w-full h-full object-contain"
+                        />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <button
+                            type="button"
+                            className="h-8 w-8 bg-black/60 hover:bg-red-500/80 text-white rounded-full flex items-center justify-center"
+                            onClick={() => handleRemoveProductImage(index)}
+                          >
+                            <X size={16} />
+                          </button>
+                        </div>
+                        {index === 0 && (
+                          <div className="absolute top-2 left-2 bg-[#4F46E5] text-white text-xs px-2 py-1 rounded-sm">
+                            Cover
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
+                {/* Upload area - shown if under 15 images */}
+                {productImages.length < 15 && (
+                  <div 
+                    className="border-2 border-dashed border-white/20 rounded-lg p-8 bg-white/5 relative text-center"
+                    onDrop={handleProductImageDrop}
+                    onDragOver={handleProductImageDragOver}
+                  >
+                    <Upload className="mx-auto text-white/30 mb-4 w-10 h-10" />
+                    <p className="text-white/70 text-center mb-2">
+                      Drag and drop or click to upload your product images
+                    </p>
+                    <p className="text-white/50 text-xs text-center mb-4">
+                      {productImages.length >= 3 
+                        ? "You've met the minimum requirement of 3 images" 
+                        : `Please upload at least ${3 - productImages.length} more image${3 - productImages.length !== 1 ? 's' : ''}`}
+                    </p>
+                    
+                    <input 
+                      type="file" 
+                      id="product-image-upload" 
+                      ref={productImageRef}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      accept="image/*"
+                      onChange={handleProductImageUpload}
+                      multiple
+                    />
+                    
                     <motion.button
                       type="button"
                       onClick={handleProductImageClick}
                       whileHover={{ scale: 1.03 }}
                       whileTap={{ scale: 0.97 }}
-                      className="mt-4 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white"
+                      className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white"
                     >
                       <Upload size={16} className="mr-2 inline-block" />
-                      Choose Image
+                      Choose Images
                     </motion.button>
-                  )}
-                </div>
+                  </div>
+                )}
+                
+                {/* Validation message */}
+                {productImages.length < 3 && (
+                  <p className="text-amber-400 text-xs mt-2 pl-1">
+                    <AlertCircle size={14} className="inline-block mr-1" />
+                    At least 3 product images are required
+                  </p>
+                )}
               </div>
               
               {/* Product Icon Upload */}
