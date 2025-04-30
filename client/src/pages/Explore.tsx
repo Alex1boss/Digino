@@ -599,7 +599,12 @@ export default function Explore() {
     queryFn: async () => {
       const res = await fetch('/api/products');
       if (!res.ok) throw new Error('Failed to fetch products');
-      return res.json();
+      const products = await res.json();
+      // Make sure every product has a valid Icon component
+      return products.map((product: any) => ({
+        ...product,
+        Icon: getIconComponent(product.iconName || 'cpu')
+      }));
     }
   });
   

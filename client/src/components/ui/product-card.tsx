@@ -8,25 +8,15 @@ import {
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 
-// Function to render the icon based on iconName
-const renderIcon = (iconName: string) => {
-  switch (iconName) {
-    case "box":
-      return <Box className="w-7 h-7" />;
-    case "code":
-      return <Code className="w-7 h-7" />;
-    case "cpu":
-      return <Cpu className="w-7 h-7" />;
-    case "rocket":
-      return <Rocket className="w-7 h-7" />;
-    case "users":
-      return <Users className="w-7 h-7" />;
-    case "mic":
-      return <Mic className="w-7 h-7" />;
-    default:
-      return <Cpu className="w-7 h-7" />;
-  }
-};
+// Function to safely render icon components
+import React, { ElementType } from "react";
+import { getIconComponent } from "../../schema";
+
+// Function to safely render the product icon
+function renderProductIcon(product: Product, props: React.ComponentProps<ElementType> = {}) {
+  const IconComponent = product.Icon || getIconComponent(product.iconName || "cpu");
+  return React.createElement(IconComponent || Cpu, props);
+}
 
 // Generate random ratings between 4.0 and 5.0
 const generateRating = () => {
@@ -115,11 +105,7 @@ export function ProductCard({ product, index }: ProductCardProps) {
         // Fallback icon display if no image
         <div className="h-40 w-full bg-gradient-to-r from-gray-900 to-black flex items-center justify-center">
           <div className="w-24 h-24 rounded-full bg-purple-900/30 flex items-center justify-center">
-            {product.iconName === "Zap" ? (
-              <Cpu className="w-12 h-12 text-purple-500" />
-            ) : (
-              renderIcon(product.iconName)
-            )}
+            {renderProductIcon(product, { className: "w-12 h-12 text-purple-500" })}
           </div>
         </div>
       )}

@@ -5,7 +5,7 @@ import FeaturesSection from "../components/FeaturesSection";
 import CTASection from "../components/CTASection";
 import Footer from "../components/Footer";
 import { useQuery } from "@tanstack/react-query";
-import { Product } from "../schema";
+import { Product, getIconComponent } from "../schema";
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
@@ -20,6 +20,16 @@ export default function Home() {
   // Get products from API
   const { data: apiProducts, isLoading } = useQuery<Product[]>({
     queryKey: ['/api/products'],
+    queryFn: async () => {
+      const res = await fetch('/api/products');
+      if (!res.ok) throw new Error('Failed to fetch products');
+      const products = await res.json();
+      // Make sure every product has a valid Icon component
+      return products.map((product: any) => ({
+        ...product,
+        Icon: getIconComponent(product.iconName || 'cpu')
+      }));
+    }
   });
   
   // Also load products from localStorage
@@ -30,16 +40,13 @@ export default function Home() {
         const parsedProducts = JSON.parse(savedProducts);
         console.log("Products loaded from localStorage:", parsedProducts);
         
-        // Import needed for the getIconComponent function
-        import("../schema").then(({ getIconComponent }) => {
-          // Add Icon property to each product from localStorage
-          const productsWithIcons = parsedProducts.map((product: any) => ({
-            ...product,
-            Icon: getIconComponent(product.iconName || "Zap")
-          }));
-          
-          setLocalProducts(productsWithIcons);
-        });
+        // Add Icon property to each product from localStorage
+        const productsWithIcons = parsedProducts.map((product: any) => ({
+          ...product,
+          Icon: getIconComponent(product.iconName || "cpu")
+        }));
+        
+        setLocalProducts(productsWithIcons);
       }
     } catch (error) {
       console.error("Error loading products from localStorage:", error);
