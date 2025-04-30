@@ -546,6 +546,7 @@ export default function Explore() {
   const [priceRange, setPriceRange] = useState([0, 1000]);
   const [showPremiumOnly, setShowPremiumOnly] = useState(false);
   const [view3D, setView3D] = useState(true);
+  const [showMoreFilters, setShowMoreFilters] = useState(false);
   
   const heroRef = useRef<HTMLDivElement>(null);
   const bannerYPos = useTransform(
@@ -610,8 +611,54 @@ export default function Explore() {
   // Combine API products and localStorage products
   const allProducts = [...(apiProducts || []), ...localProducts];
   
+  // Add some example products if there are none
+  const enhancedProducts = allProducts.length > 0 ? allProducts : [
+    {
+      id: 1,
+      name: "Premium AI Assistant",
+      description: "Advanced AI assistant with natural language processing capabilities",
+      price: 89.99,
+      category: "ai_tools",
+      reviews: 124,
+      sales: 450,
+      rating: 4.9,
+      createdAt: "2025-01-15",
+      iconName: "Cpu",
+      Icon: Cpu,
+      author: { id: 1, name: "TechGenius", avatar: "" }
+    },
+    {
+      id: 2,
+      name: "Website Templates Bundle",
+      description: "Collection of premium responsive website templates for modern businesses",
+      price: 49.99,
+      category: "templates",
+      reviews: 86,
+      sales: 320,
+      rating: 4.7,
+      createdAt: "2025-03-22",
+      iconName: "Layers",
+      Icon: Layers,
+      author: { id: 2, name: "DesignMaster", avatar: "" }
+    },
+    {
+      id: 3,
+      name: "Data Analysis Tool",
+      description: "Professional-grade data analysis and visualization platform",
+      price: 129.99,
+      category: "Software",
+      reviews: 56,
+      sales: 180,
+      rating: 4.8,
+      createdAt: "2025-02-10",
+      iconName: "BarChart",
+      Icon: Code,
+      author: { id: 3, name: "DataPro", avatar: "" }
+    }
+  ];
+  
   // Filter products based on active filters
-  const filteredProducts = allProducts.filter(product => {
+  const filteredProducts = enhancedProducts.filter(product => {
     // Search query filter
     if (searchQuery && !product.name.toLowerCase().includes(searchQuery.toLowerCase()) && 
         !product.description.toLowerCase().includes(searchQuery.toLowerCase())) {
@@ -656,8 +703,8 @@ export default function Explore() {
   
   // Artificial categories with counts
   const categories = [
-    { name: 'All', count: allProducts.length, icon: <Grid3X3 className="text-white" />, color: '#BB86FC' },
-    { name: 'ai_tools', count: allProducts.filter(p => p.category === 'ai_tools').length || 3, icon: <Cpu className="text-blue-400" />, color: '#6366F1' },
+    { name: 'All', count: enhancedProducts.length, icon: <Grid3X3 className="text-white" />, color: '#BB86FC' },
+    { name: 'ai_tools', count: enhancedProducts.filter(p => p.category === 'ai_tools').length || 3, icon: <Cpu className="text-blue-400" />, color: '#6366F1' },
     { name: 'templates', count: 12, icon: <Layers className="text-cyan-400" />, color: '#00CFFF' },
     { name: 'graphics', count: 8, icon: <Box className="text-teal-400" />, color: '#10B981' },
     { name: 'Software', count: 14, icon: <Code className="text-amber-400" />, color: '#F59E0B' },
@@ -674,7 +721,7 @@ export default function Explore() {
   
   // Statistics data
   const statsData = [
-    { title: 'Digital Products', value: allProducts.length + 280, icon: <Layers className="w-5 h-5" /> },
+    { title: 'Digital Products', value: enhancedProducts.length + 280, icon: <Layers className="w-5 h-5" /> },
     { title: 'Creators', value: '2.5K+', icon: <MessageSquare className="w-5 h-5" /> },
     { title: 'AI-Powered Tools', value: '400+', icon: <Cpu className="w-5 h-5" /> },
   ];
@@ -754,585 +801,440 @@ export default function Explore() {
       </header>
       
       <main className="relative z-10 pt-28 pb-24">
-        {/* Ultra Premium Hero Banner with advanced 3D effects */}
-        <motion.section 
-          ref={heroRef}
-          className="relative mb-12 overflow-hidden"
-          style={{
-            y: bannerYPos,
-            scale: bannerScale,
-            opacity: bannerOpacity
-          }}
-        >
-          {/* Background geometric elements */}
-          <div className="absolute inset-0 z-0">
-            {/* Floating animated particles */}
-            {[...Array(15)].map((_, i) => (
-              <motion.div
-                key={i}
-                className="absolute rounded-full bg-white opacity-30"
-                style={{
-                  width: Math.random() * 6 + 2 + 'px',
-                  height: Math.random() * 6 + 2 + 'px',
-                  top: Math.random() * 100 + '%',
-                  left: Math.random() * 100 + '%',
-                  filter: 'blur(1px)'
-                }}
-                animate={{
-                  y: [0, -20, 0],
-                  opacity: [0.1, 0.3, 0.1]
-                }}
-                transition={{
-                  duration: 3 + Math.random() * 5,
-                  repeat: Infinity,
-                  repeatType: "reverse",
-                  delay: Math.random() * 2
-                }}
-              />
-            ))}
-            
-            {/* Radial background with color layers */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,#1A1A2E_0%,#000_70%)] opacity-90"></div>
-            
-            {/* Colorful gradient orbs */}
-            <motion.div 
-              className="absolute top-10 -left-20 w-96 h-96 rounded-full opacity-40"
-              style={{ 
-                background: "radial-gradient(circle, rgba(137, 61, 255, 0.6) 0%, rgba(137, 61, 255, 0) 70%)",
-                filter: "blur(60px)"
-              }}
-              animate={{
-                scale: [1, 1.2, 1],
-                x: [0, 20, 0],
-                opacity: [0.3, 0.5, 0.3]
-              }}
-              transition={{
-                duration: 8,
-                repeat: Infinity,
-                repeatType: "reverse"
-              }}
-            ></motion.div>
-            
-            <motion.div 
-              className="absolute bottom-0 right-0 w-80 h-80 rounded-full opacity-30"
-              style={{ 
-                background: "radial-gradient(circle, rgba(0, 207, 255, 0.6) 0%, rgba(0, 207, 255, 0) 70%)",
-                filter: "blur(60px)"
-              }}
-              animate={{
-                scale: [1, 1.1, 1],
-                x: [0, -20, 0],
-                opacity: [0.2, 0.4, 0.2]
-              }}
-              transition={{
-                duration: 10,
-                repeat: Infinity,
-                repeatType: "reverse",
-                delay: 2
-              }}
-            ></motion.div>
-            
-            {/* Grid lines for depth */}
-            <div 
-              className="absolute inset-0 opacity-10"
-              style={{
-                backgroundImage: `
-                  linear-gradient(to right, rgba(255,255,255,0.1) 1px, transparent 1px),
-                  linear-gradient(to bottom, rgba(255,255,255,0.1) 1px, transparent 1px)
-                `,
-                backgroundSize: '40px 40px'
-              }}
-            ></div>
+        {/* Header Section - Simple Elegant Premium */}
+        <section className="container mx-auto px-4 mb-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-8"
+          >
+            <h1 className="text-3xl font-bold mb-2 text-white">
+              Explore All Digital Products
+            </h1>
+            <p className="text-gray-400 max-w-2xl mx-auto">
+              Browse our complete catalog of high-quality digital assets from top creators
+            </p>
+          </motion.div>
+
+          {/* Search Bar */}
+          <div className="max-w-md mx-auto relative mb-8">
+            <Input
+              type="text"
+              placeholder="Search products..."
+              className="w-full bg-white/5 border-white/10 focus:border-purple-500 rounded-full pl-10 pr-4 py-2.5"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
           </div>
-          
-          {/* Content container */}
-          <div className="container mx-auto px-4 py-20 md:py-28 relative z-10">
-            <motion.div 
-              className="max-w-4xl mx-auto text-center"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-            >
-              {/* Premium floating text badge */}
-              <motion.div
-                className="inline-block mb-6"
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.1 }}
-              >
-                <div className="px-4 py-1.5 rounded-full backdrop-blur-md inline-flex items-center gap-2 border border-purple-500/30 bg-purple-500/10">
-                  <Sparkles className="w-4 h-4 text-purple-400" />
-                  <span className="text-sm font-medium bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400">
-                    Explore All Digital Products
-                  </span>
-                </div>
-              </motion.div>
-              
-              {/* Ultra premium main title with animated gradient */}
-              <div className="relative">
-                {/* Text shadow clone for glow effect */}
-                <motion.h1 
-                  className="absolute inset-0 text-4xl md:text-6xl lg:text-7xl font-bold mb-6 text-transparent opacity-50 blur-sm"
-                  style={{
-                    WebkitTextStroke: '1px rgba(255,255,255,0.1)',
-                  }}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 0.5 }}
-                  transition={{ duration: 1, delay: 0.5 }}
-                >
-                  Next-Gen Digital Marketplace
-                </motion.h1>
-                
-                {/* Primary title with animated gradient */}
-                <motion.h1 
-                  className="relative text-4xl md:text-6xl lg:text-7xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white via-purple-400 to-blue-500"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ 
-                    opacity: 1, 
-                    y: 0,
-                    textShadow: [
-                      "0 0 8px rgba(135, 61, 255, 0.4)", 
-                      "0 0 16px rgba(135, 61, 255, 0.6)", 
-                      "0 0 8px rgba(135, 61, 255, 0.4)"
-                    ]
-                  }}
-                  transition={{ 
-                    opacity: { duration: 0.6 },
-                    y: { duration: 0.6 },
-                    textShadow: { 
-                      duration: 3,
-                      repeat: Infinity,
-                      repeatType: "reverse"
-                    }
-                  }}
-                >
-                  Next-Gen Digital Marketplace
-                </motion.h1>
-              </div>
-              
-              {/* Animated description with typing effect */}
-              <motion.div
-                className="h-16 md:h-10 overflow-hidden mb-10"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.6, delay: 0.7 }}
-              >
-                <motion.p 
-                  className="text-xl md:text-2xl text-gray-200 max-w-3xl mx-auto"
-                  initial={{ opacity: 0, y: 40 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.9 }}
-                >
-                  Discover premium AI tools, templates, and digital assets from top creators.
-                </motion.p>
-              </motion.div>
-              
-              {/* Interactive 3D buttons */}
-              <motion.div
-                className="flex flex-wrap justify-center gap-4 mb-16"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 1.1 }}
-              >
-                {/* Primary action button */}
-                <motion.div
-                  whileHover={{ 
-                    scale: 1.05,
-                    boxShadow: "0 0 40px rgba(137, 61, 255, 0.5)"
-                  }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <Button 
-                    className="relative overflow-hidden bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-full px-10 py-6 text-lg font-medium"
-                    onClick={() => {
-                      // Scroll to products section
-                      document.getElementById('featured-products')?.scrollIntoView({ behavior: 'smooth' });
-                    }}
-                  >
-                    {/* Animated particles inside button */}
-                    <div className="absolute inset-0 overflow-hidden opacity-30 pointer-events-none">
-                      {[...Array(5)].map((_, i) => (
-                        <motion.div
-                          key={i}
-                          className="absolute w-1 h-1 rounded-full bg-white"
-                          style={{
-                            top: Math.random() * 100 + '%',
-                            left: Math.random() * 100 + '%',
-                          }}
-                          animate={{
-                            y: [0, -20, 0],
-                            opacity: [0, 1, 0]
-                          }}
-                          transition={{
-                            duration: 1.5,
-                            repeat: Infinity,
-                            delay: Math.random()
-                          }}
-                        />
-                      ))}
-                    </div>
-                    
-                    {/* Button shine effect */}
-                    <motion.div 
-                      className="absolute inset-0 opacity-0"
-                      animate={{
-                        background: [
-                          "linear-gradient(45deg, transparent 25%, rgba(255,255,255,0.2) 50%, transparent 75%)",
-                          "linear-gradient(45deg, transparent 25%, rgba(255,255,255,0.2) 50%, transparent 75%)"
-                        ],
-                        backgroundSize: ["200% 200%", "200% 200%"],
-                        backgroundPosition: ["-200% -200%", "200% 200%"],
-                        opacity: [0.3, 0]
-                      }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        repeatDelay: 5
-                      }}
-                    />
-                    
-                    <Sparkles className="mr-2 h-5 w-5" />
-                    <span className="relative z-10">Explore Products</span>
-                  </Button>
-                </motion.div>
-                
-                {/* Secondary action button */}
-                <motion.div
-                  whileHover={{ 
-                    scale: 1.05,
-                    boxShadow: "0 0 25px rgba(255,255,255,0.15)"
-                  }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <Button 
-                    className="relative overflow-hidden backdrop-blur-lg bg-white/10 hover:bg-white/15 text-white rounded-full px-10 py-6 text-lg font-medium border border-white/10"
-                    onClick={() => setView3D(!view3D)}
-                  >
-                    {/* Animated glass reflection */}
-                    <motion.div 
-                      className="absolute inset-0 opacity-0"
-                      animate={{
-                        background: [
-                          "linear-gradient(45deg, transparent 0%, rgba(255,255,255,0.1) 25%, transparent 50%)",
-                          "linear-gradient(45deg, transparent 50%, rgba(255,255,255,0.1) 75%, transparent 100%)"
-                        ],
-                        backgroundSize: ["200% 200%", "200% 200%"],
-                        backgroundPosition: ["-100% -100%", "200% 200%"],
-                        opacity: [0.5, 0]
-                      }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        repeatDelay: 3
-                      }}
-                    />
-                    
-                    <Layers className="mr-2 h-5 w-5" />
-                    <span className="relative z-10">{view3D ? "2D View" : "3D View"}</span>
-                  </Button>
-                </motion.div>
-              </motion.div>
-              
-              {/* Premium stats cards with 3D effect and staggered animation */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                {statsData.map((stat, index) => (
-                  <motion.div
-                    key={stat.title}
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ 
-                      type: "spring",
-                      stiffness: 100,
-                      damping: 12,
-                      delay: 1.3 + (index * 0.15)
-                    }}
-                    whileHover={{ 
-                      y: -10,
-                      transition: { type: "spring", stiffness: 300 }
-                    }}
-                  >
-                    <StatsCard3D 
-                      title={stat.title}
-                      value={stat.value.toString()}
-                      icon={stat.icon}
-                      color={index === 0 ? "#BB86FC" : index === 1 ? "#00CFFF" : "#10B981"}
-                    />
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-          </div>
-          
-          {/* Interactive 3D geometric shapes floating in background */}
-          <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
-            {[...Array(5)].map((_, i) => {
-              const size = 100 + Math.random() * 150;
-              const xPos = Math.random() * 100;
-              const yPos = Math.random() * 100;
-              const delay = Math.random() * 2;
-              
-              return (
-                <motion.div
-                  key={i}
-                  className="absolute opacity-5"
-                  style={{
-                    width: size + 'px',
-                    height: size + 'px',
-                    top: yPos + '%',
-                    left: xPos + '%',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    borderRadius: i % 2 === 0 ? '30%' : '0%',
-                    transform: `rotate(${Math.random() * 360}deg)`
-                  }}
-                  animate={{
-                    rotate: 360,
-                    opacity: [0.03, 0.06, 0.03],
-                    scale: [1, 1.1, 1]
-                  }}
-                  transition={{
-                    rotate: { 
-                      duration: 20 + (i * 5), 
-                      repeat: Infinity, 
-                      ease: "linear" 
-                    },
-                    opacity: { 
-                      duration: 5 + (i * 2), 
-                      repeat: Infinity, 
-                      repeatType: "reverse",
-                      delay
-                    },
-                    scale: { 
-                      duration: 8 + (i * 3), 
-                      repeat: Infinity, 
-                      repeatType: "reverse",
-                      delay
-                    }
-                  }}
-                />
-              );
-            })}
-          </div>
-        </motion.section>
+        </section>
         
-        {/* 3D Filters and Categories Section */}
-        <section className="container mx-auto px-4 py-8 mb-12">
-          <div className="flex flex-col lg:flex-row gap-6">
-            {/* Filters sidebar */}
-            <div className="w-full lg:w-64 space-y-6">
-              <Card3D className="p-5 space-y-5">
-                <h3 className="text-lg font-semibold flex items-center">
-                  <Filter className="w-5 h-5 mr-2 text-purple-500" />
-                  Smart Filters
-                </h3>
+        {/* Category Tabs */}
+        <section className="container mx-auto px-4 mb-8">
+          <div className="bg-[#0D0D13] rounded-lg p-2 overflow-x-auto no-scrollbar">
+            <Tabs
+              defaultValue="all"
+              className="w-full"
+              onValueChange={(value) => {
+                if (value === "all") {
+                  setActiveCategory("All");
+                } else if (value === "templates") {
+                  setActiveCategory("templates");
+                } else if (value === "ebooks") {
+                  setActiveCategory("Digital Assets");
+                } else if (value === "courses") {
+                  setActiveCategory("Software");
+                } else if (value === "graphics") {
+                  setActiveCategory("graphics");
+                } else if (value === "softdev") {
+                  setActiveCategory("ai_tools");
+                }
+              }}
+            >
+              <TabsList className="w-full h-auto bg-transparent flex justify-center flex-wrap space-x-1">
+                <TabsTrigger 
+                  value="all"
+                  className="px-3 py-1.5 text-sm font-medium rounded-full data-[state=active]:bg-purple-600 data-[state=active]:text-white"
+                >
+                  <motion.div className="flex items-center gap-1" whileHover={{ scale: 1.05 }}>
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="2"/>
+                      <rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="2"/>
+                      <rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="2"/>
+                      <rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="2"/>
+                    </svg>
+                    All
+                  </motion.div>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="templates" 
+                  className="px-3 py-1.5 text-sm font-medium rounded-full data-[state=active]:bg-[#00CFFF] data-[state=active]:text-white"
+                >
+                  <motion.div className="flex items-center gap-1" whileHover={{ scale: 1.05 }}>
+                    <Layers className="w-4 h-4" />
+                    Templates
+                  </motion.div>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="ebooks" 
+                  className="px-3 py-1.5 text-sm font-medium rounded-full data-[state=active]:bg-green-600 data-[state=active]:text-white"
+                >
+                  <motion.div className="flex items-center gap-1" whileHover={{ scale: 1.05 }}>
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M4 19.5V4.5C4 3.67157 4.67157 3 5.5 3H18.5C19.3284 3 20 3.67157 20 4.5V19.5C20 20.3284 19.3284 21 18.5 21H5.5C4.67157 21 4 20.3284 4 19.5Z" stroke="currentColor" strokeWidth="2"/>
+                      <path d="M9 7H15" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                      <path d="M9 11H15" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                      <path d="M9 15H13" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                    </svg>
+                    E-books
+                  </motion.div>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="courses" 
+                  className="px-3 py-1.5 text-sm font-medium rounded-full data-[state=active]:bg-blue-600 data-[state=active]:text-white"
+                >
+                  <motion.div className="flex items-center gap-1" whileHover={{ scale: 1.05 }}>
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 3L21 8.5V15.5L12 21L3 15.5V8.5L12 3Z" stroke="currentColor" strokeWidth="2"/>
+                      <path d="M12 21V15.5" stroke="currentColor" strokeWidth="2"/>
+                      <path d="M21 8.5L12 15.5L3 8.5" stroke="currentColor" strokeWidth="2"/>
+                    </svg>
+                    Courses
+                  </motion.div>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="graphics" 
+                  className="px-3 py-1.5 text-sm font-medium rounded-full data-[state=active]:bg-pink-600 data-[state=active]:text-white"
+                >
+                  <motion.div className="flex items-center gap-1" whileHover={{ scale: 1.05 }}>
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2"/>
+                      <path d="M14.5 9.5C14.5 10.8807 13.3807 12 12 12C10.6193 12 9.5 10.8807 9.5 9.5C9.5 8.11929 10.6193 7 12 7C13.3807 7 14.5 8.11929 14.5 9.5Z" stroke="currentColor" strokeWidth="2"/>
+                      <path d="M6 18.7553C7.61149 16.4821 9.73203 15 12 15C14.268 15 16.3885 16.4821 18 18.7553" stroke="currentColor" strokeWidth="2"/>
+                    </svg>
+                    Graphics
+                  </motion.div>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="softdev" 
+                  className="px-3 py-1.5 text-sm font-medium rounded-full data-[state=active]:bg-amber-600 data-[state=active]:text-white"
+                >
+                  <motion.div className="flex items-center gap-1" whileHover={{ scale: 1.05 }}>
+                    <Code className="w-4 h-4" />
+                    SoftDev
+                  </motion.div>
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
+        </section>
+        
+        {/* Advanced Filters */}
+        <section className="container mx-auto px-4 mb-6">
+          <div className="bg-[#0D0D13] rounded-lg p-4 mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Filter className="w-4 h-4 text-gray-400" />
+                <span className="text-sm font-medium text-white">Advanced Filters</span>
+              </div>
+              
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-gray-400 hover:text-white"
+                onClick={() => setShowMoreFilters(!showMoreFilters)}
+              >
+                <ChevronDown className={`w-4 h-4 transition-transform ${showMoreFilters ? 'rotate-180' : ''}`} />
+              </Button>
+            </div>
+            
+            {showMoreFilters && (
+              <motion.div 
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-4"
+              >
+                {/* Price range */}
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <Label className="text-sm text-gray-400">Price Range</Label>
+                    <span className="text-xs text-gray-400">${priceRange[0]} - ${priceRange[1]}</span>
+                  </div>
+                  <Slider 
+                    defaultValue={[0, 1000]} 
+                    max={1000} 
+                    step={10}
+                    value={priceRange}
+                    onValueChange={setPriceRange}
+                    className="py-2"
+                  />
+                </div>
                 
-                <div className="space-y-4">
-                  {/* Price range */}
-                  <div>
-                    <div className="flex justify-between mb-2">
-                      <Label className="text-sm text-gray-400">Price Range</Label>
-                      <span className="text-sm text-white">${priceRange[0]} - ${priceRange[1]}</span>
+                {/* Filters grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Verified filter */}
+                  <div className="flex items-center justify-between bg-[#181820] rounded-lg p-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full bg-[#0D99FF]/10 flex items-center justify-center">
+                        <Check className="w-4 h-4 text-[#0D99FF]" />
+                      </div>
+                      <span className="text-sm text-white">Verified Only</span>
                     </div>
-                    <Slider 
-                      defaultValue={[0, 1000]} 
-                      max={1000} 
-                      step={10}
-                      value={priceRange}
-                      onValueChange={setPriceRange}
-                      className="py-2"
-                    />
+                    <Switch id="verified-only" />
+                  </div>
+                  
+                  {/* Featured filter */}
+                  <div className="flex items-center justify-between bg-[#181820] rounded-lg p-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full bg-[#F59E0B]/10 flex items-center justify-center">
+                        <Award className="w-4 h-4 text-[#F59E0B]" />
+                      </div>
+                      <span className="text-sm text-white">Featured Only</span>
+                    </div>
+                    <Switch id="featured-only" />
                   </div>
                   
                   {/* Premium filter */}
-                  <div className="flex items-center justify-between">
-                    <Label className="text-sm text-gray-400 cursor-pointer" htmlFor="premium-only">
-                      Premium Products Only
-                    </Label>
+                  <div className="flex items-center justify-between bg-[#181820] rounded-lg p-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full bg-[#BB86FC]/10 flex items-center justify-center">
+                        <Sparkles className="w-4 h-4 text-[#BB86FC]" />
+                      </div>
+                      <span className="text-sm text-white">Premium Only</span>
+                    </div>
                     <Switch 
                       id="premium-only" 
                       checked={showPremiumOnly}
                       onCheckedChange={setShowPremiumOnly}
                     />
                   </div>
-                  
-                  {/* Divider */}
-                  <div className="h-px w-full bg-white/10 my-4"></div>
-                  
-                  {/* Tab filters */}
-                  <div className="space-y-3">
-                    <Label className="text-sm text-gray-400">Sort By</Label>
-                    <Tabs 
-                      value={activeTab} 
-                      onValueChange={setActiveTab}
-                      className="w-full"
-                    >
-                      <TabsList className="grid grid-cols-2 gap-2 bg-transparent">
-                        <TabsTrigger 
-                          value="trending"
-                          className="data-[state=active]:bg-purple-600 data-[state=active]:text-white rounded-md"
-                        >
-                          <Star className="w-4 h-4 mr-1" /> Trending
-                        </TabsTrigger>
-                        <TabsTrigger 
-                          value="newest"
-                          className="data-[state=active]:bg-purple-600 data-[state=active]:text-white rounded-md"
-                        >
-                          <Zap className="w-4 h-4 mr-1" /> Newest
-                        </TabsTrigger>
-                      </TabsList>
-                    </Tabs>
-                  </div>
-                </div>
-              </Card3D>
-              
-              {/* Only show on desktop */}
-              <div className="hidden lg:block">
-                <Card3D 
-                  className="p-6 space-y-4"
-                  glowClassName="from-purple-500/20 via-transparent to-blue-500/20"
-                >
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold">Become a Creator</h3>
-                    <Rocket className="w-5 h-5 text-purple-500" />
-                  </div>
-                  
-                  <p className="text-sm text-gray-400">
-                    Start selling your digital products and reach millions of customers.
-                  </p>
-                  
-                  <Button className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-lg">
-                    Start Selling
-                  </Button>
-                </Card3D>
-              </div>
-            </div>
-            
-            {/* Main content area */}
-            <div className="flex-1">
-              {/* Category tabs */}
-              <div className="mb-8 overflow-x-auto pb-4 no-scrollbar">
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                  {categories.map((category, idx) => (
-                    <div 
-                      key={category.name}
-                      onClick={() => setActiveCategory(category.name)}
-                    >
-                      <Category3DCard 
-                        icon={category.icon}
-                        name={category.name}
-                        count={category.count}
-                        color={category.color}
-                        isActive={activeCategory === category.name}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
-              {/* Search and view toggle (mobile only) */}
-              <div className="flex items-center justify-between mb-6 lg:hidden">
-                <div className="relative flex-1 max-w-md">
-                  <Input 
-                    type="text" 
-                    placeholder="Search products..." 
-                    className="rounded-full bg-white/5 border-white/10 focus:border-purple-500 pl-10 pr-4 py-2"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
                 </div>
                 
-                <Button 
-                  variant="outline" 
-                  size="icon"
-                  className="ml-2 rounded-full bg-white/5 border-white/10"
-                  onClick={() => setView3D(!view3D)}
-                >
-                  <Layers className="h-5 w-5" />
-                </Button>
-              </div>
-              
-              {/* Results info */}
-              <div className="flex items-center justify-between mb-6">
+                {/* Rating filter */}
                 <div>
-                  <h2 className="text-xl font-semibold">
-                    {activeCategory === 'All' ? 'All Products' : activeCategory}
-                  </h2>
-                  <p className="text-sm text-gray-400">
-                    {filteredProducts.length} products found
-                  </p>
+                  <Label className="text-sm text-gray-400 mb-2 block">Minimum Rating</Label>
+                  <div className="flex items-center gap-2">
+                    {[...Array(5)].map((_, index) => (
+                      <Button
+                        key={index}
+                        variant="outline"
+                        size="sm"
+                        className={`rounded-md bg-[#181820] border-0 hover:bg-[#242430] ${index <= 3 ? 'text-yellow-400' : 'text-gray-500'}`}
+                      >
+                        <Star className={`w-4 h-4 ${index <= 3 ? 'fill-yellow-400' : ''}`} />
+                      </Button>
+                    ))}
+                    <span className="text-sm text-gray-400 ml-2">4.0+</span>
+                  </div>
                 </div>
                 
-                <Badge 
-                  className={cn(
-                    "px-3 py-1.5",
-                    activeTab === 'trending' 
-                      ? "bg-yellow-500/10 text-yellow-400 border-yellow-500/20" 
-                      : activeTab === 'newest'
-                        ? "bg-blue-500/10 text-blue-400 border-blue-500/20"
-                        : "bg-purple-500/10 text-purple-400 border-purple-500/20"
-                  )}
-                >
-                  {activeTab === 'trending' && <Star className="w-3.5 h-3.5 mr-1.5" />}
-                  {activeTab === 'newest' && <Zap className="w-3.5 h-3.5 mr-1.5" />}
-                  {activeTab === 'popular' && <Award className="w-3.5 h-3.5 mr-1.5" />}
-                  {activeTab === 'for-you' && <Sparkles className="w-3.5 h-3.5 mr-1.5" />}
-                  {activeTab.charAt(0).toUpperCase() + activeTab.slice(1).replace('-', ' ')}
-                </Badge>
-              </div>
-              
-              {/* Product grid */}
-              {isLoading ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {[...Array(6)].map((_, i) => (
-                    <div key={i} className="h-96 rounded-xl bg-white/5 animate-pulse"></div>
-                  ))}
-                </div>
-              ) : sortedProducts.length === 0 ? (
-                <Card3D className="p-8 text-center">
-                  <div className="w-20 h-20 mx-auto rounded-full bg-purple-500/10 flex items-center justify-center mb-4">
-                    <Search className="w-8 h-8 text-purple-500" />
-                  </div>
-                  <h3 className="text-xl font-medium mb-2">No Products Found</h3>
-                  <p className="text-gray-400 mb-6">
-                    Try adjusting your filters or search term.
-                  </p>
+                <div className="flex justify-between pt-2">
                   <Button 
-                    onClick={() => {
-                      setActiveCategory('All');
-                      setSearchQuery('');
-                      setPriceRange([0, 1000]);
-                      setShowPremiumOnly(false);
-                    }}
-                    className="bg-white/10 hover:bg-white/15 text-white rounded-full px-6"
+                    variant="outline" 
+                    size="sm"
+                    className="rounded-full border-gray-700 text-gray-400 hover:text-white"
                   >
                     Reset Filters
                   </Button>
-                </Card3D>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {view3D ? (
-                    // 3D view
-                    sortedProducts.map((product, index) => (
-                      <FeaturedProductCard 
-                        key={product.id || index} 
-                        product={product} 
-                        index={index} 
-                      />
-                    ))
-                  ) : (
-                    // Regular view
-                    sortedProducts.map((product, index) => (
-                      <ProductCard 
-                        key={product.id || index} 
-                        product={product} 
-                        index={index} 
-                      />
-                    ))
-                  )}
+                  
+                  <Button 
+                    size="sm"
+                    className="rounded-full bg-gradient-to-r from-purple-600 to-blue-600"
+                  >
+                    Apply Filters
+                  </Button>
                 </div>
-              )}
+              </motion.div>
+            )}
+          </div>
+          
+          {/* Filter result count */}
+          <div className="flex justify-between items-center mb-4">
+            <span className="text-sm text-gray-400">
+              {filteredProducts.length} products found matching your criteria
+            </span>
+            
+            <div className="flex items-center gap-2">
+              <Label className="text-sm text-gray-400">View:</Label>
+              <Button
+                variant={view3D ? "default" : "outline"} 
+                size="sm"
+                className={`rounded-l-md rounded-r-none px-3 ${view3D ? 'bg-purple-600' : 'bg-[#181820] border-[#242430]'}`}
+                onClick={() => setView3D(true)}
+              >
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 3L21 8.5V15.5L12 21L3 15.5V8.5L12 3Z" stroke="currentColor" strokeWidth="2"/>
+                  <path d="M12 21V15.5" stroke="currentColor" strokeWidth="2"/>
+                  <path d="M21 8.5L12 15.5L3 8.5" stroke="currentColor" strokeWidth="2"/>
+                </svg>
+              </Button>
+              <Button
+                variant={!view3D ? "default" : "outline"} 
+                size="sm"
+                className={`rounded-r-md rounded-l-none px-3 ${!view3D ? 'bg-purple-600' : 'bg-[#181820] border-[#242430]'}`}
+                onClick={() => setView3D(false)}
+              >
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="2"/>
+                  <rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="2"/>
+                  <rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="2"/>
+                  <rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="2"/>
+                </svg>
+              </Button>
             </div>
           </div>
+        </section>
+        
+        {/* Product Grid */}
+        <section id="featured-products" className="container mx-auto px-4 mb-12">
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="h-96 rounded-xl bg-white/5 animate-pulse"></div>
+              ))}
+            </div>
+          ) : sortedProducts.length === 0 ? (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="bg-[#0D0D13] rounded-xl p-8 text-center"
+            >
+              <div className="w-20 h-20 mx-auto rounded-full bg-purple-500/10 flex items-center justify-center mb-4">
+                <Search className="w-8 h-8 text-purple-500" />
+              </div>
+              <h3 className="text-xl font-medium mb-2">No Products Found</h3>
+              <p className="text-gray-400 mb-6">
+                Try adjusting your filters or search term.
+              </p>
+              <Button 
+                onClick={() => {
+                  setActiveCategory('All');
+                  setSearchQuery('');
+                  setPriceRange([0, 1000]);
+                  setShowPremiumOnly(false);
+                }}
+                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-full px-6"
+              >
+                Reset Filters
+              </Button>
+            </motion.div>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            >
+              {view3D ? (
+                // 3D view
+                sortedProducts.map((product, index) => (
+                  <motion.div
+                    key={product.id || index}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: index * 0.1 }}
+                  >
+                    <FeaturedProductCard 
+                      product={product} 
+                      index={index} 
+                    />
+                  </motion.div>
+                ))
+              ) : (
+                // Simple premium view
+                sortedProducts.map((product, index) => (
+                  <motion.div
+                    key={product.id || index}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: index * 0.1 }}
+                    whileHover={{ y: -10, transition: { duration: 0.2 } }}
+                    className="bg-[#0D0D13] rounded-xl overflow-hidden border border-[#1E1E1E] shadow-xl relative cursor-pointer"
+                  >
+                    {/* Product image area */}
+                    <div className="h-44 relative overflow-hidden">
+                      {product.coverImage || product.imageUrl ? (
+                        <div 
+                          className="w-full h-full bg-cover bg-center transform transition-transform duration-700 hover:scale-110"
+                          style={{ backgroundImage: `url(${product.coverImage || product.imageUrl})` }}
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-[#1F1F2C] to-[#121218] flex items-center justify-center">
+                          <div className="w-16 h-16 rounded-full bg-[#BB86FC20] flex items-center justify-center">
+                            <product.Icon className="w-8 h-8 text-[#BB86FC]" />
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Category badge */}
+                      <div className="absolute top-3 left-3">
+                        <div className="px-2 py-1 rounded-full text-xs font-medium bg-black/40 backdrop-blur-md text-white border border-white/10">
+                          {product.category || "Digital Product"}
+                        </div>
+                      </div>
+                      
+                      {/* Premium badge */}
+                      {product.price && product.price > 49.99 && (
+                        <div className="absolute top-3 right-3">
+                          <div className="px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-purple-600/80 to-blue-600/80 backdrop-blur-md text-white border border-white/10 flex items-center gap-1">
+                            <Sparkles className="w-3 h-3" /> Premium
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Content */}
+                    <div className="p-5">
+                      <h3 className="text-lg font-medium text-white mb-1 line-clamp-1">{product.name}</h3>
+                      <p className="text-gray-400 text-sm mb-3 line-clamp-2">{product.description}</p>
+                      
+                      {/* Author */}
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white text-xs font-medium">
+                          {product.author?.name?.[0] || "C"}
+                        </div>
+                        <span className="text-sm text-gray-400">
+                          by <span className="text-white">{product.author?.name || "Creator"}</span>
+                        </span>
+                      </div>
+                      
+                      {/* Divider */}
+                      <div className="h-px w-full bg-white/5 mb-3"></div>
+                      
+                      {/* Rating and price */}
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center">
+                          {[...Array(5)].map((_, i) => (
+                            <Star 
+                              key={i} 
+                              className={`w-3.5 h-3.5 ${i < 4 ? "text-yellow-400 fill-yellow-400" : "text-gray-600"}`} 
+                            />
+                          ))}
+                          <span className="text-gray-400 text-xs ml-1">
+                            {(product.rating || 4.3).toFixed(1)}
+                          </span>
+                        </div>
+                        
+                        <div className="text-lg font-bold text-white">
+                          ${product.price || "29.99"}
+                        </div>
+                      </div>
+                      
+                      {/* Action button */}
+                      <Button 
+                        className="w-full mt-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-full"
+                      >
+                        <ShoppingCart className="w-4 h-4 mr-2" /> Add to Cart
+                      </Button>
+                    </div>
+                  </motion.div>
+                ))
+              )}
+            </motion.div>
+          )}
         </section>
         
         {/* Featured Creators Section */}
