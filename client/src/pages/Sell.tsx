@@ -179,49 +179,137 @@ export default function Sell() {
     }, 100);
   };
   
-  // SIMPLIFIED direct publish button handler
+  // Product publish handler with proper user feedback
   const handlePublish = () => {
-    // Show we're publishing
-    alert("Publishing your product...");
+    // Show a custom publication dialog instead of using alert
+    const publishDialog = document.createElement('div');
+    publishDialog.style.position = 'fixed';
+    publishDialog.style.top = '0';
+    publishDialog.style.left = '0';
+    publishDialog.style.width = '100%';
+    publishDialog.style.height = '100%';
+    publishDialog.style.backgroundColor = 'rgba(0, 0, 0, 0.75)';
+    publishDialog.style.display = 'flex';
+    publishDialog.style.justifyContent = 'center';
+    publishDialog.style.alignItems = 'center';
+    publishDialog.style.zIndex = '9999';
     
-    // Direct navigation after publishing - no delays or complex logic
-    try {
-      // Create a very simple product object - minimal fields
-      const newProduct = {
-        id: Date.now(),
-        name: formData.title || "Untitled Product",
-        description: formData.description || "No description",
-        price: parseFloat(formData.price) || 29.99,
-        currency: "USD",
-        category: formData.category || "Digital Assets",
-        rating: 0,
-        reviews: 0,
-        sales: 0,
-        coverImage: "/path/to/placeholder.jpg",
-        author: {
-          id: 1,
-          name: "Current User",
-          avatar: "/avatar.jpg"
-        },
-        createdAt: new Date().toISOString(),
-        iconName: "Zap",
-      };
+    const dialogContent = document.createElement('div');
+    dialogContent.style.backgroundColor = '#1A1A2E';
+    dialogContent.style.borderRadius = '12px';
+    dialogContent.style.padding = '24px';
+    dialogContent.style.width = '90%';
+    dialogContent.style.maxWidth = '400px';
+    dialogContent.style.textAlign = 'center';
+    dialogContent.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.3)';
+    
+    // Add publishing message with a loader
+    dialogContent.innerHTML = `
+      <div style="margin-bottom: 16px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#4F46E5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 16px;">
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+          <polyline points="17 21 17 13 7 13 7 21"></polyline>
+          <polyline points="7 3 7 8 15 8"></polyline>
+        </svg>
+        <h3 style="color: white; font-size: 18px; font-weight: 600; margin-bottom: 8px;">Publishing your product</h3>
+        <p style="color: rgba(255,255,255,0.7); font-size: 14px;">Please wait while we process your product information...</p>
+      </div>
+      <div style="width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; margin: 20px 0;">
+        <div id="publish-progress-bar" style="height: 100%; width: 0%; background: #4F46E5; transition: width 0.5s ease;"></div>
+      </div>
+    `;
+    
+    publishDialog.appendChild(dialogContent);
+    document.body.appendChild(publishDialog);
+    
+    // Animate progress bar
+    let progress = 0;
+    const progressBar = document.getElementById('publish-progress-bar');
+    const progressInterval = setInterval(() => {
+      progress += 5;
+      if (progressBar) progressBar.style.width = `${progress}%`;
       
-      // Save directly to localStorage with minimal error handling
-      const productsString = localStorage.getItem('products') || '[]';
-      const products = JSON.parse(productsString);
-      products.push(newProduct);
-      localStorage.setItem('products', JSON.stringify(products));
-      
-      // Force raw navigation to explore page using hash-router compatible approach
-      window.location.hash = "/explore";
-      window.location.reload();
-      
-    } catch (error) {
-      // If anything fails, show error and allow retry
-      alert("Error saving product. Please try again.");
-      console.error("Publish error:", error);
-    }
+      if (progress >= 100) {
+        clearInterval(progressInterval);
+        
+        try {
+          // Create product object
+          const newProduct = {
+            id: Date.now(),
+            name: formData.title || "Untitled Product",
+            description: formData.description || "No description",
+            price: parseFloat(formData.price) || 29.99,
+            currency: "USD",
+            category: formData.category || "Digital Assets",
+            rating: 0,
+            reviews: 0,
+            sales: 0,
+            coverImage: productImage || "/path/to/placeholder.jpg",
+            author: {
+              id: 1,
+              name: "Current User",
+              avatar: "/avatar.jpg"
+            },
+            createdAt: new Date().toISOString(),
+            iconName: "Zap",
+          };
+          
+          // Save to localStorage
+          const productsString = localStorage.getItem('products') || '[]';
+          const products = JSON.parse(productsString);
+          products.push(newProduct);
+          localStorage.setItem('products', JSON.stringify(products));
+          
+          console.log("Products loaded from localStorage:", products);
+          
+          // Show success message
+          dialogContent.innerHTML = `
+            <div style="margin-bottom: 16px;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 16px;">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+              <h3 style="color: white; font-size: 18px; font-weight: 600; margin-bottom: 8px;">Successfully Published!</h3>
+              <p style="color: rgba(255,255,255,0.7); font-size: 14px;">Your product is now live in the marketplace.</p>
+            </div>
+            <button id="view-product-btn" style="background: #4F46E5; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 500; cursor: pointer; width: 100%;">View Product</button>
+          `;
+          
+          // Add button event listener
+          const viewProductBtn = document.getElementById('view-product-btn');
+          if (viewProductBtn) {
+            viewProductBtn.addEventListener('click', () => {
+              document.body.removeChild(publishDialog);
+              window.location.hash = "/explore";
+              window.location.reload();
+            });
+          }
+        } catch (error) {
+          // Show error message
+          dialogContent.innerHTML = `
+            <div style="margin-bottom: 16px;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 16px;">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+              <h3 style="color: white; font-size: 18px; font-weight: 600; margin-bottom: 8px;">Publication Failed</h3>
+              <p style="color: rgba(255,255,255,0.7); font-size: 14px;">There was an error publishing your product. Please try again.</p>
+            </div>
+            <button id="close-error-btn" style="background: #4F46E5; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 500; cursor: pointer; width: 100%;">Close</button>
+          `;
+          
+          // Add button event listener
+          const closeErrorBtn = document.getElementById('close-error-btn');
+          if (closeErrorBtn) {
+            closeErrorBtn.addEventListener('click', () => {
+              document.body.removeChild(publishDialog);
+            });
+          }
+          console.error("Publish error:", error);
+        }
+      }
+    }, 50);
   };
   
   // Handle save draft
