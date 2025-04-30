@@ -45,6 +45,21 @@ import ProductDetail from "../components/ui/ProductDetail";
 
 // Helper function to safely render icons from product
 function renderProductIcon(product: Product, props: React.ComponentProps<ElementType> = {}) {
+  // If product has a custom icon, use that instead
+  if (product.customIcon) {
+    return (
+      <div className="product-icon-wrapper">
+        <img 
+          src={product.customIcon} 
+          alt={`${product.name} icon`} 
+          className={`custom-product-icon ${props.className || ''}`}
+          style={{...props.style, maxWidth: '100%', maxHeight: '100%'}}
+        />
+      </div>
+    );
+  }
+  
+  // Otherwise fallback to standard icon component
   return React.createElement(
     product.Icon || Cpu, // Fallback to Cpu if Icon is undefined
     props
@@ -612,11 +627,22 @@ export default function Explore() {
   useEffect(() => {
     try {
       const storedProducts = JSON.parse(localStorage.getItem('products') || '[]');
+      console.log("Products loaded from localStorage:", storedProducts);
+      
       // Transform stored products to match Product interface
-      const formattedProducts = storedProducts.map((product: any) => ({
-        ...product,
-        Icon: getIconComponent(product.iconName)
-      }));
+      const formattedProducts = storedProducts.map((product: any) => {
+        // If product has a customIcon, we'll use that instead of an Icon component
+        return {
+          ...product,
+          // If we have a customIcon, we'll still set Icon as a fallback
+          Icon: getIconComponent(product.iconName || 'cpu'),
+          // Make sure coverImage is set if we have productImages
+          coverImage: product.coverImage || (product.productImages && product.productImages.length > 0 ? product.productImages[0] : ""),
+          // Ensure customIcon is preserved
+          customIcon: product.customIcon || ""
+        };
+      });
+      
       setLocalProducts(formattedProducts);
     } catch (error) {
       console.error('Error loading products from localStorage:', error);
