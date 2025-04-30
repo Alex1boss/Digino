@@ -58,10 +58,10 @@ export function ProductCard({ product, index }: ProductCardProps) {
     "Software": "text-[#03DAC5]",
   };
   
-  const categoryColor = categoryStyles[product.category] || "text-[#BB86FC]";
+  const categoryColor = product.category ? categoryStyles[product.category] || "text-[#BB86FC]" : "text-[#BB86FC]";
   
   // Check if this is a bestseller
-  const isBestSeller = index === 1 || product.sales > 10;
+  const isBestSeller = index === 1 || (product.sales !== undefined && product.sales > 10);
   
   // Check if this is verified
   const isVerified = index % 2 === 0;

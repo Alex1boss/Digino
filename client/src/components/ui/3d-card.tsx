@@ -1,5 +1,6 @@
-import { useState, useRef, ReactNode } from "react";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import React, { useState, ReactNode } from 'react';
+import { motion } from 'framer-motion';
+import { cn } from '../../lib/utils';
 
 interface Card3DProps {
   children: ReactNode;
@@ -10,100 +11,87 @@ interface Card3DProps {
 
 export function Card3D({
   children,
-  className = "",
-  bgClassName = "bg-[#131340]/80 backdrop-blur-sm",
-  glowClassName = "from-[#0056D2]/10 via-[#00C49A]/10 to-transparent",
+  className,
+  bgClassName = "from-purple-500/5 via-transparent to-blue-500/5",
+  glowClassName = "from-purple-500/10 via-transparent to-blue-500/10"
 }: Card3DProps) {
-  const cardRef = useRef<HTMLDivElement>(null);
+  const [rotateX, setRotateX] = useState(0);
+  const [rotateY, setRotateY] = useState(0);
+  const [scale, setScale] = useState(1);
   
-  // Mouse position state and motion values
-  const [hovering, setHovering] = useState(false);
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  
-  // Spring physics for smoother animation
-  const springConfig = { damping: 20, stiffness: 300 };
-  const rotateX = useSpring(useTransform(mouseY, [0, 1], [10, -10]), springConfig);
-  const rotateY = useSpring(useTransform(mouseX, [0, 1], [-10, 10]), springConfig);
-  const shineX = useSpring(useTransform(mouseX, [0, 1], [0.8, 0.2]), springConfig);
-  const shineY = useSpring(useTransform(mouseY, [0, 1], [0.8, 0.2]), springConfig);
-  
-  // Define how much the card tilts in degrees
-  const tiltThreshold = 8;
-  
-  // Handle mouse move event
   function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
-    if (!cardRef.current) return;
+    const element = e.currentTarget;
+    const rect = element.getBoundingClientRect();
     
-    const rect = cardRef.current.getBoundingClientRect();
+    // Calculate center of the element
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
     
-    // Calculate mouse position relative to card (0 to 1)
-    const newMouseX = (e.clientX - rect.left) / rect.width;
-    const newMouseY = (e.clientY - rect.top) / rect.height;
+    // Calculate mouse position relative to center
+    const mouseX = e.clientX - centerX;
+    const mouseY = e.clientY - centerY;
     
-    mouseX.set(newMouseX);
-    mouseY.set(newMouseY);
+    // Calculate rotation values
+    const rotationIntensity = 10; // Lower = more intense rotation
+    const maxRotation = 3; // Maximum rotation in degrees
+    
+    const newRotateX = Math.min(Math.max(-mouseY / rotationIntensity, -maxRotation), maxRotation);
+    const newRotateY = Math.min(Math.max(mouseX / rotationIntensity, -maxRotation), maxRotation);
+    
+    setRotateX(newRotateX);
+    setRotateY(newRotateY);
   }
-
+  
+  function handleMouseEnter() {
+    setScale(1.02);
+  }
+  
+  function handleMouseLeave() {
+    // Reset rotation and scale when mouse leaves
+    setRotateX(0);
+    setRotateY(0);
+    setScale(1);
+  }
+  
   return (
     <motion.div
-      ref={cardRef}
-      className={`relative ${className}`}
-      onMouseMove={handleMouseMove}
-      onMouseEnter={() => setHovering(true)}
-      onMouseLeave={() => setHovering(false)}
-      style={{
-        perspective: "1200px",
+      className={cn(
+        "relative rounded-xl overflow-hidden border border-white/10 bg-[#111]",
+        className
+      )}
+      style={{ 
+        perspective: '1200px',
+        transformStyle: 'preserve-3d',
+        transform: `scale(${scale}) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`,
+        transition: 'transform 0.1s ease-out',
+        boxShadow: '0 10px 30px rgba(0,0,0,0.3)'
       }}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
-      <motion.div
-        style={{
-          rotateX: hovering ? rotateX : 0,
-          rotateY: hovering ? rotateY : 0,
-          transformStyle: "preserve-3d",
+      {/* Background gradient with glow */}
+      <div 
+        className={cn(
+          "absolute inset-0 bg-gradient-to-br opacity-10",
+          bgClassName
+        )}
+      ></div>
+      
+      {/* Glow effect that moves with mouse */}
+      <div 
+        className={cn(
+          "absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-20 transition-opacity duration-300",
+          glowClassName
+        )}
+        style={{ 
+          transformStyle: 'preserve-3d',
+          transform: `translateX(${rotateY * 20}px) translateY(${-rotateX * 20}px)`,
         }}
-        className="w-full h-full"
-        transition={{
-          type: "spring",
-          damping: 20,
-          stiffness: 300,
-        }}
-      >
-        {/* Background with border glow */}
-        <div className="absolute inset-0 rounded-2xl overflow-hidden">
-          <motion.div
-            className={`absolute inset-0 bg-gradient-to-br ${glowClassName} opacity-0`}
-            animate={{ opacity: hovering ? 0.7 : 0 }}
-            transition={{ duration: 0.3 }}
-          />
-        </div>
-        
-        {/* Card content with shine effect */}
-        <motion.div
-          className={`w-full h-full rounded-2xl border border-white/10 overflow-hidden ${bgClassName}`}
-          style={{
-            transformStyle: "preserve-3d",
-          }}
-        >
-          {/* Light reflection effect */}
-          {hovering && (
-            <motion.div
-              className="absolute inset-0 w-full h-full bg-gradient-to-br from-white/20 to-transparent opacity-0"
-              style={{
-                left: useTransform(shineX, [0, 1], ["-100%", "100%"]),
-                top: useTransform(shineY, [0, 1], ["-100%", "100%"]),
-                opacity: useTransform(
-                  [shineX, shineY],
-                  ([x, y]) => 0.05 + Math.min(x, y) * 0.1
-                ),
-              }}
-            />
-          )}
-          
-          {/* Main content */}
-          <div className="relative z-10">{children}</div>
-        </motion.div>
-      </motion.div>
+      ></div>
+      
+      {/* Content layer */}
+      <div className="relative z-10">{children}</div>
     </motion.div>
   );
 }

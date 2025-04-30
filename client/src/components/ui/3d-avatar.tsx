@@ -1,6 +1,7 @@
-import { useState, useRef, useEffect } from "react";
-import { motion, useSpring, useTransform, useMotionValue } from "framer-motion";
-import { Shield } from "lucide-react";
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Check } from 'lucide-react';
+import { cn } from '../../lib/utils';
 
 interface Avatar3DProps {
   letter: string;
@@ -10,155 +11,101 @@ interface Avatar3DProps {
   onClick?: () => void;
 }
 
-const sizeMap = {
-  sm: {
-    container: "h-12 w-12",
-    text: "text-xl",
-    badge: "h-5 w-5 text-[10px]"
-  },
-  md: {
-    container: "h-16 w-16",
-    text: "text-2xl",
-    badge: "h-6 w-6 text-xs"
-  },
-  lg: {
-    container: "h-24 w-24",
-    text: "text-4xl",
-    badge: "h-7 w-7 text-sm"
-  },
-  xl: {
-    container: "h-32 w-32",
-    text: "text-5xl",
-    badge: "h-8 w-8 text-base"
-  }
-};
-
 export function Avatar3D({ 
   letter, 
   size = "md", 
   verified = false,
-  className = "",
+  className,
   onClick
 }: Avatar3DProps) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [hovering, setHovering] = useState(false);
+  const [rotateX, setRotateX] = useState(0);
+  const [rotateY, setRotateY] = useState(0);
   
-  // For 3D effect
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  
-  // For smoother animations
-  const springConfig = { damping: 15, stiffness: 300 };
-  const rotateX = useSpring(useTransform(y, [-100, 100], [10, -10]), springConfig);
-  const rotateY = useSpring(useTransform(x, [-100, 100], [-10, 10]), springConfig);
-  const scale = useSpring(hovering ? 1.05 : 1, springConfig);
-  
-  // Handle mouse move
   function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
-    if (!ref.current) return;
+    const element = e.currentTarget;
+    const rect = element.getBoundingClientRect();
     
-    const rect = ref.current.getBoundingClientRect();
+    // Calculate center of the element
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
     
-    x.set(e.clientX - centerX);
-    y.set(e.clientY - centerY);
-  }
-
-  // Reset position when not hovering
-  function handleMouseLeave() {
-    setHovering(false);
-    x.set(0);
-    y.set(0);
+    // Calculate mouse position relative to center
+    const mouseX = e.clientX - centerX;
+    const mouseY = e.clientY - centerY;
+    
+    // Calculate rotation values (more dramatic effect for smaller sizes)
+    const multiplier = size === "sm" ? 0.1 : size === "md" ? 0.08 : 0.05;
+    setRotateX(-mouseY * multiplier);
+    setRotateY(mouseX * multiplier);
   }
   
-  const { container, text, badge } = sizeMap[size];
+  function handleMouseLeave() {
+    // Reset rotation when mouse leaves
+    setRotateX(0);
+    setRotateY(0);
+  }
+  
+  // Size mappings
+  const sizeClasses = {
+    sm: "w-10 h-10 text-sm",
+    md: "w-14 h-14 text-base",
+    lg: "w-20 h-20 text-xl",
+    xl: "w-24 h-24 text-2xl"
+  };
+  
+  // Background for avatar - random colors based on letter
+  const charCode = letter.charCodeAt(0);
+  const hue = (charCode * 15) % 360;
+  const bgColor = `hsl(${hue}, 70%, 50%)`;
   
   return (
-    <div className="relative" style={{ perspective: "1000px" }}>
-      {/* Shadow and glow */}
-      <div className={`absolute -inset-1 rounded-full blur-lg bg-gradient-to-br from-[#0056D2]/40 to-[#00C49A]/40 opacity-0 group-hover:opacity-70 transition-opacity duration-300 ${hovering ? 'opacity-70' : 'opacity-30'}`}></div>
-      
-      {/* Floating avatar */}
+    <div
+      className={cn("relative", className)}
+      style={{ 
+        perspective: '800px',
+        transformStyle: 'preserve-3d'
+      }}
+    >
       <motion.div
-        ref={ref}
-        className={`relative ${container} rounded-full group ${className} cursor-pointer`}
+        className={cn(
+          "rounded-full flex items-center justify-center font-semibold text-white cursor-pointer select-none",
+          sizeClasses[size],
+          verified ? "ring-2 ring-teal-500" : ""
+        )}
+        style={{
+          backgroundColor: bgColor,
+          boxShadow: `0 10px 25px ${bgColor}50`,
+          transform: `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`,
+          transition: 'transform 0.1s ease'
+        }}
         onMouseMove={handleMouseMove}
-        onMouseEnter={() => setHovering(true)}
         onMouseLeave={handleMouseLeave}
         onClick={onClick}
-        style={{
-          rotateX,
-          rotateY,
-          scale,
-          z: 10,
-          transformStyle: "preserve-3d",
-        }}
+        whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
       >
-        {/* Background gradient with shine effect */}
-        <motion.div 
-          className="absolute inset-0 rounded-full bg-gradient-to-br from-[#0056D2] to-[#00C49A] border-4 border-[#131340]"
-          animate={{
-            background: hovering 
-              ? [
-                  "linear-gradient(135deg, #0056D2 0%, #00C49A 100%)",
-                  "linear-gradient(225deg, #0056D2 0%, #00C49A 100%)",
-                  "linear-gradient(315deg, #0056D2 0%, #00C49A 100%)",
-                  "linear-gradient(45deg, #0056D2 0%, #00C49A 100%)",
-                  "linear-gradient(135deg, #0056D2 0%, #00C49A 100%)"
-                ]
-              : "linear-gradient(135deg, #0056D2 0%, #00C49A 100%)"
-          }}
-          transition={{
-            duration: hovering ? 4 : 0,
-            repeat: Infinity,
-            repeatType: "loop",
-            ease: "linear"
-          }}
-        />
-                
-        {/* Letter in the center */}
-        <div className={`absolute inset-0 flex items-center justify-center font-bold ${text} text-white`}>
-          {letter}
-          
-          {/* Shine effect (white reflection) */}
-          <motion.div 
-            className="absolute inset-0 rounded-full bg-white opacity-0 mix-blend-overlay"
-            animate={{
-              opacity: hovering ? [0, 0.15, 0] : 0
-            }}
-            transition={{
-              duration: 1.5,
-              repeat: Infinity,
-              repeatType: "loop",
-              ease: "easeInOut"
-            }}
+        {letter.toUpperCase()}
+      </motion.div>
+      
+      {verified && (
+        <div 
+          className={cn(
+            "absolute bg-teal-500 rounded-full border-2 border-black flex items-center justify-center",
+            size === "sm" ? "w-4 h-4 -right-0.5 -bottom-0.5" : 
+            size === "md" ? "w-5 h-5 -right-1 -bottom-1" : 
+            "w-6 h-6 -right-1 -bottom-1"
+          )}
+        >
+          <Check 
+            className={cn(
+              "text-white",
+              size === "sm" ? "w-3 h-3" : 
+              size === "md" ? "w-3.5 h-3.5" : 
+              "w-4 h-4"
+            )} 
           />
         </div>
-        
-        {/* Verified badge */}
-        {verified && (
-          <motion.div 
-            className={`absolute bottom-0 right-0 ${badge} bg-[#0056D2] rounded-full flex items-center justify-center border-2 border-[#131340] shadow-lg`}
-            style={{
-              z: 20,
-              transformStyle: "preserve-3d",
-            }}
-            animate={{
-              scale: hovering ? [1, 1.15, 1] : 1
-            }}
-            transition={{
-              duration: 1.5,
-              repeat: Infinity,
-              repeatType: "loop",
-              ease: "easeInOut"
-            }}
-          >
-            <Shield size="60%" className="text-white" />
-          </motion.div>
-        )}
-      </motion.div>
+      )}
     </div>
   );
 }
