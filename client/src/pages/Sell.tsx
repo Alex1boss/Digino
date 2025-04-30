@@ -485,11 +485,9 @@ export default function Sell() {
                         alt="Product preview" 
                         className="max-h-[200px] mx-auto rounded-md object-contain"
                       />
-                      <motion.button
+                      <button
                         type="button"
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        className="absolute top-2 right-2 h-8 w-8 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center"
+                        className="absolute top-2 right-2 h-8 w-8 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center"
                         onClick={() => {
                           setProductImage(null);
                           setFormData(prev => ({
@@ -499,8 +497,8 @@ export default function Sell() {
                         }}
                       >
                         <span className="sr-only">Remove</span>
-                        <span aria-hidden="true">×</span>
-                      </motion.button>
+                        <X size={16} />
+                      </button>
                     </div>
                   ) : (
                     <>
