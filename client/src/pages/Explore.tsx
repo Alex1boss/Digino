@@ -385,9 +385,14 @@ const FeaturedProductCard = ({
             )}
           </div>
           
-          {/* Title with premium styling and hover effect */}
+          {/* Product Icon */}
+          <div className="mb-3">
+            <product.Icon className="w-7 h-7 text-white mb-2" />
+          </div>
+          
+          {/* Title with premium styling and hover effect - Bold, futuristic font */}
           <motion.h3 
-            className="text-xl font-bold mb-2"
+            className="text-xl font-bold mb-2 line-clamp-2 font-['Space Grotesk',sans-serif]"
             style={{
               background: `linear-gradient(90deg, #fff, ${colorSet.primary}80)`,
               WebkitBackgroundClip: 'text',
@@ -403,9 +408,9 @@ const FeaturedProductCard = ({
             {product.name}
           </motion.h3>
           
-          {/* Description with improved styling */}
-          <p className="mb-4 text-sm line-clamp-2" style={{ color: 'rgba(255,255,255,0.7)' }}>
-            {product.description}
+          {/* Description with improved styling - One-line tagline with emphasis on innovation */}
+          <p className="mb-4 text-sm line-clamp-1 italic" style={{ color: 'rgba(255,255,255,0.7)' }}>
+            {product.description || "Power your ideas with intelligence"}
           </p>
           
           {/* Creator info with enhanced visuals */}
@@ -431,113 +436,98 @@ const FeaturedProductCard = ({
             }}
           ></div>
           
-          {/* Stats row with enhanced styling */}
-          <div className="grid grid-cols-3 gap-2 mb-4">
-            {/* Rating */}
-            <div className="flex flex-col items-center justify-center p-2 rounded-lg bg-white/5">
-              <div className="flex items-center gap-0.5 mb-1">
-                {[...Array(5)].map((_, i) => (
-                  <Star 
-                    key={i} 
-                    className={`w-3 h-3 ${
-                      i < Math.floor(rating) 
-                        ? "text-yellow-400 fill-yellow-400" 
-                        : i < rating 
-                          ? "text-yellow-400 fill-yellow-400 opacity-50" 
-                          : "text-gray-600"
-                    }`} 
-                  />
-                ))}
-              </div>
-              <span className="text-xs text-gray-400">{ratingValue}</span>
-            </div>
-            
-            {/* Downloads/Sales */}
-            <div className="flex flex-col items-center justify-center p-2 rounded-lg bg-white/5">
-              <div className="text-sm font-medium text-white">
-                {product.sales || (100 + (index * 28))}
-              </div>
-              <span className="text-xs text-gray-400">Sales</span>
-            </div>
-            
-            {/* Reviews */}
-            <div className="flex flex-col items-center justify-center p-2 rounded-lg bg-white/5">
-              <div className="text-sm font-medium text-white">
-                {product.reviews || (12 + (index * 5))}
-              </div>
-              <span className="text-xs text-gray-400">Reviews</span>
-            </div>
-          </div>
-          
-          {/* Price and action section */}
-          <div className="flex items-center justify-between mt-2">
-            {/* Price with premium display */}
-            <div>
-              {index % 6 === 0 && (
-                <div className="text-sm text-gray-400 line-through mb-0.5">
-                  ${(premiumPrice * 1.4).toFixed(2)}
+          {/* Rating and Trust - 5 subtle golden stars with Verified badge */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-1">
+              {[...Array(5)].map((_, i) => (
+                <Star 
+                  key={i} 
+                  className={`w-3 h-3 ${
+                    i < Math.floor(rating) 
+                      ? "text-yellow-400 fill-yellow-400" 
+                      : i < rating 
+                        ? "text-yellow-400 fill-yellow-400 opacity-50" 
+                        : "text-gray-600"
+                  }`} 
+                />
+              ))}
+              {index % 2 === 0 && (
+                <div className="flex items-center ml-2 px-1.5 py-0.5 rounded-sm bg-white/5 border border-green-500/20">
+                  <Check className="w-2.5 h-2.5 text-green-500 mr-0.5" />
+                  <span className="text-xs text-green-400 font-medium">Verified</span>
                 </div>
               )}
-              <div className="flex items-baseline">
-                <span 
-                  className="text-2xl font-bold mr-1"
-                  style={{ 
-                    color: index % 6 === 0 ? '#FF4D4D' : 'white',
-                    textShadow: index % 6 === 0 ? '0 0 10px rgba(255,77,77,0.5)' : 'none' 
-                  }}
-                >
-                  ${premiumPrice.toFixed(2)}
-                </span>
-                <span className="text-xs text-gray-400 font-medium">USD</span>
-              </div>
             </div>
-            
-            {/* Ultra premium 3D button with animations */}
-            <motion.button
-              className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium"
-              style={{
-                background: `linear-gradient(135deg, ${colorSet.primary}, ${colorSet.secondary})`,
-                boxShadow: `0 5px 15px ${colorSet.primary}40, inset 0 1px 1px rgba(255,255,255,0.3)`
-              }}
-              whileHover={{ 
-                scale: 1.05,
-                boxShadow: `0 8px 25px ${colorSet.primary}60, inset 0 1px 1px rgba(255,255,255,0.5)`,
-              }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <ShoppingCart className="w-4 h-4" />
-              <span>Add to Cart</span>
-            </motion.button>
           </div>
           
-          {/* View details button that appears on hover */}
-          <motion.div 
-            className="absolute left-0 right-0 -bottom-12 flex justify-center z-30"
-            initial={{ opacity: 0, y: -20 }}
-            whileHover={{ opacity: 1, y: 0 }}
-            transition={{ type: "spring", stiffness: 300, damping: 20 }}
-          >
-            <motion.button
-              className="px-6 py-2.5 rounded-full backdrop-blur-md text-sm font-medium border"
-              style={{
-                background: `rgba(0,0,0,0.7)`,
-                borderColor: `${colorSet.primary}50`,
-                color: colorSet.primary,
-                boxShadow: `0 10px 25px rgba(0,0,0,0.5), 0 0 0 1px ${colorSet.primary}30`
-              }}
-              whileHover={{ 
-                scale: 1.05,
-                boxShadow: `0 15px 30px rgba(0,0,0,0.6), 0 0 0 1px ${colorSet.primary}50, 0 0 20px ${colorSet.primary}30`,
-              }}
-              whileTap={{ scale: 0.98 }}
-              onClick={(e) => {
-                e.stopPropagation();
-                onProductSelect(product);
+          {/* Price Badge - Right-aligned, floating with neon glow */}
+          <div className="absolute top-4 right-4 z-20">
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              className="px-3 py-1.5 rounded-full flex items-center gap-1.5 bg-black/50 backdrop-blur-lg border border-white/10"
+              style={{ 
+                boxShadow: `0 0 10px ${colorSet.primary}70`,
+                background: `rgba(0,0,0,0.5)` 
               }}
             >
-              View Details
-            </motion.button>
-          </motion.div>
+              <DollarSign className="w-3.5 h-3.5 text-green-400" />
+              <span className="text-sm font-semibold text-white">From ${premiumPrice.toFixed(2)}</span>
+            </motion.div>
+          </div>
+          
+          <div className="flex items-center justify-between mt-2">
+            
+            {/* Buttons – Hidden Until Hover */}
+            <div className="flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              {/* "Preview" button with eye icon */}
+              <motion.button
+                className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium"
+                style={{
+                  background: `rgba(30, 30, 30, 0.8)`,
+                  border: `1px solid ${colorSet.primary}40`,
+                  color: colorSet.primary,
+                  backdropFilter: 'blur(4px)'
+                }}
+                whileHover={{ 
+                  scale: 1.05,
+                  boxShadow: `0 0 15px ${colorSet.primary}30`,
+                }}
+                whileTap={{ scale: 0.95 }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onProductSelect(product);
+                }}
+              >
+                <motion.div 
+                  animate={{ y: [0, -2, 0] }} 
+                  transition={{ repeat: Infinity, duration: 1.5 }}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                </motion.div>
+                <span>Preview</span>
+              </motion.button>
+              
+              {/* "Buy Now" button with shopping bag icon */}
+              <motion.button
+                className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium"
+                style={{
+                  background: `linear-gradient(135deg, ${colorSet.primary}, ${colorSet.secondary})`,
+                  boxShadow: `0 5px 15px ${colorSet.primary}40, inset 0 1px 1px rgba(255,255,255,0.3)`
+                }}
+                whileHover={{ 
+                  scale: 1.05,
+                  boxShadow: `0 8px 25px ${colorSet.primary}60, inset 0 1px 1px rgba(255,255,255,0.5)`,
+                }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <ShoppingCart className="w-4 h-4" />
+                <span>Buy Now</span>
+              </motion.button>
+            </div>
+          </div>
         </div>
       </div>
     </motion.div>
