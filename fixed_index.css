@@ -122,36 +122,6 @@
     }
   }
   
-  /* Float Animation */
-  @keyframes float {
-    0%, 100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(-10px);
-    }
-  }
-  
-  /* Modern Shine Animation */
-  @keyframes modern-shine {
-    0% {
-      background-position: -200% -200%;
-    }
-    100% {
-      background-position: 200% 200%;
-    }
-  }
-  
-  /* Subtle Pulse Animation */
-  @keyframes subtle-pulse {
-    0%, 100% {
-      opacity: 0.2;
-    }
-    50% {
-      opacity: 0.5;
-    }
-  }
-  
   .text-gradient {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-[#BB86FC] to-[#00CFFF];
   }
@@ -240,18 +210,31 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-  
-  .float-animation {
-    animation: float 3s ease-in-out infinite;
+}
+
+  0%, 100% {
+    transform: translateY(0);
   }
-  
-  .shine-animation {
-    animation: modern-shine 8s linear infinite;
+  50% {
+    transform: translateY(-10px);
   }
-  
-  .pulse-animation {
-    animation: subtle-pulse 2s ease-in-out infinite;
+}
+
+  0% {
+    background-position: -200% -200%;
   }
+  100% {
+    background-position: 200% 200%;
+  }
+}
+
+  0%, 100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
   
   .bg-mesh-gradient {
     background-image: 

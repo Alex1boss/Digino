@@ -1128,114 +1128,308 @@ export default function Explore() {
               animate={{ opacity: 1 }}
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
             >
-              {/* Simple, premium product cards that match the screenshot exactly */}
-              {sortedProducts.map((product, index) => (
-                <motion.div
-                  key={product.id || index}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: index * 0.05 }}
-                  className="bg-[#131318] rounded-lg overflow-hidden shadow-lg"
-                >
-                  {/* Top product section (background image or icon) */}
-                  <div className="relative bg-[#0F0F14] h-48 flex items-center justify-center">
-                    {product.coverImage || product.imageUrl ? (
+              {/* Ultra Premium 3D Product Cards */}
+              {sortedProducts.map((product, index) => {
+                // Generate unique colors based on product category for visual variety
+                const gradients = {
+                  ai_tools: { 
+                    from: "from-violet-600", 
+                    to: "to-indigo-700", 
+                    glow: "rgba(139, 92, 246, 0.3)" 
+                  },
+                  templates: { 
+                    from: "from-blue-600", 
+                    to: "to-cyan-600", 
+                    glow: "rgba(59, 130, 246, 0.3)" 
+                  },
+                  graphics: { 
+                    from: "from-emerald-600", 
+                    to: "to-teal-700", 
+                    glow: "rgba(16, 185, 129, 0.3)" 
+                  },
+                  Software: { 
+                    from: "from-amber-500", 
+                    to: "to-orange-700", 
+                    glow: "rgba(245, 158, 11, 0.3)" 
+                  },
+                  "Digital Assets": { 
+                    from: "from-rose-600", 
+                    to: "to-pink-700", 
+                    glow: "rgba(244, 63, 94, 0.3)" 
+                  }
+                };
+                
+                // Select gradient based on category or default
+                const gradient = gradients[product.category as keyof typeof gradients] || 
+                               { from: "from-violet-600", to: "to-indigo-700", glow: "rgba(139, 92, 246, 0.3)" };
+                
+                return (
+                  <motion.div
+                    key={product.id || index}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: index * 0.08, type: "spring", stiffness: 100 }}
+                    whileHover={{ 
+                      y: -10, 
+                      transition: { duration: 0.2 } 
+                    }}
+                    className="group relative"
+                    style={{ perspective: "1200px" }}
+                  >
+                    {/* 3D product card with glassmorphism */}
+                    <motion.div
+                      whileHover={{ 
+                        rotateX: 2, 
+                        rotateY: 5,
+                        z: 10
+                      }}
+                      transition={{ type: "spring", stiffness: 300 }}
+                      className="relative h-full rounded-xl bg-gradient-to-b from-gray-900/90 to-gray-950/90 backdrop-blur-xl border border-white/5 shadow-xl overflow-hidden"
+                      style={{
+                        transformStyle: "preserve-3d",
+                        backfaceVisibility: "hidden",
+                        boxShadow: `0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.05), 0 0 20px ${gradient.glow}`
+                      }}
+                    >
+                      {/* Shine effect overlay */}
                       <div 
-                        className="w-full h-full bg-cover bg-center"
-                        style={{ backgroundImage: `url(${product.coverImage || product.imageUrl})` }}
-                      />
-                    ) : (
-                      <div 
-                        className={`w-24 h-24 rounded-full flex items-center justify-center`}
-                        style={{ 
-                          background: product.category === 'ai_tools' ? '#3D1A65' : 
-                                      product.category === 'Digital Assets' ? '#1F173B' : 
-                                      '#222831' 
+                        className="absolute inset-0 opacity-0 group-hover:opacity-30 transition-opacity duration-700 shine-animation"
+                        style={{
+                          background: "linear-gradient(105deg, transparent 20%, rgba(255, 255, 255, 0.3) 50%, transparent 80%)",
+                          backgroundSize: "200% 200%",
+                          zIndex: 5
                         }}
-                      >
-                        {product.category === 'ai_tools' ? (
-                          <div className="text-purple-500">
-                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <rect x="2" y="2" width="9" height="9" rx="2" stroke="currentColor" strokeWidth="2"/>
-                              <rect x="2" y="13" width="9" height="9" rx="2" stroke="currentColor" strokeWidth="2"/>
-                              <rect x="13" y="2" width="9" height="9" rx="2" stroke="currentColor" strokeWidth="2"/>
-                              <rect x="13" y="13" width="9" height="9" rx="2" stroke="currentColor" strokeWidth="2"/>
-                            </svg>
-                          </div>
-                        ) : product.category === 'Digital Assets' ? (
-                          <div className="w-12 h-12 bg-blue-500 rounded-md flex items-center justify-center">
-                            <product.Icon className="w-8 h-8 text-white" />
-                          </div>
-                        ) : (
-                          <product.Icon className="w-10 h-10 text-purple-500" />
-                        )}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Category label */}
-                  <div className="p-3 pt-4 pb-2 border-b border-[#1E1E28]">
-                    <div className="uppercase text-xs tracking-wide font-medium text-[#7B5ACF]">
-                      {product.category === 'ai_tools' ? 'AI_TOOLS' : 
-                      product.category || 'DIGITAL PRODUCT'}
-                    </div>
-                  </div>
-
-                  {/* Product details */}
-                  <div className="p-4">
-                    {/* Product name and verified badge */}
-                    <div className="flex justify-between items-start mb-1">
-                      <h3 className="text-lg font-semibold text-white">{product.name}</h3>
-                      {index % 2 === 0 && (
-                        <span className="flex items-center text-[#22C55A] text-xs font-medium">
-                          <Check className="w-3 h-3 mr-1" /> Verified
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Description */}
-                    <p className="text-gray-400 text-sm mb-3">
-                      {product.description && product.description.length > 0 
-                        ? product.description
-                        : "No description"}
-                    </p>
-
-                    {/* Rating stars */}
-                    <div className="flex items-center mb-3">
-                      {[...Array(5)].map((_, i) => (
-                        <Star 
+                      />
+                      
+                      {/* Floating particles for premium effect */}
+                      {[...Array(8)].map((_, i) => (
+                        <motion.div
                           key={i}
-                          className={`w-4 h-4 ${
-                            i < Math.floor(product.rating || 4.5) 
-                              ? "text-yellow-400 fill-yellow-400" 
-                              : "text-gray-600"
-                          }`}
+                          className="absolute w-1 h-1 rounded-full bg-white opacity-0 group-hover:opacity-30"
+                          style={{
+                            top: `${10 + Math.random() * 80}%`,
+                            left: `${10 + Math.random() * 80}%`,
+                          }}
+                          animate={{
+                            y: [0, -20, 0],
+                            opacity: [0, 0.3, 0],
+                          }}
+                          transition={{
+                            duration: 2 + Math.random() * 3,
+                            repeat: Infinity,
+                            delay: Math.random() * 2,
+                          }}
                         />
                       ))}
-                      <span className="text-yellow-400 ml-1 text-sm">
-                        {product.rating?.toFixed(1) || (4.6 + (index * 0.1) % 0.5).toFixed(1)}
-                      </span>
-                      <span className="text-gray-500 ml-1 text-sm">
-                        ({product.reviews || (75 + (index * 12))})
-                      </span>
-                    </div>
 
-                    {/* Price and add button */}
-                    <div className="flex justify-between items-center">
-                      <div className="text-xl font-bold text-white">
-                        ${product.price || "59.99"} <span className="text-xs text-gray-500 font-normal">USD</span>
+                      {/* Premium highlight edge */}
+                      <div 
+                        className={`absolute top-0 left-0 right-0 h-1 z-10 opacity-70 bg-gradient-to-r ${gradient.from} ${gradient.to}`}
+                      />
+                      
+                      {/* Header with product image/icon */}
+                      <div className="relative h-48 overflow-hidden">
+                        {/* Background gradient */}
+                        <div className={`absolute inset-0 bg-gradient-to-br opacity-30 ${gradient.from} ${gradient.to}`} />
+                        
+                        {/* Featured accent circles */}
+                        <div className="absolute -bottom-6 -left-6 w-24 h-24 rounded-full bg-white/5 backdrop-blur-md" />
+                        <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-white/5 backdrop-blur-md" />
+                        
+                        {/* Product image or icon */}
+                        <div className="absolute inset-0 flex items-center justify-center z-10">
+                          {product.coverImage || product.imageUrl ? (
+                            <div 
+                              className="w-full h-full transform transition-transform duration-500 ease-out group-hover:scale-110 bg-cover bg-center"
+                              style={{ backgroundImage: `url(${product.coverImage || product.imageUrl})` }}
+                            />
+                          ) : (
+                            <motion.div 
+                              whileHover={{ 
+                                scale: 1.1,
+                                rotate: [-1, 1, -1], 
+                                transition: { rotate: { repeat: Infinity, duration: 2 } }
+                              }}
+                              className={`w-28 h-28 rounded-full flex items-center justify-center backdrop-blur-lg float-animation`}
+                              style={{ 
+                                background: `linear-gradient(135deg, ${gradient.glow}, rgba(20, 20, 20, 0.7))`,
+                                boxShadow: `0 20px 25px -5px ${gradient.glow}, 0 0 25px 0 rgba(0, 0, 0, 0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.1)`
+                              }}
+                            >
+                              <product.Icon className="w-14 h-14 text-white pulse-animation" />
+                            </motion.div>
+                          )}
+                        </div>
+                        
+                        {/* Premium badge overlay */}
+                        {(product.price || 0) > 49.99 && (
+                          <div className="absolute top-4 right-4 z-20">
+                            <motion.div
+                              whileHover={{ scale: 1.1 }}
+                              className="px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-lg border border-white/10 shadow-lg flex items-center gap-1.5"
+                              style={{ boxShadow: `0 0 15px ${gradient.glow}` }}
+                            >
+                              <div className={`w-2 h-2 rounded-full bg-gradient-to-r ${gradient.from} ${gradient.to}`} />
+                              <span className="text-white text-xs font-semibold">PREMIUM</span>
+                            </motion.div>
+                          </div>
+                        )}
+                        
+                        {/* Category label */}
+                        <div className="absolute top-4 left-4 z-20">
+                          <motion.div
+                            whileHover={{ scale: 1.05 }}
+                            className="px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-lg border border-white/10 shadow-lg text-xs font-medium uppercase tracking-wider"
+                          >
+                            {product.category || "DIGITAL"}
+                          </motion.div>
+                        </div>
+                        
+                        {/* Overlay gradient for better text contrast */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/20 to-transparent z-10" />
                       </div>
                       
-                      <Button 
-                        className="bg-[#9333EA] hover:bg-[#7928CA] text-white rounded-md px-4"
-                        size="sm"
-                      >
-                        <ShoppingCart className="w-4 h-4 mr-1.5" /> Add to Cart
-                      </Button>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
+                      {/* Product details with 3D layered effect */}
+                      <div className="relative z-20 p-6 -mt-8" style={{ transform: "translateZ(20px)" }}>
+                        {/* Product title with verified badge */}
+                        <div className="flex items-start justify-between mb-3">
+                          <h3 className="text-xl font-bold text-white">
+                            {product.name}
+                          </h3>
+                          
+                          {index % 2 === 0 && (
+                            <motion.div
+                              whileHover={{ scale: 1.1 }}
+                              className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20"
+                            >
+                              <Check className="w-3 h-3 text-emerald-500" />
+                              <span className="text-xs font-medium text-emerald-400">Verified</span>
+                            </motion.div>
+                          )}
+                        </div>
+                        
+                        {/* Description */}
+                        <p className="text-gray-300 text-sm mb-4">
+                          {product.description || "No description"}
+                        </p>
+                        
+                        {/* Creator with avatar */}
+                        <div className="flex items-center gap-2 mb-4">
+                          <motion.div 
+                            whileHover={{ scale: 1.1, rotate: 10 }}
+                            className="w-8 h-8 rounded-full overflow-hidden border-2 border-white/10 shadow-inner"
+                            style={{ 
+                              background: `linear-gradient(135deg, ${gradient.from.replace('from-', '')}, ${gradient.to.replace('to-', '')})`,
+                              boxShadow: `0 0 10px ${gradient.glow}`
+                            }}
+                          >
+                            <div className="w-full h-full flex items-center justify-center text-white font-bold text-sm">
+                              {product.author?.name?.[0] || "C"}
+                            </div>
+                          </motion.div>
+                          
+                          <div className="flex flex-col">
+                            <span className="text-xs text-gray-300">Creator</span>
+                            <span className="text-sm font-semibold text-white">{product.author?.name || "Anonymous"}</span>
+                          </div>
+                        </div>
+                        
+                        {/* Stats row */}
+                        <div className="grid grid-cols-3 gap-2 mb-5">
+                          {/* Rating */}
+                          <div className="bg-white/5 backdrop-blur-sm rounded-lg p-2 flex flex-col items-center">
+                            <div className="flex mb-1">
+                              {[...Array(5)].map((_, i) => (
+                                <Star 
+                                  key={i}
+                                  className={`w-3 h-3 ${
+                                    i < Math.floor(product.rating || 4.5) 
+                                      ? "text-yellow-400 fill-yellow-400" 
+                                      : "text-gray-700"
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                            <span className="text-xs text-gray-400">
+                              {product.rating?.toFixed(1) || "4.8"} ({product.reviews || "85"})
+                            </span>
+                          </div>
+                          
+                          {/* Downloads */}
+                          <div className="bg-white/5 backdrop-blur-sm rounded-lg p-2 flex flex-col items-center">
+                            <Zap className="w-4 h-4 text-amber-400 mb-1" />
+                            <span className="text-xs text-gray-400">
+                              {(product.sales || 125) + (index * 15)}+ Sales
+                            </span>
+                          </div>
+                          
+                          {/* File size or similar */}
+                          <div className="bg-white/5 backdrop-blur-sm rounded-lg p-2 flex flex-col items-center">
+                            <DollarSign className="w-4 h-4 text-green-400 mb-1" />
+                            <span className="text-xs text-gray-400">
+                              Premium
+                            </span>
+                          </div>
+                        </div>
+                        
+                        {/* Bottom price and action */}
+                        <div className="flex items-center justify-between mt-2">
+                          <motion.div 
+                            className="flex flex-col"
+                            whileHover={{ 
+                              scale: 1.05,
+                              transition: { type: "spring", stiffness: 400, damping: 10 }
+                            }}
+                          >
+                            <div className="relative">
+                              <span className="text-3xl font-bold" style={{ 
+                                background: `linear-gradient(to right, #fff, ${gradient.from.replace('from-', '')})`,
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                                textShadow: '0 0 20px rgba(255, 255, 255, 0.2)'
+                              }}>
+                                ${product.price || "59.99"}
+                              </span>
+                              {/* Premium price glow effect */}
+                              <div className="absolute -inset-1 bg-gradient-to-r from-transparent via-white/10 to-transparent rounded-full blur-md -z-10"></div>
+                            </div>
+                            <span className="text-gray-500 text-xs">USD</span>
+                          </motion.div>
+                          
+                          {/* CTA Button with 3D effect */}
+                          <motion.button
+                            whileHover={{ 
+                              scale: 1.05,
+                              boxShadow: `0 8px 20px ${gradient.glow}, 0 0 0 1px rgba(255, 255, 255, 0.2)`,
+                            }}
+                            whileTap={{ scale: 0.95 }}
+                            className={`relative px-4 py-2.5 rounded-lg text-white font-medium text-sm flex items-center gap-2 bg-gradient-to-r ${gradient.from} ${gradient.to} overflow-hidden`}
+                            style={{ 
+                              boxShadow: `0 4px 10px ${gradient.glow}, 0 0 0 1px rgba(255, 255, 255, 0.1)`,
+                              textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)'
+                            }}
+                          >
+                            {/* Shine overlay */}
+                            <div className="absolute top-0 left-0 w-full h-full shine-animation opacity-50"></div>
+                            
+                            {/* Button content */}
+                            <div className="relative z-10 flex items-center gap-2">
+                              <ShoppingCart className="w-4 h-4" />
+                              Add to Cart
+                            </div>
+                          </motion.button>
+                        </div>
+                      </div>
+                    </motion.div>
+                    
+                    {/* Reflection effect */}
+                    <div 
+                      className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-[95%] h-[20px] rounded-[100%] bg-gradient-to-r from-transparent via-[rgba(120,119,198,0.1)] to-transparent blur-md"
+                      style={{ zIndex: -1 }}
+                    />
+                  </motion.div>
+                )
+              })}
             </motion.div>
           )}
         </section>
