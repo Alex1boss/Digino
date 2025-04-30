@@ -1183,6 +1183,10 @@ export default function Explore() {
                     }}
                     className="group relative"
                     style={{ perspective: "1200px" }}
+                    onClick={() => {
+                      console.log("Product wrapper clicked:", product.name);
+                      setSelectedProduct(product);
+                    }}
                   >
                     {/* 3D product card with glassmorphism */}
                     <motion.div
@@ -1197,11 +1201,6 @@ export default function Explore() {
                         transformStyle: "preserve-3d",
                         backfaceVisibility: "hidden",
                         boxShadow: `0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.05), 0 0 20px ${gradient.glow}`
-                      }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        console.log("Product clicked:", product.name);
-                        setSelectedProduct(product);
                       }}
                     >
                       {/* Shine effect overlay */}
@@ -1600,6 +1599,15 @@ export default function Explore() {
       
       {/* Mobile bottom navigation */}
       <BottomNav />
+      
+      {/* Debug button to test ProductDetail */}
+      <button 
+        onClick={() => setSelectedProduct(sortedProducts[0])}
+        className="fixed bottom-24 left-4 bg-blue-500 text-white px-4 py-2 rounded-full z-50 flex items-center gap-2"
+      >
+        <Search className="w-4 h-4" />
+        Test Detail
+      </button>
 
       {/* Product detail modal */}
       <AnimatePresence>
@@ -1610,6 +1618,13 @@ export default function Explore() {
           />
         )}
       </AnimatePresence>
+      
+      {/* Debug indicator for selectedProduct */}
+      {selectedProduct && (
+        <div className="fixed bottom-20 right-4 bg-green-500 text-white px-4 py-2 rounded-full z-50">
+          Product selected: {selectedProduct.name}
+        </div>
+      )}
     </div>
   );
 }
