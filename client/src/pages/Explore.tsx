@@ -153,10 +153,12 @@ const CreatorCard = ({
 // Ultra premium 3D product card with advanced effects
 const FeaturedProductCard = ({ 
   product, 
-  index 
+  index,
+  onProductSelect
 }: { 
   product: Product; 
   index: number;
+  onProductSelect: (product: Product) => void;
 }) => {
   // Dynamic colors based on index for variety
   const colors = [
@@ -528,7 +530,7 @@ const FeaturedProductCard = ({
               whileTap={{ scale: 0.98 }}
               onClick={(e) => {
                 e.stopPropagation();
-                setSelectedProduct(product);
+                onProductSelect(product);
               }}
             >
               View Details
@@ -1190,12 +1192,13 @@ export default function Explore() {
                         z: 10
                       }}
                       transition={{ type: "spring", stiffness: 300 }}
-                      className="relative h-full rounded-xl bg-gradient-to-b from-gray-900/90 to-gray-950/90 backdrop-blur-xl border border-white/5 shadow-xl overflow-hidden"
+                      className="relative h-full rounded-xl bg-gradient-to-b from-gray-900/90 to-gray-950/90 backdrop-blur-xl border border-white/5 shadow-xl overflow-hidden cursor-pointer"
                       style={{
                         transformStyle: "preserve-3d",
                         backfaceVisibility: "hidden",
                         boxShadow: `0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.05), 0 0 20px ${gradient.glow}`
                       }}
+                      onClick={() => setSelectedProduct(product)}
                     >
                       {/* Shine effect overlay */}
                       <div 
