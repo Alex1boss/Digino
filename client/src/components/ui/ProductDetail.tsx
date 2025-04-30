@@ -24,6 +24,8 @@ const demoImages = [
 export default function ProductDetail({ product, onClose }: ProductDetailProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
+  
+  console.log("ProductDetail rendering with product:", product);
 
   // Get category-specific colors
   const getCategoryColor = (category?: string | null) => {
