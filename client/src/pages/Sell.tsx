@@ -49,7 +49,8 @@ export default function Sell() {
     previewUrl: "",
     productLink: "",
     productImage: "", // Added for product image
-    iconName: "Zap" // Default icon name
+    iconName: "", // Default icon name
+    customIcon: "" // Added for custom product icon
   });
   
   const [isUploading, setIsUploading] = useState(false);
@@ -58,8 +59,10 @@ export default function Sell() {
   const [isSaving, setIsSaving] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [productImage, setProductImage] = useState<string | null>(null);
+  const [productIcon, setProductIcon] = useState<string | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const productImageRef = React.useRef<HTMLInputElement>(null);
+  const productIconRef = React.useRef<HTMLInputElement>(null);
   
   // Handle file selection
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -164,6 +167,73 @@ export default function Sell() {
     productImageRef.current?.click();
   };
   
+  // Handle product icon upload
+  const handleProductIconUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file (JPEG, PNG, etc.)');
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (e.target?.result) {
+          const iconDataUrl = e.target.result as string;
+          setProductIcon(iconDataUrl);
+          setFormData(prev => ({
+            ...prev,
+            customIcon: iconDataUrl,
+            iconName: "" // Clear the selected icon name when using custom icon
+          }));
+        }
+      };
+      reader.onerror = () => {
+        alert('Error reading file. Please try again.');
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  
+  // Handle product icon drop
+  const handleProductIconDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const file = e.dataTransfer.files[0];
+      if (!file.type.startsWith('image/')) {
+        alert('Please drop an image file (JPEG, PNG, etc.)');
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (e.target?.result) {
+          const iconDataUrl = e.target.result as string;
+          setProductIcon(iconDataUrl);
+          setFormData(prev => ({
+            ...prev,
+            customIcon: iconDataUrl,
+            iconName: "" // Clear the selected icon name when using custom icon
+          }));
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  
+  // Handle product icon drag over
+  const handleProductIconDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+  
+  // Handle product icon button click
+  const handleProductIconClick = () => {
+    productIconRef.current?.click();
+  };
+  
   // Simulate file upload with progress
   const simulateFileUpload = () => {
     if (selectedFiles.length === 0) return;
@@ -257,6 +327,7 @@ export default function Sell() {
             },
             createdAt: new Date().toISOString(),
             iconName: formData.iconName || "Zap",
+            customIcon: formData.customIcon || "",
           };
           
           // Save to localStorage
@@ -629,6 +700,74 @@ export default function Sell() {
                 </div>
               </div>
               
+              {/* Product Icon Upload */}
+              <div className="space-y-2">
+                <label className="block text-white/80 font-medium pl-1">Product Icon</label>
+                <div 
+                  className={`border-2 border-dashed border-white/20 rounded-lg ${productIcon ? 'p-4' : 'p-8'} bg-white/5 relative text-center`}
+                  onDrop={handleProductIconDrop}
+                  onDragOver={handleProductIconDragOver}
+                >
+                  {productIcon ? (
+                    <div className="relative">
+                      <div className="bg-gradient-to-br from-[#4F46E5]/20 to-[#4F46E5]/50 p-4 rounded-lg mx-auto w-[150px] h-[150px] flex items-center justify-center">
+                        <img 
+                          src={productIcon} 
+                          alt="Product icon preview" 
+                          className="max-h-[100px] max-w-[100px] mx-auto object-contain"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        className="absolute top-2 right-2 h-8 w-8 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center"
+                        onClick={() => {
+                          setProductIcon(null);
+                          setFormData(prev => ({
+                            ...prev,
+                            customIcon: ""
+                          }));
+                        }}
+                      >
+                        <span className="sr-only">Remove</span>
+                        <X size={16} />
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <Image className="mx-auto text-white/30 mb-4 w-10 h-10" />
+                      <p className="text-white/70 text-center mb-4">
+                        Drag and drop or click to upload your product icon
+                      </p>
+                      <p className="text-white/50 text-xs text-center">
+                        This icon will represent your product in listings
+                      </p>
+                    </>
+                  )}
+                  
+                  <input 
+                    type="file" 
+                    id="product-icon-upload" 
+                    ref={productIconRef}
+                    className={productIcon ? "hidden" : "absolute inset-0 w-full h-full opacity-0 cursor-pointer"}
+                    accept="image/*"
+                    onChange={handleProductIconUpload}
+                  />
+                  
+                  {!productIcon && (
+                    <motion.button
+                      type="button"
+                      onClick={handleProductIconClick}
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                      className="mt-4 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white"
+                    >
+                      <Upload size={16} className="mr-2 inline-block" />
+                      Choose Icon
+                    </motion.button>
+                  )}
+                </div>
+              </div>
+              
               {/* Product Files Upload */}
               <div className="space-y-2">
                 <label className="block text-white/80 font-medium pl-1">Product Files</label>
@@ -820,77 +959,19 @@ export default function Sell() {
                 </div>
               </div>
               
-              {/* Product Icon Selection */}
-              <div className="space-y-3 mt-6">
-                <label className="block text-white/80 font-medium pl-1">Select Product Icon</label>
-                <p className="text-white/60 text-xs pl-1 mb-2">
-                  Choose an icon that best represents your product. This icon will be displayed in product cards.
-                </p>
-                
-                <div className="grid grid-cols-5 md:grid-cols-8 gap-3">
-                  {[
-                    { name: "Zap", icon: <Zap /> },
-                    { name: "Cpu", icon: <Cpu /> },
-                    { name: "Code", icon: <Code /> },
-                    { name: "BarChart", icon: <BarChart /> },
-                    { name: "Layers", icon: <Layers /> },
-                    { name: "Box", icon: <Box /> },
-                    { name: "Rocket", icon: <Rocket /> },
-                    { name: "FileText", icon: <FileText /> },
-                    { name: "BookOpen", icon: <BookOpen /> },
-                    { name: "MessageSquare", icon: <MessageSquare /> },
-                    { name: "Palette", icon: <Palette /> },
-                    { name: "Globe", icon: <Globe /> },
-                    { name: "Database", icon: <Database /> },
-                    { name: "Music", icon: <Music /> },
-                    { name: "Video", icon: <Video /> },
-                    { name: "Image", icon: <Image /> }
-                  ].map((iconItem) => (
-                    <motion.div
-                      key={iconItem.name}
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => setFormData(prev => ({ ...prev, iconName: iconItem.name }))}
-                      className={`
-                        cursor-pointer h-14 flex items-center justify-center rounded-lg
-                        ${formData.iconName === iconItem.name 
-                          ? 'bg-[#4F46E5] text-white shadow-lg' 
-                          : 'bg-white/5 text-white/70 hover:bg-white/10'}
-                      `}
-                    >
-                      {React.cloneElement(iconItem.icon, { size: 24 })}
-                    </motion.div>
-                  ))}
+              {/* Info about using product icon */}
+              <div className="flex items-center mt-6 p-4 bg-white/5 rounded-lg border border-white/10">
+                <div className="w-10 h-10 rounded-full bg-[#4F46E5]/20 flex items-center justify-center mr-3 flex-shrink-0">
+                  <Image className="text-[#4F46E5]" size={20} />
                 </div>
-                
-                <div className="flex items-center mt-3 bg-white/5 rounded-lg p-3">
-                  <div className="w-10 h-10 rounded-full bg-[#4F46E5]/20 flex items-center justify-center mr-3">
-                    {(() => {
-                      switch (formData.iconName) {
-                        case "Zap": return <Zap className="text-[#4F46E5]" />;
-                        case "Cpu": return <Cpu className="text-[#4F46E5]" />;
-                        case "Code": return <Code className="text-[#4F46E5]" />;
-                        case "BarChart": return <BarChart className="text-[#4F46E5]" />;
-                        case "Layers": return <Layers className="text-[#4F46E5]" />;
-                        case "Box": return <Box className="text-[#4F46E5]" />;
-                        case "Rocket": return <Rocket className="text-[#4F46E5]" />;
-                        case "FileText": return <FileText className="text-[#4F46E5]" />;
-                        case "BookOpen": return <BookOpen className="text-[#4F46E5]" />;
-                        case "MessageSquare": return <MessageSquare className="text-[#4F46E5]" />;
-                        case "Palette": return <Palette className="text-[#4F46E5]" />;
-                        case "Globe": return <Globe className="text-[#4F46E5]" />;
-                        case "Database": return <Database className="text-[#4F46E5]" />;
-                        case "Music": return <Music className="text-[#4F46E5]" />;
-                        case "Video": return <Video className="text-[#4F46E5]" />;
-                        case "Image": return <Image className="text-[#4F46E5]" />;
-                        default: return <Zap className="text-[#4F46E5]" />;
-                      }
-                    })()}
-                  </div>
-                  <div>
-                    <p className="text-white/80 text-sm font-medium">Selected Icon: {formData.iconName}</p>
-                    <p className="text-white/50 text-xs">This icon will be used to represent your product in listings</p>
-                  </div>
+                <div>
+                  <p className="text-white/80 text-sm font-medium">Product Icon Added in Step 1</p>
+                  <p className="text-white/50 text-xs">
+                    The custom product icon you uploaded will be used to represent your product in listings.
+                    {productIcon ? 
+                      " Your custom icon is ready to go!" : 
+                      " Please return to Step 1 if you want to add a custom icon."}
+                  </p>
                 </div>
               </div>
               
