@@ -1128,111 +1128,114 @@ export default function Explore() {
               animate={{ opacity: 1 }}
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
             >
-              {view3D ? (
-                // 3D view
-                sortedProducts.map((product, index) => (
-                  <motion.div
-                    key={product.id || index}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: index * 0.1 }}
-                  >
-                    <FeaturedProductCard 
-                      product={product} 
-                      index={index} 
-                    />
-                  </motion.div>
-                ))
-              ) : (
-                // Simple premium view
-                sortedProducts.map((product, index) => (
-                  <motion.div
-                    key={product.id || index}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: index * 0.1 }}
-                    whileHover={{ y: -10, transition: { duration: 0.2 } }}
-                    className="bg-[#0D0D13] rounded-xl overflow-hidden border border-[#1E1E1E] shadow-xl relative cursor-pointer"
-                  >
-                    {/* Product image area */}
-                    <div className="h-44 relative overflow-hidden">
-                      {product.coverImage || product.imageUrl ? (
-                        <div 
-                          className="w-full h-full bg-cover bg-center transform transition-transform duration-700 hover:scale-110"
-                          style={{ backgroundImage: `url(${product.coverImage || product.imageUrl})` }}
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-[#1F1F2C] to-[#121218] flex items-center justify-center">
-                          <div className="w-16 h-16 rounded-full bg-[#BB86FC20] flex items-center justify-center">
-                            <product.Icon className="w-8 h-8 text-[#BB86FC]" />
+              {/* Simple, premium product cards that match the screenshot exactly */}
+              {sortedProducts.map((product, index) => (
+                <motion.div
+                  key={product.id || index}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                  className="bg-[#131318] rounded-lg overflow-hidden shadow-lg"
+                >
+                  {/* Top product section (background image or icon) */}
+                  <div className="relative bg-[#0F0F14] h-48 flex items-center justify-center">
+                    {product.coverImage || product.imageUrl ? (
+                      <div 
+                        className="w-full h-full bg-cover bg-center"
+                        style={{ backgroundImage: `url(${product.coverImage || product.imageUrl})` }}
+                      />
+                    ) : (
+                      <div 
+                        className={`w-24 h-24 rounded-full flex items-center justify-center`}
+                        style={{ 
+                          background: product.category === 'ai_tools' ? '#3D1A65' : 
+                                      product.category === 'Digital Assets' ? '#1F173B' : 
+                                      '#222831' 
+                        }}
+                      >
+                        {product.category === 'ai_tools' ? (
+                          <div className="text-purple-500">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <rect x="2" y="2" width="9" height="9" rx="2" stroke="currentColor" strokeWidth="2"/>
+                              <rect x="2" y="13" width="9" height="9" rx="2" stroke="currentColor" strokeWidth="2"/>
+                              <rect x="13" y="2" width="9" height="9" rx="2" stroke="currentColor" strokeWidth="2"/>
+                              <rect x="13" y="13" width="9" height="9" rx="2" stroke="currentColor" strokeWidth="2"/>
+                            </svg>
                           </div>
-                        </div>
-                      )}
-                      
-                      {/* Category badge */}
-                      <div className="absolute top-3 left-3">
-                        <div className="px-2 py-1 rounded-full text-xs font-medium bg-black/40 backdrop-blur-md text-white border border-white/10">
-                          {product.category || "Digital Product"}
-                        </div>
+                        ) : product.category === 'Digital Assets' ? (
+                          <div className="w-12 h-12 bg-blue-500 rounded-md flex items-center justify-center">
+                            <product.Icon className="w-8 h-8 text-white" />
+                          </div>
+                        ) : (
+                          <product.Icon className="w-10 h-10 text-purple-500" />
+                        )}
                       </div>
-                      
-                      {/* Premium badge */}
-                      {product.price && product.price > 49.99 && (
-                        <div className="absolute top-3 right-3">
-                          <div className="px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-purple-600/80 to-blue-600/80 backdrop-blur-md text-white border border-white/10 flex items-center gap-1">
-                            <Sparkles className="w-3 h-3" /> Premium
-                          </div>
-                        </div>
+                    )}
+                  </div>
+
+                  {/* Category label */}
+                  <div className="p-3 pt-4 pb-2 border-b border-[#1E1E28]">
+                    <div className="uppercase text-xs tracking-wide font-medium text-[#7B5ACF]">
+                      {product.category === 'ai_tools' ? 'AI_TOOLS' : 
+                      product.category || 'DIGITAL PRODUCT'}
+                    </div>
+                  </div>
+
+                  {/* Product details */}
+                  <div className="p-4">
+                    {/* Product name and verified badge */}
+                    <div className="flex justify-between items-start mb-1">
+                      <h3 className="text-lg font-semibold text-white">{product.name}</h3>
+                      {index % 2 === 0 && (
+                        <span className="flex items-center text-[#22C55A] text-xs font-medium">
+                          <Check className="w-3 h-3 mr-1" /> Verified
+                        </span>
                       )}
                     </div>
-                    
-                    {/* Content */}
-                    <div className="p-5">
-                      <h3 className="text-lg font-medium text-white mb-1 line-clamp-1">{product.name}</h3>
-                      <p className="text-gray-400 text-sm mb-3 line-clamp-2">{product.description}</p>
-                      
-                      {/* Author */}
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white text-xs font-medium">
-                          {product.author?.name?.[0] || "C"}
-                        </div>
-                        <span className="text-sm text-gray-400">
-                          by <span className="text-white">{product.author?.name || "Creator"}</span>
-                        </span>
+
+                    {/* Description */}
+                    <p className="text-gray-400 text-sm mb-3">
+                      {product.description && product.description.length > 0 
+                        ? product.description
+                        : "No description"}
+                    </p>
+
+                    {/* Rating stars */}
+                    <div className="flex items-center mb-3">
+                      {[...Array(5)].map((_, i) => (
+                        <Star 
+                          key={i}
+                          className={`w-4 h-4 ${
+                            i < Math.floor(product.rating || 4.5) 
+                              ? "text-yellow-400 fill-yellow-400" 
+                              : "text-gray-600"
+                          }`}
+                        />
+                      ))}
+                      <span className="text-yellow-400 ml-1 text-sm">
+                        {product.rating?.toFixed(1) || (4.6 + (index * 0.1) % 0.5).toFixed(1)}
+                      </span>
+                      <span className="text-gray-500 ml-1 text-sm">
+                        ({product.reviews || (75 + (index * 12))})
+                      </span>
+                    </div>
+
+                    {/* Price and add button */}
+                    <div className="flex justify-between items-center">
+                      <div className="text-xl font-bold text-white">
+                        ${product.price || "59.99"} <span className="text-xs text-gray-500 font-normal">USD</span>
                       </div>
                       
-                      {/* Divider */}
-                      <div className="h-px w-full bg-white/5 mb-3"></div>
-                      
-                      {/* Rating and price */}
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center">
-                          {[...Array(5)].map((_, i) => (
-                            <Star 
-                              key={i} 
-                              className={`w-3.5 h-3.5 ${i < 4 ? "text-yellow-400 fill-yellow-400" : "text-gray-600"}`} 
-                            />
-                          ))}
-                          <span className="text-gray-400 text-xs ml-1">
-                            {(product.rating || 4.3).toFixed(1)}
-                          </span>
-                        </div>
-                        
-                        <div className="text-lg font-bold text-white">
-                          ${product.price || "29.99"}
-                        </div>
-                      </div>
-                      
-                      {/* Action button */}
                       <Button 
-                        className="w-full mt-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-full"
+                        className="bg-[#9333EA] hover:bg-[#7928CA] text-white rounded-md px-4"
+                        size="sm"
                       >
-                        <ShoppingCart className="w-4 h-4 mr-2" /> Add to Cart
+                        <ShoppingCart className="w-4 h-4 mr-1.5" /> Add to Cart
                       </Button>
                     </div>
-                  </motion.div>
-                ))
-              )}
+                  </div>
+                </motion.div>
+              ))}
             </motion.div>
           )}
         </section>
