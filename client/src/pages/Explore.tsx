@@ -526,6 +526,10 @@ const FeaturedProductCard = ({
                 boxShadow: `0 15px 30px rgba(0,0,0,0.6), 0 0 0 1px ${colorSet.primary}50, 0 0 20px ${colorSet.primary}30`,
               }}
               whileTap={{ scale: 0.98 }}
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedProduct(product);
+              }}
             >
               View Details
             </motion.button>
@@ -548,6 +552,7 @@ export default function Explore() {
   const [showPremiumOnly, setShowPremiumOnly] = useState(false);
   const [view3D, setView3D] = useState(true);
   const [showMoreFilters, setShowMoreFilters] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   
   const heroRef = useRef<HTMLDivElement>(null);
   const bannerYPos = useTransform(
@@ -1588,6 +1593,16 @@ export default function Explore() {
       
       {/* Mobile bottom navigation */}
       <BottomNav />
+
+      {/* Product detail modal */}
+      <AnimatePresence>
+        {selectedProduct && (
+          <ProductDetail 
+            product={selectedProduct} 
+            onClose={() => setSelectedProduct(null)} 
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
