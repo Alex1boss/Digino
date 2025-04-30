@@ -1262,7 +1262,7 @@ export default function Explore() {
                                 boxShadow: `0 20px 25px -5px ${gradient.glow}, 0 0 25px 0 rgba(0, 0, 0, 0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.1)`
                               }}
                             >
-                              <product.Icon className="w-14 h-14 text-white pulse-animation" />
+                              {React.createElement(product.Icon, { className: "w-14 h-14 text-white pulse-animation" })}
                             </motion.div>
                           )}
                         </div>
