@@ -1609,15 +1609,73 @@ export default function Explore() {
         Test Detail
       </button>
 
-      {/* Product detail modal */}
-      <AnimatePresence>
-        {selectedProduct && (
-          <ProductDetail 
-            product={selectedProduct} 
-            onClose={() => setSelectedProduct(null)} 
-          />
-        )}
-      </AnimatePresence>
+      {/* Simple Product Detail Modal */}
+      {selectedProduct && (
+        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+          <div className="bg-gray-900 rounded-xl w-full max-w-4xl max-h-[90vh] overflow-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-start mb-6">
+                <h2 className="text-2xl font-bold">{selectedProduct.name}</h2>
+                <button 
+                  className="p-2 bg-gray-800 rounded-full"
+                  onClick={() => setSelectedProduct(null)}
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Image */}
+                <div className="bg-gray-800 rounded-xl overflow-hidden h-72">
+                  {selectedProduct.coverImage || selectedProduct.imageUrl ? (
+                    <div 
+                      className="w-full h-full bg-cover bg-center"
+                      style={{ backgroundImage: `url(${selectedProduct.coverImage || selectedProduct.imageUrl})` }}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <selectedProduct.Icon className="w-24 h-24 text-gray-400" />
+                    </div>
+                  )}
+                </div>
+                
+                {/* Details */}
+                <div>
+                  <div className="mb-4">
+                    <span className="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full text-sm">
+                      {selectedProduct.category || "Digital Product"}
+                    </span>
+                  </div>
+                  
+                  <p className="text-gray-300 mb-6">{selectedProduct.description}</p>
+                  
+                  <div className="mb-6">
+                    <p className="text-gray-400 mb-1">Price:</p>
+                    <p className="text-4xl font-bold">${selectedProduct.price || "59.99"}</p>
+                  </div>
+                  
+                  <button 
+                    className="w-full py-3 bg-blue-600 hover:bg-blue-700 rounded-xl font-medium"
+                    onClick={() => {
+                      // Handle purchase
+                      setSelectedProduct(null);
+                    }}
+                  >
+                    Buy Now
+                  </button>
+                  
+                  <button 
+                    className="w-full py-3 mt-3 border border-white/10 hover:bg-white/5 rounded-xl font-medium"
+                    onClick={() => setSelectedProduct(null)}
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       
       {/* Debug indicator for selectedProduct */}
       {selectedProduct && (
