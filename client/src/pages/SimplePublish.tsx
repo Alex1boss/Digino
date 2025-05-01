@@ -520,62 +520,103 @@ export default function SimplePublish() {
         }
       }
       
-      // Success message - using a better approach than alert
-      const successMessage = document.createElement('div');
-      successMessage.style.position = 'fixed';
-      successMessage.style.top = '50%';
-      successMessage.style.left = '50%';
-      successMessage.style.transform = 'translate(-50%, -50%)';
-      successMessage.style.backgroundColor = '#14B8A6';
-      successMessage.style.color = 'white';
-      successMessage.style.padding = '20px';
-      successMessage.style.borderRadius = '10px';
-      successMessage.style.zIndex = '9999';
-      successMessage.style.width = '90%';
-      successMessage.style.maxWidth = '400px';
-      successMessage.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-      successMessage.style.textAlign = 'center';
-      
-      successMessage.innerHTML = `
-        <h3 style="margin-top: 0; font-size: 18px; font-weight: bold;">Success!</h3>
-        <p style="margin-bottom: 20px;">Your product has been published successfully!</p>
-        <div>
-          <button style="padding: 8px 16px; background: white; color: #14B8A6; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">OK</button>
-        </div>
-      `;
-      
-      document.body.appendChild(successMessage);
-      
-      // Set up a timer to automatically navigate after showing success message
-      const redirectTimer = setTimeout(() => {
-        // Remove the message first
-        if (document.body.contains(successMessage)) {
-          document.body.removeChild(successMessage);
-        }
+      // Success processing is complete, now show the success message
+      try {
+        console.log("Publication successful, showing success message");
         
-        // Then redirect to the explore page
-        window.location.href = "/#/explore";
-        window.location.reload(); 
-      }, 2000);
-      
-      // Allow manual dismissal with OK button
-      const okButton = successMessage.querySelector('button');
-      if (okButton) {
-        okButton.addEventListener('click', () => {
-          // Clear the automatic redirect timer
-          clearTimeout(redirectTimer);
+        // Success message - using a better approach than alert
+        const successMessage = document.createElement('div');
+        successMessage.style.position = 'fixed';
+        successMessage.style.top = '50%';
+        successMessage.style.left = '50%';
+        successMessage.style.transform = 'translate(-50%, -50%)';
+        successMessage.style.backgroundColor = '#14B8A6';
+        successMessage.style.color = 'white';
+        successMessage.style.padding = '20px';
+        successMessage.style.borderRadius = '10px';
+        successMessage.style.zIndex = '9999';
+        successMessage.style.width = '90%';
+        successMessage.style.maxWidth = '400px';
+        successMessage.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+        successMessage.style.textAlign = 'center';
+        
+        successMessage.innerHTML = `
+          <h3 style="margin-top: 0; font-size: 18px; font-weight: bold;">Success!</h3>
+          <p style="margin-bottom: 20px;">Your product has been published successfully!</p>
+          <div>
+            <button style="padding: 8px 16px; background: white; color: #14B8A6; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">OK</button>
+          </div>
+        `;
+        
+        document.body.appendChild(successMessage);
+        
+        // Set up a timer to automatically navigate after showing success message
+        const redirectTimer = setTimeout(() => {
+          // Remove the message first
+          if (document.body.contains(successMessage)) {
+            document.body.removeChild(successMessage);
+          }
           
-          // Remove the message
-          document.body.removeChild(successMessage);
-          
-          // Immediately redirect
+          // Then redirect to the explore page
+          window.location.href = "/#/explore";
+          window.location.reload(); 
+        }, 2000);
+        
+        // Allow manual dismissal with OK button
+        const okButton = successMessage.querySelector('button');
+        if (okButton) {
+          okButton.addEventListener('click', () => {
+            // Clear the automatic redirect timer
+            clearTimeout(redirectTimer);
+            
+            // Remove the message
+            document.body.removeChild(successMessage);
+            
+            // Immediately redirect
+            window.location.href = "/#/explore";
+            window.location.reload();
+          });
+        }
+      } catch (uiError) {
+        console.error("Error showing success message:", uiError);
+        
+        // Even if UI fails, try to redirect after a delay
+        setTimeout(() => {
           window.location.href = "/#/explore";
           window.location.reload();
-        });
+        }, 1000);
       }
     } catch (e) {
-      const error = e as Error;
-      console.error("Error publishing product:", error);
+      // More robust error logging
+      console.error("Error publishing product:", e);
+      
+      // Extract error details
+      let errorDetails = "";
+      
+      if (e instanceof Error) {
+        errorDetails = e.message || "Unknown error";
+        console.error("Error message:", e.message);
+        console.error("Error stack:", e.stack);
+      } else if (typeof e === 'string') {
+        errorDetails = e;
+      } else {
+        // If it's some other object, try to stringify it
+        try {
+          errorDetails = JSON.stringify(e);
+        } catch (_) {
+          errorDetails = "Unidentified error";
+        }
+      }
+
+      // Log various localStorage state for debugging
+      try {
+        console.log("Current localStorage state:");
+        console.log("localStorage size estimate:", new Blob([JSON.stringify(localStorage)]).size, "bytes");
+        console.log("localStorage keys:", Object.keys(localStorage));
+        console.log("product_index:", localStorage.getItem('product_index'));
+      } catch (debugError) {
+        console.log("Error during debug logging:", debugError);
+      }
       
       // Create styled error message
       const errorMessage = document.createElement('div');
@@ -593,14 +634,12 @@ export default function SimplePublish() {
       errorMessage.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
       errorMessage.style.textAlign = 'center';
       
-      // Get the error message to display
-      const errorDetails = error.message || "Unknown error occurred";
-      console.log("Error details:", errorDetails);
-      
+      // Provide detailed information to help debugging
       errorMessage.innerHTML = `
         <h3 style="margin-top: 0; font-size: 18px; font-weight: bold;">Publication Failed</h3>
         <p style="margin-bottom: 10px;">There was an error publishing your product:</p>
-        <p style="margin-bottom: 20px; font-size: 14px; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 4px;">${errorDetails}</p>
+        <p style="margin-bottom: 20px; font-size: 14px; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 4px; overflow-wrap: break-word;">${errorDetails}</p>
+        <p style="margin-bottom: 20px; font-size: 12px;">Try uploading a smaller image or clearing browser storage.</p>
         <div>
           <button style="padding: 8px 16px; background: white; color: #ef4444; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">OK</button>
         </div>
