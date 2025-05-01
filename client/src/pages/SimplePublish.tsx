@@ -47,26 +47,100 @@ export default function SimplePublish() {
   
   // Handle image upload
   const handleImageUpload = (file: File) => {
-    if (!file) return;
-    
-    // Check file type
-    if (!file.type.startsWith('image/')) {
-      alert('Please upload an image file');
+    if (!file) {
+      console.error("No file selected");
+      showErrorMessage("Please select a valid file");
       return;
     }
     
+    // Check file type
+    if (!file.type.startsWith('image/')) {
+      console.error("Invalid file type:", file.type);
+      showErrorMessage("Please upload an image file (JPEG, PNG, etc.)");
+      return;
+    }
+    
+    // Check file size (limit to 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      console.error("File too large:", file.size);
+      showErrorMessage("Image is too large. Maximum size is 5MB.");
+      return;
+    }
+    
+    console.log("Processing file:", file.name, "Type:", file.type, "Size:", file.size);
+    
     // Convert to data URL for preview
     const reader = new FileReader();
+    
+    // Handle errors
+    reader.onerror = () => {
+      console.error("FileReader error:", reader.error);
+      showErrorMessage("Error reading file. Please try a different image.");
+    };
+    
     reader.onload = (e: ProgressEvent<FileReader>) => {
       const target = e.target as FileReader;
       if (target && target.result) {
+        console.log("File read successful, data URL created");
         setFormData(prev => ({ 
           ...prev, 
           previewImage: target.result as string,
         }));
+      } else {
+        console.error("File read successful but result is empty");
+        showErrorMessage("Could not process image. Please try again.");
       }
     };
-    reader.readAsDataURL(file);
+    
+    // Start reading the file
+    try {
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error("Error reading file:", error);
+      showErrorMessage("Error reading file. Please try again.");
+    }
+  };
+  
+  // Helper function to show error messages
+  const showErrorMessage = (message: string) => {
+    const errorMessage = document.createElement('div');
+    errorMessage.style.position = 'fixed';
+    errorMessage.style.top = '50%';
+    errorMessage.style.left = '50%';
+    errorMessage.style.transform = 'translate(-50%, -50%)';
+    errorMessage.style.backgroundColor = '#ef4444';
+    errorMessage.style.color = 'white';
+    errorMessage.style.padding = '20px';
+    errorMessage.style.borderRadius = '10px';
+    errorMessage.style.zIndex = '9999';
+    errorMessage.style.width = '90%';
+    errorMessage.style.maxWidth = '400px';
+    errorMessage.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+    errorMessage.style.textAlign = 'center';
+    
+    errorMessage.innerHTML = `
+      <h3 style="margin-top: 0; font-size: 18px; font-weight: bold;">Error</h3>
+      <p style="margin-bottom: 20px;">${message}</p>
+      <div>
+        <button style="padding: 8px 16px; background: white; color: #ef4444; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">OK</button>
+      </div>
+    `;
+    
+    document.body.appendChild(errorMessage);
+    
+    const okButton = errorMessage.querySelector('button');
+    if (okButton) {
+      okButton.addEventListener('click', () => {
+        document.body.removeChild(errorMessage);
+      });
+    }
+    
+    // Auto-dismiss after 5 seconds
+    setTimeout(() => {
+      if (document.body.contains(errorMessage)) {
+        document.body.removeChild(errorMessage);
+      }
+    }, 5000);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
