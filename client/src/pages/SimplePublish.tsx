@@ -36,6 +36,8 @@ export default function SimplePublish() {
     fileType: "pdf",
     license: "standard",
     previewImage: "",
+    imageUrl: "",
+    authorId: 1 // Default author ID
   });
   
   // For tracking form progress
@@ -50,7 +52,7 @@ export default function SimplePublish() {
   const [isDraggingOver, setIsDraggingOver] = useState(false);
   
   // Handle image upload
-  const handleImageUpload = (file: File) => {
+  const handleImageUpload = async (file: File) => {
     if (!file) {
       console.error("No file selected");
       showErrorMessage("Please select a valid file");
@@ -73,172 +75,41 @@ export default function SimplePublish() {
     
     console.log("Processing file:", file.name, "Type:", file.type, "Size:", file.size);
     
-    // Convert to data URL for preview
-    const reader = new FileReader();
-    
-    // Handle errors
-    reader.onerror = () => {
-      console.error("FileReader error:", reader.error);
-      showErrorMessage("Error reading file. Please try a different image.");
-    };
-    
-    // Function to resize the image to reduce localStorage quota issues
-    const resizeImage = (dataUrl: string): Promise<string> => {
-      return new Promise((resolve, reject) => {
-        try {
-          console.log("Starting image resize process");
-          
-          // Fallback in case of any errors
-          const handleResizeError = (err: any) => {
-            console.error("Image resize error:", err);
-            console.log("Using original image as fallback");
-            resolve(dataUrl); // Return original instead of failing
-          };
-          
-          // Create image element
-          const img = new Image();
-          
-          // Set crossOrigin to anonymous to avoid CORS issues
-          img.crossOrigin = "anonymous";
-          
-          // Set timeout to handle potential loading issues
-          const loadTimeout = setTimeout(() => {
-            console.warn("Image load timeout - using original");
-            resolve(dataUrl);
-          }, 5000);
-          
-          img.onload = () => {
-            clearTimeout(loadTimeout);
-            
-            try {
-              // Create canvas for resizing
-              const canvas = document.createElement('canvas');
-              const ctx = canvas.getContext('2d');
-              
-              if (!ctx) {
-                console.error("Failed to get canvas context");
-                handleResizeError("Canvas context not available");
-                return;
-              }
-              
-              // Calculate new dimensions - reduce to save space
-              const MAX_WIDTH = 500; // Made slightly smaller
-              const MAX_HEIGHT = 500;
-              
-              let width = img.width;
-              let height = img.height;
-              
-              // Check for valid dimensions
-              if (!width || !height || width <= 0 || height <= 0) {
-                console.error("Invalid image dimensions:", width, "x", height);
-                handleResizeError("Invalid image dimensions");
-                return;
-              }
-              
-              if (width > height) {
-                if (width > MAX_WIDTH) {
-                  height = Math.round(height * MAX_WIDTH / width);
-                  width = MAX_WIDTH;
-                }
-              } else {
-                if (height > MAX_HEIGHT) {
-                  width = Math.round(width * MAX_HEIGHT / height);
-                  height = MAX_HEIGHT;
-                }
-              }
-              
-              // Set canvas dimensions and draw resized image
-              canvas.width = width;
-              canvas.height = height;
-              
-              // Fill with background first (transparent images fix)
-              ctx.fillStyle = '#FFFFFF';
-              ctx.fillRect(0, 0, width, height);
-              
-              // Draw the image
-              ctx.drawImage(img, 0, 0, width, height);
-              
-              try {
-                // Try with JPEG first (smaller file size)
-                const resizedDataUrl = canvas.toDataURL('image/jpeg', 0.65); // 65% quality for even smaller size
-                
-                // Log info about the process
-                console.log("Image resized successfully");
-                console.log("Original dimensions:", img.width, "x", img.height);
-                console.log("New dimensions:", width, "x", height);
-                console.log("Original size (bytes):", dataUrl.length);
-                console.log("New size (bytes):", resizedDataUrl.length);
-                console.log("Size reduction:", Math.round((1 - resizedDataUrl.length / dataUrl.length) * 100) + "%");
-                
-                resolve(resizedDataUrl);
-              } catch (toDataUrlError) {
-                console.error("Error converting canvas to data URL:", toDataUrlError);
-                handleResizeError(toDataUrlError);
-              }
-            } catch (canvasError) {
-              console.error("Error working with canvas:", canvasError);
-              handleResizeError(canvasError);
-            }
-          };
-          
-          img.onerror = (err) => {
-            clearTimeout(loadTimeout);
-            console.error("Error loading image for resizing:", err);
-            handleResizeError("Failed to load image");
-          };
-          
-          // Set source after event handlers
-          img.src = dataUrl;
-          
-          // For some browsers, setting src isn't enough if the image is already cached
-          if (img.complete) {
-            console.log("Image already loaded - triggering onload");
-            img.onload(new Event('AlreadyLoaded') as any);
-          }
-        } catch (error) {
-          console.error("Critical error in image resizing:", error);
-          // Still provide a fallback
-          resolve(dataUrl);
-        }
-      });
-    };
-    
-    reader.onload = async (e: ProgressEvent<FileReader>) => {
-      const target = e.target as FileReader;
-      if (target && target.result) {
-        console.log("File read successful, data URL created");
-        try {
-          // Resize the image to prevent QuotaExceededError
-          const originalDataUrl = target.result as string;
-          console.log("Original image size (bytes):", originalDataUrl.length);
-          
-          const resizedDataUrl = await resizeImage(originalDataUrl);
-          console.log("Resized image size (bytes):", resizedDataUrl.length);
-          
-          setFormData(prev => ({ 
-            ...prev, 
-            previewImage: resizedDataUrl,
-          }));
-        } catch (resizeError) {
-          console.error("Error resizing image:", resizeError);
-          // Use original as fallback, though this may still cause quota issues
+    try {
+      // Create a local preview first
+      const reader = new FileReader();
+      
+      reader.onload = (e: ProgressEvent<FileReader>) => {
+        const target = e.target as FileReader;
+        if (target && target.result) {
+          // Set the preview image for UI display
           setFormData(prev => ({ 
             ...prev, 
             previewImage: target.result as string,
           }));
         }
-      } else {
-        console.error("File read successful but result is empty");
-        showErrorMessage("Could not process image. Please try again.");
-      }
-    };
-    
-    // Start reading the file
-    try {
+      };
+      
+      // Start reading the file for preview
       reader.readAsDataURL(file);
+      
+      // Compress the image before upload to reduce file size
+      const compressedFile = await compressImage(file);
+      console.log("Image compressed:", file.size, "→", compressedFile.size);
+      
+      // Upload the image to the server
+      const [uploadResult] = await uploadProductImages([compressedFile]);
+      console.log("Image uploaded successfully:", uploadResult);
+      
+      // Store the image URL from the server in our form data
+      setFormData(prev => ({ 
+        ...prev, 
+        imageUrl: uploadResult.url
+      }));
+      
     } catch (error) {
-      console.error("Error reading file:", error);
-      showErrorMessage("Error reading file. Please try again.");
+      console.error("Error processing image:", error);
+      showErrorMessage("Failed to upload image. Please try again.");
     }
   };
   
