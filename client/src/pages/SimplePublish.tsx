@@ -81,14 +81,94 @@ export default function SimplePublish() {
       showErrorMessage("Error reading file. Please try a different image.");
     };
     
-    reader.onload = (e: ProgressEvent<FileReader>) => {
+    // Function to resize the image to reduce localStorage quota issues
+    const resizeImage = (dataUrl: string): Promise<string> => {
+      return new Promise((resolve, reject) => {
+        try {
+          const img = new Image();
+          img.onload = () => {
+            // Create canvas for resizing
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            if (!ctx) {
+              console.error("Failed to get canvas context");
+              reject("Canvas context not available");
+              return;
+            }
+            
+            // Calculate new dimensions - reduce to save space
+            const MAX_WIDTH = 600;
+            const MAX_HEIGHT = 600;
+            
+            let width = img.width;
+            let height = img.height;
+            
+            if (width > height) {
+              if (width > MAX_WIDTH) {
+                height = Math.round(height * MAX_WIDTH / width);
+                width = MAX_WIDTH;
+              }
+            } else {
+              if (height > MAX_HEIGHT) {
+                width = Math.round(width * MAX_HEIGHT / height);
+                height = MAX_HEIGHT;
+              }
+            }
+            
+            // Set canvas dimensions and draw resized image
+            canvas.width = width;
+            canvas.height = height;
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            // Convert to compressed JPEG to reduce file size
+            const resizedDataUrl = canvas.toDataURL('image/jpeg', 0.7); // 70% quality
+            
+            console.log("Image resized successfully");
+            console.log("Original dimensions:", img.width, "x", img.height);
+            console.log("New dimensions:", width, "x", height);
+            console.log("Size reduction:", Math.round((1 - resizedDataUrl.length / dataUrl.length) * 100) + "%");
+            
+            resolve(resizedDataUrl);
+          };
+          
+          img.onerror = () => {
+            console.error("Error loading image for resizing");
+            reject("Failed to load image");
+          };
+          
+          img.src = dataUrl;
+        } catch (error) {
+          console.error("Error in image resizing:", error);
+          reject(error);
+        }
+      });
+    };
+    
+    reader.onload = async (e: ProgressEvent<FileReader>) => {
       const target = e.target as FileReader;
       if (target && target.result) {
         console.log("File read successful, data URL created");
-        setFormData(prev => ({ 
-          ...prev, 
-          previewImage: target.result as string,
-        }));
+        try {
+          // Resize the image to prevent QuotaExceededError
+          const originalDataUrl = target.result as string;
+          console.log("Original image size (bytes):", originalDataUrl.length);
+          
+          const resizedDataUrl = await resizeImage(originalDataUrl);
+          console.log("Resized image size (bytes):", resizedDataUrl.length);
+          
+          setFormData(prev => ({ 
+            ...prev, 
+            previewImage: resizedDataUrl,
+          }));
+        } catch (resizeError) {
+          console.error("Error resizing image:", resizeError);
+          // Use original as fallback, though this may still cause quota issues
+          setFormData(prev => ({ 
+            ...prev, 
+            previewImage: target.result as string,
+          }));
+        }
       } else {
         console.error("File read successful but result is empty");
         showErrorMessage("Could not process image. Please try again.");
@@ -271,14 +351,72 @@ export default function SimplePublish() {
         console.log("Existing products count:", existingProducts.length);
         console.log("All products to save (first 2):", existingProducts.slice(0, 2));
         console.log("Stringified products (first 200 chars):", productsString.substring(0, 200) + "...");
+        console.log("Total data size to save (bytes):", productsString.length);
         
         // Check if the string is valid before setting to localStorage
         if (typeof productsString !== 'string' || productsString.length < 2) {
           throw new Error("Invalid product data - stringification failed");
         }
         
-        localStorage.setItem('products', productsString);
-        console.log("Successfully saved to localStorage");
+        // Check available localStorage space before saving
+        // A typical localStorage limit is around 5MB (5,242,880 bytes)
+        const estimatedAvailableSpace = 5242880;
+        
+        if (productsString.length > estimatedAvailableSpace) {
+          console.error("Data size exceeds estimated localStorage capacity");
+          throw new Error("Your product library is too large. Please remove some products before adding more.");
+        }
+        
+        try {
+          // Try to save to localStorage
+          localStorage.setItem('products', productsString);
+          console.log("Successfully saved to localStorage");
+        } catch (storageError) {
+          // If we hit a quota error, try to clean up and make space
+          if (storageError instanceof DOMException && 
+              (storageError.name === 'QuotaExceededError' || 
+               storageError.name === 'NS_ERROR_DOM_QUOTA_REACHED')) {
+            
+            console.error("QuotaExceededError - localStorage is full");
+            
+            // If there are too many products, remove the oldest ones
+            if (existingProducts.length > 1) {
+              console.log("Trying to make space by removing oldest products");
+              // Keep only the newest products (current plus last 5)
+              const reducedProducts = [
+                ...existingProducts.slice(Math.max(0, existingProducts.length - 5)), 
+                newProduct
+              ];
+              
+              const reducedString = JSON.stringify(reducedProducts);
+              console.log("Reduced product count:", reducedProducts.length);
+              console.log("Reduced data size:", reducedString.length);
+              
+              try {
+                localStorage.setItem('products', reducedString);
+                console.log("Successfully saved reduced product set to localStorage");
+                return; // Exit if we succeeded
+              } catch (e) {
+                console.error("Still failed to save after reducing products:", e);
+              }
+            }
+            
+            // If still failing, try to save just the new product
+            try {
+              const singleProductArray = [newProduct];
+              localStorage.setItem('products', JSON.stringify(singleProductArray));
+              console.log("Saved only the new product");
+              return; // Exit if we succeeded
+            } catch (e) {
+              console.error("Failed to save even the single product:", e);
+            }
+            
+            throw new Error("Storage is full. Please clear your browser cache and try again.");
+          } else {
+            // For other types of errors, just pass them through
+            throw storageError;
+          }
+        }
       } catch (e) {
         const saveError = e as Error;
         console.error("Error saving to localStorage:", saveError);
