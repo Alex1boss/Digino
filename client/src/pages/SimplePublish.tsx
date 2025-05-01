@@ -289,6 +289,9 @@ export default function SimplePublish() {
   };
 
   const handlePublish = () => {
+    console.log("Publish button clicked"); 
+    
+    // Validation check
     if (!formData.title || !formData.description) {
       // Create styled validation error message
       const validationError = document.createElement('div');
@@ -333,10 +336,27 @@ export default function SimplePublish() {
       return;
     }
 
+    // Start the publishing process
     setIsPublishing(true);
     console.log("Publishing product...");
 
     try {
+      // Pre-emptive clean-up: Clear any non-essential localStorage items
+      try {
+        console.log("Cleaning up localStorage to free space...");
+        // Get all localStorage keys except our essential ones
+        const keysToPreserve = ['products', 'productDraft'];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && !keysToPreserve.includes(key)) {
+            console.log("Removing non-essential item:", key);
+            localStorage.removeItem(key);
+          }
+        }
+      } catch (cleanupError) {
+        console.log("Cleanup failed, but continuing:", cleanupError);
+      }
+      
       // Create a simple product object with all required fields
       // Sanitize the image URL to ensure it's valid
       const sanitizeImageUrl = (url: string | null | undefined) => {
@@ -348,11 +368,16 @@ export default function SimplePublish() {
         return "";
       };
 
-      const imageUrl = sanitizeImageUrl(formData.previewImage);
-      console.log("Sanitized image URL:", imageUrl);
+      // Generate a simple, unique ID
+      const uniqueId = Date.now() + "-" + Math.floor(Math.random() * 10000);
       
+      // Get the sanitized image URL
+      const imageUrl = sanitizeImageUrl(formData.previewImage);
+      console.log("Sanitized image URL length:", imageUrl ? imageUrl.length : 0, "bytes");
+      
+      // Create the product object
       const newProduct = {
-        id: Date.now(),
+        id: uniqueId,
         name: formData.title || "Untitled Product",
         description: formData.description || "No description provided",
         price: parseFloat(formData.price) || 0,
@@ -378,106 +403,121 @@ export default function SimplePublish() {
         fileType: formData.fileType || "software"
       };
 
-      console.log("Product object created:", newProduct);
+      console.log("Product object created with ID:", uniqueId);
       
-      // Get existing products from localStorage
-      let existingProducts = [];
+      // NEW APPROACH: Store each product individually with its own key
+      // This avoids having to load and save the entire products array
+      const productKey = `product_${uniqueId}`;
+      
+      // Also maintain an index of product IDs
+      let productIndex = [];
       try {
-        const savedProducts = localStorage.getItem('products');
-        console.log("Existing products in localStorage:", savedProducts);
-        
-        if (savedProducts) {
-          existingProducts = JSON.parse(savedProducts);
-        }
-      } catch (parseError) {
-        console.error("Error parsing products from localStorage:", parseError);
-        existingProducts = [];
-      }
-      
-      // Add new product to array
-      existingProducts.push(newProduct);
-      
-      // Save updated array back to localStorage
-      console.log("Saving updated products to localStorage:", existingProducts);
-      try {
-        // Convert the entire array to a string first for debugging
-        const productsString = JSON.stringify(existingProducts);
-        
-        // More detailed logging of the product object and the string representation
-        console.log("New product to save:", newProduct);
-        console.log("Existing products count:", existingProducts.length);
-        console.log("All products to save (first 2):", existingProducts.slice(0, 2));
-        console.log("Stringified products (first 200 chars):", productsString.substring(0, 200) + "...");
-        console.log("Total data size to save (bytes):", productsString.length);
-        
-        // Check if the string is valid before setting to localStorage
-        if (typeof productsString !== 'string' || productsString.length < 2) {
-          throw new Error("Invalid product data - stringification failed");
-        }
-        
-        // Check available localStorage space before saving
-        // A typical localStorage limit is around 5MB (5,242,880 bytes)
-        const estimatedAvailableSpace = 5242880;
-        
-        if (productsString.length > estimatedAvailableSpace) {
-          console.error("Data size exceeds estimated localStorage capacity");
-          throw new Error("Your product library is too large. Please remove some products before adding more.");
-        }
-        
-        try {
-          // Try to save to localStorage
-          localStorage.setItem('products', productsString);
-          console.log("Successfully saved to localStorage");
-        } catch (storageError) {
-          // If we hit a quota error, try to clean up and make space
-          if (storageError instanceof DOMException && 
-              (storageError.name === 'QuotaExceededError' || 
-               storageError.name === 'NS_ERROR_DOM_QUOTA_REACHED')) {
-            
-            console.error("QuotaExceededError - localStorage is full");
-            
-            // If there are too many products, remove the oldest ones
-            if (existingProducts.length > 1) {
-              console.log("Trying to make space by removing oldest products");
-              // Keep only the newest products (current plus last 5)
-              const reducedProducts = [
-                ...existingProducts.slice(Math.max(0, existingProducts.length - 5)), 
-                newProduct
-              ];
-              
-              const reducedString = JSON.stringify(reducedProducts);
-              console.log("Reduced product count:", reducedProducts.length);
-              console.log("Reduced data size:", reducedString.length);
-              
-              try {
-                localStorage.setItem('products', reducedString);
-                console.log("Successfully saved reduced product set to localStorage");
-                return; // Exit if we succeeded
-              } catch (e) {
-                console.error("Still failed to save after reducing products:", e);
-              }
-            }
-            
-            // If still failing, try to save just the new product
-            try {
-              const singleProductArray = [newProduct];
-              localStorage.setItem('products', JSON.stringify(singleProductArray));
-              console.log("Saved only the new product");
-              return; // Exit if we succeeded
-            } catch (e) {
-              console.error("Failed to save even the single product:", e);
-            }
-            
-            throw new Error("Storage is full. Please clear your browser cache and try again.");
-          } else {
-            // For other types of errors, just pass them through
-            throw storageError;
+        const savedIndex = localStorage.getItem('product_index');
+        if (savedIndex) {
+          productIndex = JSON.parse(savedIndex);
+          if (!Array.isArray(productIndex)) {
+            console.warn("Product index was not an array, resetting");
+            productIndex = [];
           }
         }
-      } catch (e) {
-        const saveError = e as Error;
-        console.error("Error saving to localStorage:", saveError);
-        throw new Error("Failed to save product: " + (saveError.message || "Unknown error"));
+      } catch (indexError) {
+        console.error("Error parsing product index:", indexError);
+        productIndex = [];
+      }
+      
+      // Add the new product ID to the index
+      productIndex.push(uniqueId);
+      
+      // First save the individual product (which contains the large image data)
+      try {
+        // Try storing the full product first
+        const productString = JSON.stringify(newProduct);
+        console.log(`Saving product ${uniqueId}, size: ${productString.length} bytes`);
+        
+        // Check if this single product exceeds storage limits
+        if (productString.length > 4000000) { // 4MB safety limit
+          console.warn("Product too large, removing image data");
+          
+          // Create a version without the large image data
+          const smallProduct = {
+            ...newProduct,
+            coverImage: "", 
+            imageUrl: "",
+            customIcon: "",
+            imageTooLarge: true
+          };
+          
+          // Save the smaller version instead
+          localStorage.setItem(productKey, JSON.stringify(smallProduct));
+        } else {
+          // Save the full product
+          localStorage.setItem(productKey, productString);
+        }
+        
+        // Then save the index (which is much smaller)
+        localStorage.setItem('product_index', JSON.stringify(productIndex));
+        
+        // For backward compatibility, also update the 'products' array if it exists
+        try {
+          let allProducts = [];
+          const existingProducts = localStorage.getItem('products');
+          
+          if (existingProducts) {
+            allProducts = JSON.parse(existingProducts);
+            
+            // Only keep up to 10 products to avoid quota issues
+            if (allProducts.length > 9) {
+              allProducts = allProducts.slice(-9);
+            }
+          }
+          
+          // Add new product to array
+          allProducts.push(newProduct);
+          
+          // Save but don't fail if it exceeds quota
+          try {
+            localStorage.setItem('products', JSON.stringify(allProducts));
+          } catch (e) {
+            console.warn("Could not update legacy products array:", e);
+            // This is non-critical so we continue
+          }
+        } catch (e) {
+          console.warn("Error updating legacy products array:", e);
+          // Again, this is non-critical
+        }
+        
+        console.log("Successfully saved products");
+      } catch (storageError) {
+        console.error("Error saving to localStorage:", storageError);
+        
+        if (storageError instanceof DOMException && 
+            (storageError.name === 'QuotaExceededError' || 
+            storageError.name === 'NS_ERROR_DOM_QUOTA_REACHED')) {
+          
+          console.error("QuotaExceededError - localStorage is full");
+          
+          // Try saving a version without the image
+          try {
+            const smallProduct = {
+              ...newProduct,
+              coverImage: "", 
+              imageUrl: "",
+              customIcon: "",
+              imageTooLarge: true
+            };
+            
+            // Save the smaller version
+            localStorage.setItem(productKey, JSON.stringify(smallProduct));
+            localStorage.setItem('product_index', JSON.stringify(productIndex));
+            
+            console.log("Saved product without image data");
+          } catch (fallbackError) {
+            console.error("Even fallback storage failed:", fallbackError);
+            throw new Error("Could not save product - storage completely full. Please clear browser data.");
+          }
+        } else {
+          throw storageError;
+        }
       }
       
       // Success message - using a better approach than alert
