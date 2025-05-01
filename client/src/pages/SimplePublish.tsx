@@ -249,7 +249,23 @@ export default function SimplePublish() {
       
       // Save updated array back to localStorage
       console.log("Saving updated products to localStorage:", existingProducts);
-      localStorage.setItem('products', JSON.stringify(existingProducts));
+      try {
+        // Convert the entire array to a string first for debugging
+        const productsString = JSON.stringify(existingProducts);
+        console.log("Stringified products (first 100 chars):", productsString.substring(0, 100) + "...");
+        
+        // Check if the string is valid before setting to localStorage
+        if (typeof productsString !== 'string' || productsString.length < 2) {
+          throw new Error("Invalid product data - stringification failed");
+        }
+        
+        localStorage.setItem('products', productsString);
+        console.log("Successfully saved to localStorage");
+      } catch (e) {
+        const saveError = e as Error;
+        console.error("Error saving to localStorage:", saveError);
+        throw new Error("Failed to save product: " + (saveError.message || "Unknown error"));
+      }
       
       // Success message - using a better approach than alert
       const successMessage = document.createElement('div');
@@ -304,7 +320,8 @@ export default function SimplePublish() {
           window.location.reload();
         });
       }
-    } catch (error) {
+    } catch (e) {
+      const error = e as Error;
       console.error("Error publishing product:", error);
       
       // Create styled error message
@@ -323,9 +340,14 @@ export default function SimplePublish() {
       errorMessage.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
       errorMessage.style.textAlign = 'center';
       
+      // Get the error message to display
+      const errorDetails = error.message || "Unknown error occurred";
+      console.log("Error details:", errorDetails);
+      
       errorMessage.innerHTML = `
-        <h3 style="margin-top: 0; font-size: 18px; font-weight: bold;">Error</h3>
-        <p style="margin-bottom: 20px;">Failed to publish product. Please try again.</p>
+        <h3 style="margin-top: 0; font-size: 18px; font-weight: bold;">Publication Failed</h3>
+        <p style="margin-bottom: 10px;">There was an error publishing your product:</p>
+        <p style="margin-bottom: 20px; font-size: 14px; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 4px;">${errorDetails}</p>
         <div>
           <button style="padding: 8px 16px; background: white; color: #ef4444; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">OK</button>
         </div>
@@ -406,7 +428,8 @@ export default function SimplePublish() {
         }
       }, 3000);
       
-    } catch (error) {
+    } catch (e) {
+      const error = e as Error;
       console.error("Error saving draft:", error);
     } finally {
       setIsDraft(false);
@@ -429,7 +452,8 @@ export default function SimplePublish() {
       try {
         const draft = JSON.parse(savedDraft);
         setFormData(prev => ({ ...prev, ...draft }));
-      } catch (error) {
+      } catch (e) {
+        const error = e as Error;
         console.error("Error loading draft:", error);
       }
     }
