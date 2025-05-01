@@ -539,7 +539,12 @@ export default function SimplePublish() {
                       </label>
                       <div 
                         className="border-2 border-dashed border-white/20 rounded-lg p-8 flex flex-col items-center justify-center bg-white/5 cursor-pointer hover:border-white/40 hover:bg-white/10 transition-all"
-                        onClick={() => document.getElementById('image-upload').click()}
+                        onClick={() => {
+                          const uploadInput = document.getElementById('image-upload');
+                          if (uploadInput) {
+                            uploadInput.click();
+                          }
+                        }}
                         onDragOver={(e) => {
                           e.preventDefault();
                           e.stopPropagation();

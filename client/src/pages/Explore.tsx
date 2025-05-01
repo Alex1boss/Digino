@@ -258,8 +258,8 @@ const FeaturedProductCard = ({
             whileHover={{ scale: 1.08 }}
             transition={{ duration: 1, ease: "easeOut" }}
             style={{
-              backgroundImage: product.coverImage || product.imageUrl 
-                ? `url(${product.coverImage || product.imageUrl})` 
+              backgroundImage: product.customIcon || product.coverImage || product.imageUrl 
+                ? `url(${product.customIcon || product.coverImage || product.imageUrl})` 
                 : 'none',
               backgroundSize: 'cover',
               backgroundPosition: 'center',
@@ -267,7 +267,7 @@ const FeaturedProductCard = ({
             }}
           >
             {/* Fallback gradient and icon if no image */}
-            {!product.coverImage && !product.imageUrl && (
+            {!product.customIcon && !product.coverImage && !product.imageUrl && (
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="relative">
                   {/* Animated glow ring */}
@@ -1284,10 +1284,15 @@ export default function Explore() {
                         
                         {/* Product image or icon */}
                         <div className="absolute inset-0 flex items-center justify-center z-10">
-                          {product.coverImage || product.imageUrl ? (
+                          {/* Check for any available image source with priority order */}
+                          {product.customIcon || product.coverImage || product.imageUrl ? (
                             <div 
                               className="w-full h-full transform transition-transform duration-500 ease-out group-hover:scale-110 bg-cover bg-center"
-                              style={{ backgroundImage: `url(${product.coverImage || product.imageUrl})` }}
+                              style={{ 
+                                backgroundImage: `url(${product.customIcon || product.coverImage || product.imageUrl})`,
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center'
+                              }}
                             />
                           ) : (
                             <motion.div 
@@ -1666,10 +1671,10 @@ export default function Explore() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Image */}
                 <div className="bg-gray-800 rounded-xl overflow-hidden h-72">
-                  {selectedProduct.coverImage || selectedProduct.imageUrl ? (
+                  {selectedProduct.customIcon || selectedProduct.coverImage || selectedProduct.imageUrl ? (
                     <div 
                       className="w-full h-full bg-cover bg-center"
-                      style={{ backgroundImage: `url(${selectedProduct.coverImage || selectedProduct.imageUrl})` }}
+                      style={{ backgroundImage: `url(${selectedProduct.customIcon || selectedProduct.coverImage || selectedProduct.imageUrl})` }}
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
