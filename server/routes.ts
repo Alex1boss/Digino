@@ -244,11 +244,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create a new product
   app.post("/api/products", async (req: Request, res: Response) => {
     try {
+      console.log("Received product data:", JSON.stringify(req.body, null, 2));
+      
       // Validate the request body against the product schema
       const productData = insertProductSchema.parse(req.body);
+      console.log("Validated product data:", JSON.stringify(productData, null, 2));
       
       // Create the product in the database
       const newProduct = await storage.createProduct(productData);
+      console.log("Product created successfully:", JSON.stringify(newProduct, null, 2));
       
       // Return the created product with the Icon reference
       res.status(201).json({
@@ -260,13 +264,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Handle validation errors
       if (error instanceof ZodError) {
+        console.error("Validation errors:", JSON.stringify(error.errors, null, 2));
         return res.status(400).json({ 
           message: "Invalid product data", 
           errors: error.errors 
         });
       }
       
-      res.status(500).json({ message: "Failed to create product" });
+      // Provide more detailed error information
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      console.error(`Error detail: ${errorMessage}`);
+      
+      res.status(500).json({ 
+        message: "Failed to create product", 
+        error: errorMessage 
+      });
     }
   });
 

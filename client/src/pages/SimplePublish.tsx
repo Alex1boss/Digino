@@ -225,7 +225,7 @@ export default function SimplePublish() {
         category: formData.category || "Digital Assets",
         iconName: formData.iconName || "cpu",
         tags: formData.tags || "",
-        license: formData.license || "Standard",
+        licenseType: formData.license || "Standard", // Changed from license to licenseType to match schema
         imageUrl: formData.imageUrl || "",  // URL from our server upload
         authorId: 1, // Default author ID for now
       };
