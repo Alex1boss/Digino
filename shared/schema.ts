@@ -112,8 +112,8 @@ export const purchases = pgTable("purchases", {
   currency: varchar("currency", { length: 3 }).default('USD'),
   stripePaymentId: text("stripe_payment_id"), // Reference to Stripe payment
   
-  // Purchase status
-  status: purchaseStatusEnum("status").default('completed'),
+  // Purchase status - use the type directly without default for now
+  status: text("status").notNull().default('completed'),
   
   // Timestamps
   createdAt: timestamp("created_at").defaultNow(),
