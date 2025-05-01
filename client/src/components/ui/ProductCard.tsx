@@ -90,13 +90,18 @@ export function ProductCard({ product, index }: ProductCardProps) {
       <div className="flex items-center mb-5">
         <div 
           className={cn(
-            "w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 overflow-hidden",
+            "w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 overflow-hidden shadow-md",
             product.customIcon || product.coverImage || product.imageUrl
-              ? "p-0" // No padding for images
+              ? "p-0 border-2 border-white/10" // Special styling for images
               : isBlueAccent
                 ? "text-[#4F46E5] bg-[#4F46E5]/10"
                 : "text-[#4F46E5] bg-[#4F46E5]/5"
           )}
+          style={{
+            boxShadow: (product.customIcon || product.coverImage || product.imageUrl) 
+              ? "0 4px 12px rgba(0,0,0,0.15), inset 0 0 0 1px rgba(255,255,255,0.05)" 
+              : undefined
+          }}
         >
           {renderIconOrImage()}
         </div>

@@ -201,31 +201,44 @@ export default function SimplePublish() {
 
     try {
       // Create a simple product object with all required fields
+      // Sanitize the image URL to ensure it's valid
+      const sanitizeImageUrl = (url: string | null | undefined) => {
+        if (!url) return "";
+        // Return the url only if it's a valid format (data URL, https, or http)
+        if (url.startsWith('data:') || url.startsWith('http')) {
+          return url;
+        }
+        return "";
+      };
+
+      const imageUrl = sanitizeImageUrl(formData.previewImage);
+      console.log("Sanitized image URL:", imageUrl);
+      
       const newProduct = {
         id: Date.now(),
-        name: formData.title,
-        description: formData.description,
-        price: parseFloat(formData.price),
+        name: formData.title || "Untitled Product",
+        description: formData.description || "No description provided",
+        price: parseFloat(formData.price) || 0,
         currency: "USD",
-        category: formData.category,
+        category: formData.category || "Digital Assets",
         rating: 0,
         reviews: 0,
         sales: 0,
-        // Use uploaded preview image if available, otherwise use selected icon
-        coverImage: formData.previewImage || "", 
+        // Use uploaded preview image if available
+        coverImage: imageUrl, 
         // Make sure images are consistent across fields used by different components
-        imageUrl: formData.previewImage || "",
-        customIcon: formData.previewImage || "",  // Priority: customIcon is specifically for user uploads
+        imageUrl: imageUrl,
+        customIcon: imageUrl,  // Priority: customIcon is specifically for user uploads
         author: {
           id: 1,
           name: "Current User",
           avatar: "/assets/avatar.jpg"
         },
         createdAt: new Date().toISOString(),
-        iconName: formData.iconName,
-        tags: formData.tags,
-        license: formData.license,
-        fileType: formData.fileType
+        iconName: formData.iconName || "cpu",
+        tags: formData.tags || "",
+        license: formData.license || "Standard",
+        fileType: formData.fileType || "software"
       };
 
       console.log("Product object created:", newProduct);
@@ -252,7 +265,12 @@ export default function SimplePublish() {
       try {
         // Convert the entire array to a string first for debugging
         const productsString = JSON.stringify(existingProducts);
-        console.log("Stringified products (first 100 chars):", productsString.substring(0, 100) + "...");
+        
+        // More detailed logging of the product object and the string representation
+        console.log("New product to save:", newProduct);
+        console.log("Existing products count:", existingProducts.length);
+        console.log("All products to save (first 2):", existingProducts.slice(0, 2));
+        console.log("Stringified products (first 200 chars):", productsString.substring(0, 200) + "...");
         
         // Check if the string is valid before setting to localStorage
         if (typeof productsString !== 'string' || productsString.length < 2) {
