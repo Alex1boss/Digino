@@ -652,51 +652,8 @@ export default function Explore() {
   // Combine API products and localStorage products
   const allProducts = [...(apiProducts || []), ...localProducts];
   
-  // Add some example products if there are none
-  const enhancedProducts = allProducts.length > 0 ? allProducts : [
-    {
-      id: 1,
-      name: "Premium AI Assistant",
-      description: "Advanced AI assistant with natural language processing capabilities",
-      price: 89.99,
-      category: "ai_tools",
-      reviews: 124,
-      sales: 450,
-      rating: 4.9,
-      createdAt: "2025-01-15",
-      iconName: "Cpu",
-      Icon: Cpu,
-      author: { id: 1, name: "TechGenius", avatar: "" }
-    },
-    {
-      id: 2,
-      name: "Website Templates Bundle",
-      description: "Collection of premium responsive website templates for modern businesses",
-      price: 49.99,
-      category: "templates",
-      reviews: 86,
-      sales: 320,
-      rating: 4.7,
-      createdAt: "2025-03-22",
-      iconName: "Layers",
-      Icon: Layers,
-      author: { id: 2, name: "DesignMaster", avatar: "" }
-    },
-    {
-      id: 3,
-      name: "Data Analysis Tool",
-      description: "Professional-grade data analysis and visualization platform",
-      price: 129.99,
-      category: "Software",
-      reviews: 56,
-      sales: 180,
-      rating: 4.8,
-      createdAt: "2025-02-10",
-      iconName: "BarChart",
-      Icon: Code,
-      author: { id: 3, name: "DataPro", avatar: "" }
-    }
-  ];
+  // Use only real products from API and localStorage
+  const enhancedProducts = allProducts;
   
   // Filter products based on active filters
   const filteredProducts = enhancedProducts.filter(product => {

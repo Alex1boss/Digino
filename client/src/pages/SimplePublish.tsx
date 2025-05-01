@@ -211,11 +211,11 @@ export default function SimplePublish() {
         rating: 0,
         reviews: 0,
         sales: 0,
-        // Use uploaded preview image if available, otherwise fallback to placeholder
-        coverImage: formData.previewImage || "/assets/product-placeholder.jpg",
-        // Also set imageUrl and customIcon for consistency in all display components
-        imageUrl: formData.previewImage || "/assets/product-placeholder.jpg",
-        customIcon: formData.previewImage || "", 
+        // Use uploaded preview image if available, otherwise use selected icon
+        coverImage: formData.previewImage || "", 
+        // Make sure images are consistent across fields used by different components
+        imageUrl: formData.previewImage || "",
+        customIcon: formData.previewImage || "",  // Priority: customIcon is specifically for user uploads
         author: {
           id: 1,
           name: "Current User",
