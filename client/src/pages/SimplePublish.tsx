@@ -20,6 +20,10 @@ import {
   Check,
   Clock,
   ShieldCheck,
+  ChevronLeft,
+  ChevronRight,
+  UploadCloud,
+  Info,
   X as XIcon
 } from "lucide-react";
 import { uploadProductImages, compressImage } from "../lib/uploadHelpers";
@@ -160,7 +164,7 @@ export default function SimplePublish() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handlePublish = () => {
+  const handlePublish = async () => {
     console.log("Publish button clicked"); 
     
     // Validation check
@@ -213,130 +217,37 @@ export default function SimplePublish() {
     console.log("Publishing product...");
 
     try {
-      // ULTRA SIMPLIFIED APPROACH FOR RELIABILITY:
-      // 1. Create a minimal product to avoid storage issues
-      // 2. Skip localStorage and use sessionStorage which tends to be more reliable for this use case
-      // 3. Use a bare minimum of data and skip images entirely if needed
-
-      // Skip image to focus on core data first
-      const uniqueId = "product-" + Date.now();
-      
-      // Create a minimal product object with essential fields only
-      const minimalProduct = {
-        id: uniqueId,
+      // Create product object for database
+      const productData = {
         name: formData.title,
         description: formData.description,
-        price: parseFloat(formData.price) || 0,
+        price: parseFloat(formData.price) || 29.99,
         category: formData.category || "Digital Assets",
-        iconName: "cpu",  // Default icon
-        createdAt: new Date().toISOString()
+        iconName: formData.iconName || "cpu",
+        tags: formData.tags || "",
+        license: formData.license || "Standard",
+        imageUrl: formData.imageUrl || "",  // URL from our server upload
+        authorId: 1, // Default author ID for now
       };
 
-      console.log("Created minimal product:", minimalProduct);
+      console.log("Sending product data to API:", productData);
 
-      // First try to save just the minimal data to ensure base functionality works
-      sessionStorage.setItem(uniqueId, JSON.stringify(minimalProduct));
-      
-      // Now try to add it to our product list
-      let products = [];
-      try {
-        const existingProducts = sessionStorage.getItem('minimal_products');
-        if (existingProducts) {
-          products = JSON.parse(existingProducts);
-        }
-      } catch (e) {
-        console.log("Error parsing existing products, starting fresh");
-        products = [];
-      }
-      
-      products.push(uniqueId);
-      sessionStorage.setItem('minimal_products', JSON.stringify(products));
-      
-      console.log("Successfully saved minimal product");
+      // Send the product data to our API
+      const response = await fetch('/api/products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(productData),
+      });
 
-      // Now that we know basic storage works, try to add the image data if possible
-      try {
-        if (formData.previewImage) {
-          const imageUrl = formData.previewImage;
-          
-          // Try to store the image in a separate key to isolate any potential issues
-          sessionStorage.setItem(`${uniqueId}_image`, imageUrl);
-          console.log("Saved image separately");
-          
-          // Now try to update the minimal product with image data
-          const fullProduct = {
-            ...minimalProduct,
-            coverImage: imageUrl,
-            imageUrl: imageUrl,
-            customIcon: imageUrl
-          };
-          
-          // Try to save the full product now
-          try {
-            sessionStorage.setItem(`${uniqueId}_full`, JSON.stringify(fullProduct));
-            console.log("Saved full product with images");
-          } catch (imageError) {
-            console.warn("Could not save full product with images:", imageError);
-            // But the minimal product was already saved, so we can continue
-          }
-        }
-      } catch (imageError) {
-        console.warn("Image data could not be saved, but basic product was saved:", imageError);
-        // Continue since we already saved the minimal product
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`Failed to create product: ${errorData.message || response.statusText}`);
       }
-      
-      // Now try to use localStorage as a fallback/additional storage
-      try {
-        // First create an array entry if it doesn't exist
-        let localProducts = [];
-        try {
-          const localProductsJson = localStorage.getItem('products');
-          if (localProductsJson) {
-            localProducts = JSON.parse(localProductsJson);
-          }
-        } catch (e) {
-          console.warn("Error parsing localStorage products:", e);
-        }
-        
-        // Create a complete product with all expected fields
-        const completeProduct = {
-          id: uniqueId,
-          name: formData.title,
-          description: formData.description,
-          price: parseFloat(formData.price) || 0,
-          currency: "USD",
-          category: formData.category || "Digital Assets",
-          rating: 0,
-          reviews: 0,
-          sales: 0,
-          coverImage: formData.previewImage || "",
-          imageUrl: formData.previewImage || "",
-          customIcon: formData.previewImage || "",
-          author: {
-            id: 1,
-            name: "Current User",
-            avatar: "/assets/avatar.jpg"
-          },
-          createdAt: new Date().toISOString(),
-          iconName: formData.iconName || "cpu",
-          tags: formData.tags || "",
-          license: formData.license || "Standard",
-          fileType: formData.fileType || "software"
-        };
-        
-        // Add to array
-        localProducts.push(completeProduct);
-        
-        // Try to save (but don't worry if it fails since we have sessionStorage backup)
-        try {
-          localStorage.setItem('products', JSON.stringify(localProducts));
-          console.log("Also saved to localStorage successfully");
-        } catch (e) {
-          console.warn("Could not save to localStorage, but sessionStorage is working:", e);
-        }
-      } catch (e) {
-        console.warn("Skipping localStorage backup due to error:", e);
-      }
+
+      const result = await response.json();
+      console.log("Product created successfully:", result);
       
       // Display success message
       console.log("Publication successful, showing success message");
@@ -361,72 +272,62 @@ export default function SimplePublish() {
         <h3 style="margin-top: 0; font-size: 18px; font-weight: bold;">Success!</h3>
         <p style="margin-bottom: 20px;">Your product has been published successfully!</p>
         <div>
-          <button style="padding: 8px 16px; background: white; color: #14B8A6; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">OK</button>
+          <button id="view-products" style="padding: 8px 16px; background: white; color: #14B8A6; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-right: 10px;">View Products</button>
+          <button id="continue-editing" style="padding: 8px 16px; background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 4px; cursor: pointer;">Add Another</button>
         </div>
       `;
       
       document.body.appendChild(successMessage);
       
-      // Set up a timer to automatically navigate after showing success message
-      const redirectTimer = setTimeout(() => {
-        // Remove the message first
+      document.getElementById('view-products')?.addEventListener('click', () => {
+        document.body.removeChild(successMessage);
+        // Navigate to explore/products page
+        setLocation('/explore');
+      });
+      
+      document.getElementById('continue-editing')?.addEventListener('click', () => {
+        document.body.removeChild(successMessage);
+        // Reset form for another product
+        setFormData({
+          title: "",
+          description: "",
+          price: "29.99",
+          category: "Digital Assets",
+          iconName: "Zap",
+          tags: "",
+          fileType: "pdf",
+          license: "standard",
+          previewImage: "",
+          imageUrl: "",
+          authorId: 1
+        });
+        setCurrentStep(1);
+      });
+      
+      // Auto-dismiss after 10 seconds
+      setTimeout(() => {
         if (document.body.contains(successMessage)) {
           document.body.removeChild(successMessage);
+          // Navigate to explore page
+          setLocation('/explore');
         }
-        
-        // Then redirect to the explore page
-        window.location.href = "/#/explore";
-        window.location.reload(); 
-      }, 2000);
+      }, 10000);
       
-      // Allow manual dismissal with OK button
-      const okButton = successMessage.querySelector('button');
-      if (okButton) {
-        okButton.addEventListener('click', () => {
-          // Clear the automatic redirect timer
-          clearTimeout(redirectTimer);
-          
-          // Remove the message
-          document.body.removeChild(successMessage);
-          
-          // Immediately redirect
-          window.location.href = "/#/explore";
-          window.location.reload();
-        });
-      }
-    } catch (e) {
-      // More robust error logging
-      console.error("Error publishing product:", e);
+    } catch (error) {
+      console.error("Error publishing product:", error);
       
-      // Extract error details
-      let errorDetails = "";
-      
-      if (e instanceof Error) {
-        errorDetails = e.message || "Unknown error";
-        console.error("Error message:", e.message);
-        console.error("Error stack:", e.stack);
-      } else if (typeof e === 'string') {
-        errorDetails = e;
+      // Capture detailed error information
+      let errorDetails = "Unknown error";
+      if (error instanceof Error) {
+        errorDetails = `${error.name}: ${error.message}`;
+        if (error.stack) {
+          console.error("Error stack:", error.stack);
+        }
       } else {
-        // If it's some other object, try to stringify it
-        try {
-          errorDetails = JSON.stringify(e);
-        } catch (_) {
-          errorDetails = "Unidentified error";
-        }
-      }
-
-      // Log various localStorage state for debugging
-      try {
-        console.log("Current localStorage state:");
-        console.log("localStorage size estimate:", new Blob([JSON.stringify(localStorage)]).size, "bytes");
-        console.log("localStorage keys:", Object.keys(localStorage));
-        console.log("product_index:", localStorage.getItem('product_index'));
-      } catch (debugError) {
-        console.log("Error during debug logging:", debugError);
+        errorDetails = String(error);
       }
       
-      // Create styled error message
+      // Show error message
       const errorMessage = document.createElement('div');
       errorMessage.style.position = 'fixed';
       errorMessage.style.top = '50%';
@@ -442,12 +343,10 @@ export default function SimplePublish() {
       errorMessage.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
       errorMessage.style.textAlign = 'center';
       
-      // Provide detailed information to help debugging
       errorMessage.innerHTML = `
-        <h3 style="margin-top: 0; font-size: 18px; font-weight: bold;">Publication Failed</h3>
-        <p style="margin-bottom: 10px;">There was an error publishing your product:</p>
+        <h3 style="margin-top: 0; font-size: 18px; font-weight: bold;">Error Publishing Product</h3>
         <p style="margin-bottom: 20px; font-size: 14px; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 4px; overflow-wrap: break-word;">${errorDetails}</p>
-        <p style="margin-bottom: 20px; font-size: 12px;">Try uploading a smaller image or clearing browser storage.</p>
+        <p style="margin-bottom: 20px; font-size: 12px;">Please try again or check your connection.</p>
         <div>
           <button style="padding: 8px 16px; background: white; color: #ef4444; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">OK</button>
         </div>
@@ -472,8 +371,17 @@ export default function SimplePublish() {
       setIsPublishing(false);
     }
   };
-
-  // Function to handle saving a draft
+  
+  // Add step navigation
+  const handleStepChange = (direction: 'next' | 'prev') => {
+    if (direction === 'next' && currentStep < totalSteps) {
+      setCurrentStep(currentStep + 1);
+    } else if (direction === 'prev' && currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+  
+  // Handle draft saving
   const handleSaveDraft = () => {
     setIsDraft(true);
     
@@ -486,7 +394,7 @@ export default function SimplePublish() {
       };
       
       // Save to localStorage
-      localStorage.setItem('productDraft', JSON.stringify(draft));
+      localStorage.setItem('product_draft', JSON.stringify(draft));
       
       // Show success message
       const draftMessage = document.createElement('div');
@@ -494,7 +402,7 @@ export default function SimplePublish() {
       draftMessage.style.top = '50%';
       draftMessage.style.left = '50%';
       draftMessage.style.transform = 'translate(-50%, -50%)';
-      draftMessage.style.backgroundColor = '#14B8A6'; // Teal color
+      draftMessage.style.backgroundColor = '#14B8A6';
       draftMessage.style.color = 'white';
       draftMessage.style.padding = '20px';
       draftMessage.style.borderRadius = '10px';
@@ -506,7 +414,7 @@ export default function SimplePublish() {
       
       draftMessage.innerHTML = `
         <h3 style="margin-top: 0; font-size: 18px; font-weight: bold;">Draft Saved</h3>
-        <p style="margin-bottom: 20px;">Your product draft has been saved. You can continue editing later.</p>
+        <p style="margin-bottom: 20px;">Your draft has been saved successfully. You can continue editing later.</p>
         <div>
           <button style="padding: 8px 16px; background: white; color: #14B8A6; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">OK</button>
         </div>
@@ -528,26 +436,19 @@ export default function SimplePublish() {
         }
       }, 3000);
       
-    } catch (e) {
-      const error = e as Error;
+    } catch (error) {
       console.error("Error saving draft:", error);
+      showErrorMessage("Failed to save draft. Please try again.");
     } finally {
-      setIsDraft(false);
-    }
-  };
-  
-  // Function to navigate between steps
-  const handleStepChange = (direction: 'next' | 'prev') => {
-    if (direction === 'next' && currentStep < totalSteps) {
-      setCurrentStep(currentStep + 1);
-    } else if (direction === 'prev' && currentStep > 1) {
-      setCurrentStep(currentStep - 1);
+      setTimeout(() => {
+        setIsDraft(false);
+      }, 2000);
     }
   };
   
   // Load draft from localStorage
   useEffect(() => {
-    const savedDraft = localStorage.getItem('productDraft');
+    const savedDraft = localStorage.getItem('product_draft');
     if (savedDraft) {
       try {
         const draft = JSON.parse(savedDraft);
@@ -579,405 +480,279 @@ export default function SimplePublish() {
                         index + 1 === currentStep 
                           ? 'bg-[#F59E0B] text-white' 
                           : index + 1 < currentStep 
-                            ? 'bg-[#14B8A6] text-white' 
-                            : 'bg-white/10 text-white/50'
+                            ? 'bg-white/10 text-white' 
+                            : 'bg-white/5 text-white/40'
                       }`}
                     >
-                      {index + 1 < currentStep ? <Check className="w-4 h-4" /> : index + 1}
+                      {index + 1 < currentStep ? (
+                        <Check className="w-4 h-4" />
+                      ) : (
+                        <span>{index + 1}</span>
+                      )}
                     </div>
                     {index < totalSteps - 1 && (
                       <div 
-                        className={`flex-1 h-1 rounded transition-all mx-1 w-16 ${
-                          index + 1 < currentStep ? 'bg-[#14B8A6]' : 'bg-white/10'
+                        className={`h-[2px] w-10 mx-1 ${
+                          index + 1 < currentStep 
+                            ? 'bg-white/60' 
+                            : 'bg-white/10'
                         }`}
-                      ></div>
+                      />
                     )}
                   </div>
                 ))}
               </div>
             </div>
             
-            {/* Two column layout - Form on left, Preview on right */}
-            <div className="flex flex-col lg:flex-row gap-8">
+            <div className="lg:flex gap-6">
               {/* Form Column */}
-              <div className="w-full lg:w-3/5 space-y-6 p-6 bg-white/5 rounded-xl border border-white/10">
-                {/* Step 1: Basic Information */}
+              <div className="w-full lg:w-3/5 mb-8 lg:mb-0">
+                {/* Step 1: Basic Info */}
                 {currentStep === 1 && (
-                  <div>
-                    <div className="space-y-2">
-                      <label className="block text-white/80 font-medium pl-1">Product Title*</label>
-                      <input
-                        type="text"
-                        name="title"
-                        value={formData.title}
-                        onChange={handleChange}
-                        className="w-full h-12 px-4 rounded-lg bg-white/5 border border-white/10 text-white shadow-inner transition-all duration-200 focus:outline-none focus:border-[#14B8A6] focus:bg-white/10"
-                        placeholder="Enter a catchy product title"
-                      />
-                    </div>
+                  <div className="bg-white/5 rounded-lg p-6 border border-white/10">
+                    <h2 className="text-xl font-semibold text-white mb-6 flex items-center">
+                      <FileText className="w-5 h-5 mr-2 text-[#F59E0B]" />
+                      Basic Information
+                    </h2>
                     
-                    <div className="space-y-2">
-                      <label className="block text-white/80 font-medium pl-1">Product Description*</label>
-                      <textarea
-                        name="description"
-                        value={formData.description}
-                        onChange={handleChange}
-                        className="w-full h-32 p-4 rounded-lg bg-white/5 border border-white/10 text-white shadow-inner transition-all duration-200 focus:outline-none focus:border-[#14B8A6] focus:bg-white/10 resize-none"
-                        placeholder="Describe your product in detail"
-                      />
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <label className="block text-white/80 font-medium pl-1">
-                          <span className="flex items-center gap-2">
-                            <DollarSign className="w-4 h-4" />
-                            Price (USD)
-                          </span>
-                        </label>
+                    <div className="space-y-6">
+                      <div>
+                        <label htmlFor="title" className="block text-white mb-2">Product Title</label>
                         <input
                           type="text"
-                          name="price"
-                          value={formData.price}
+                          id="title"
+                          name="title"
+                          value={formData.title}
                           onChange={handleChange}
-                          className="w-full h-12 px-4 rounded-lg bg-white/5 border border-white/10 text-white shadow-inner transition-all duration-200 focus:outline-none focus:border-[#14B8A6] focus:bg-white/10"
+                          className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-[#F59E0B]/50"
+                          placeholder="Enter a descriptive title for your product"
                         />
                       </div>
                       
-                      <div className="space-y-2">
-                        <label className="block text-white/80 font-medium pl-1">Category</label>
+                      <div>
+                        <label htmlFor="description" className="block text-white mb-2">Product Description</label>
+                        <textarea
+                          id="description"
+                          name="description"
+                          value={formData.description}
+                          onChange={handleChange}
+                          rows={5}
+                          className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-[#F59E0B]/50"
+                          placeholder="Describe your product in detail (features, benefits, etc.)"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label htmlFor="category" className="block text-white mb-2">Category</label>
                         <select
+                          id="category"
                           name="category"
                           value={formData.category}
                           onChange={handleChange}
-                          className="w-full h-12 px-4 rounded-lg bg-white/5 border border-white/10 text-white shadow-inner transition-all duration-200 focus:outline-none focus:border-[#14B8A6] focus:bg-white/10"
+                          className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-[#F59E0B]/50"
                         >
                           <option value="Digital Assets">Digital Assets</option>
-                          <option value="AI Tools">AI Tools</option>
                           <option value="Software">Software</option>
-                          <option value="Templates">Templates</option>
-                          <option value="Graphics">Graphics</option>
+                          <option value="Design Templates">Design Templates</option>
+                          <option value="Audio & Music">Audio & Music</option>
+                          <option value="Video & Motion">Video & Motion</option>
+                          <option value="3D Models">3D Models</option>
+                          <option value="Educational">Educational</option>
+                          <option value="Other">Other</option>
                         </select>
                       </div>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <label className="block text-white/80 font-medium pl-1">
-                        <span className="flex items-center gap-2">
-                          <Tag className="w-4 h-4" />
-                          Tags (comma separated)
-                        </span>
-                      </label>
-                      <input
-                        type="text"
-                        name="tags"
-                        value={formData.tags}
-                        onChange={handleChange}
-                        className="w-full h-12 px-4 rounded-lg bg-white/5 border border-white/10 text-white shadow-inner transition-all duration-200 focus:outline-none focus:border-[#14B8A6] focus:bg-white/10"
-                        placeholder="marketing, automation, ai"
-                      />
+                      
+                      <div className="flex justify-end">
+                        <button 
+                          onClick={() => handleStepChange('next')} 
+                          className="px-6 py-2 bg-[#F59E0B] text-white rounded-lg hover:bg-[#F59E0B]/80 transition-all flex items-center gap-2"
+                        >
+                          Next Step <ChevronRight className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 )}
                 
-                {/* Step 2: Visual and Icon */}
+                {/* Step 2: Pricing & Details */}
                 {currentStep === 2 && (
-                  <div>
-                    <div className="space-y-2">
-                      <label className="block text-white/80 font-medium pl-1">Product Icon</label>
-                      <div className="grid grid-cols-5 gap-3">
-                        {[
-                          { name: "Zap", icon: <Zap className="h-6 w-6" /> },
-                          { name: "Code", icon: <Code className="h-6 w-6" /> },
-                          { name: "BarChart2", icon: <BarChart2 className="h-6 w-6" /> },
-                          { name: "Gift", icon: <Gift className="h-6 w-6" /> },
-                          { name: "FileText", icon: <FileText className="h-6 w-6" /> },
-                          { name: "Image", icon: <ImageIcon className="h-6 w-6" /> },
-                          { name: "Music", icon: <Music className="h-6 w-6" /> },
-                          { name: "Video", icon: <Video className="h-6 w-6" /> },
-                          { name: "Package", icon: <Package className="h-6 w-6" /> },
-                          { name: "BookOpen", icon: <BookOpen className="h-6 w-6" /> }
-                        ].map((item) => (
-                          <button
-                            key={item.name}
-                            type="button"
-                            onClick={() => setFormData(prev => ({ ...prev, iconName: item.name }))}
-                            className={`flex items-center justify-center p-3 rounded-lg transition-all ${
-                              formData.iconName === item.name ? 
-                              "bg-[#F59E0B] text-white" : 
-                              "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
-                            }`}
-                          >
-                            {item.icon}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
+                  <div className="bg-white/5 rounded-lg p-6 border border-white/10">
+                    <h2 className="text-xl font-semibold text-white mb-6 flex items-center">
+                      <DollarSign className="w-5 h-5 mr-2 text-[#F59E0B]" />
+                      Pricing & Details
+                    </h2>
                     
-                    <div className="space-y-2 mt-8">
-                      <label className="block text-white/80 font-medium pl-1">File Type</label>
-                      <select
-                        name="fileType"
-                        value={formData.fileType}
-                        onChange={handleChange}
-                        className="w-full h-12 px-4 rounded-lg bg-white/5 border border-white/10 text-white shadow-inner transition-all duration-200 focus:outline-none focus:border-[#14B8A6] focus:bg-white/10"
-                      >
-                        <option value="pdf">PDF Document</option>
-                        <option value="zip">ZIP Archive</option>
-                        <option value="video">Video File</option>
-                        <option value="audio">Audio File</option>
-                        <option value="image">Image Collection</option>
-                        <option value="software">Software/Application</option>
-                      </select>
-                    </div>
-                    
-                    <div className="space-y-2 mt-6">
-                      <label className="block text-white/80 font-medium pl-1">
-                        <span className="flex items-center gap-2">
-                          <Upload className="w-4 h-4" />
-                          Upload Preview Image
-                        </span>
-                      </label>
-                      <div 
-                        className={`border-2 border-dashed ${isDraggingOver ? 'border-[#14B8A6] bg-[#14B8A6]/10' : 'border-white/20 bg-white/5 hover:border-white/40 hover:bg-white/10'} rounded-lg p-8 flex flex-col items-center justify-center cursor-pointer transition-all duration-200`}
-                        onClick={() => {
-                          const uploadInput = document.getElementById('image-upload');
-                          if (uploadInput) {
-                            uploadInput.click();
-                          }
-                        }}
-                        onDragEnter={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          setIsDraggingOver(true);
-                        }}
-                        onDragOver={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          setIsDraggingOver(true);
-                        }}
-                        onDragLeave={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          setIsDraggingOver(false);
-                        }}
-                        onDrop={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          setIsDraggingOver(false);
-                          
-                          try {
-                            console.log("File drop detected");
-                            
-                            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-                              const file = e.dataTransfer.files[0];
-                              console.log("File dropped:", file.name, "Type:", file.type, "Size:", file.size);
-                              
-                              // First check file size 
-                              if (file.size > 10 * 1024 * 1024) { // 10MB max
-                                showErrorMessage("Image too large (max 10MB). Please choose a smaller file.");
-                                return;
-                              }
-                              
-                              // Then check file type
-                              if (!file.type.startsWith('image/')) {
-                                showErrorMessage("Please upload an image file (JPEG, PNG, etc.)");
-                                return;
-                              }
-                              
-                              // Add a short delay to allow the UI to update
-                              setTimeout(() => {
-                                try {
-                                  handleImageUpload(file);
-                                } catch (processingError) {
-                                  console.error("Error in delayed image processing:", processingError);
-                                  showErrorMessage("Could not process image. Please try another file.");
-                                }
-                              }, 100);
-                            } else {
-                              console.warn("No files found in drop event");
-                              showErrorMessage("No valid file detected. Please try again.");
-                            }
-                          } catch (error) {
-                            console.error("Error handling file drop:", error);
-                            showErrorMessage("Error processing your file. Please try again or use the browse button.");
-                          }
-                        }}
-                      >
-                        {formData.previewImage ? (
-                          <div className="relative w-full h-40 mb-2 animate-fadeIn">
-                            <img 
-                              src={formData.previewImage} 
-                              alt="Preview" 
-                              className="w-full h-full object-contain rounded-md shadow-lg border border-white/20" 
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 rounded-md">
-                              <button 
-                                className="absolute top-2 right-2 bg-red-500/90 text-white p-1.5 rounded-full hover:bg-red-600 shadow-md transition-all duration-200 hover:scale-110"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setFormData(prev => ({ ...prev, previewImage: "" }));
-                                }}
-                              >
-                                <XIcon className="w-4 h-4" />
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <>
-                            <ImageIcon className={`w-12 h-12 ${isDraggingOver ? 'text-[#14B8A6]' : 'text-white/30'} mb-3 ${isDraggingOver ? 'animate-pulse' : ''}`} />
-                            <p className={`${isDraggingOver ? 'text-[#14B8A6]' : 'text-white/50'} text-center transition-colors duration-200`}>
-                              {isDraggingOver ? 'Release to upload image' : 'Drag & drop your preview image here, or click to browse'}
-                            </p>
-                          </>
-                        )}
-                        <input 
-                          type="file" 
-                          id="image-upload" 
-                          accept="image/jpeg,image/png,image/gif,image/webp,image/*" 
-                          className="hidden"
-                          onChange={(e) => {
-                            try {
-                              console.log("File input change detected");
-                              if (e.target.files && e.target.files.length > 0) {
-                                const file = e.target.files[0];
-                                console.log("File selected:", file.name, "Type:", file.type, "Size:", file.size);
-                                
-                                // Check file size first
-                                if (file.size > 10 * 1024 * 1024) { // 10MB
-                                  showErrorMessage("Image too large (max 10MB). Please choose a smaller file.");
-                                  // Reset the input so user can try again
-                                  e.target.value = "";
-                                  return;
-                                }
-                                
-                                // Use a small delay to allow UI to update
-                                setTimeout(() => {
-                                  try {
-                                    handleImageUpload(file);
-                                  } catch (uploadError) {
-                                    console.error("Error in delayed file handling:", uploadError);
-                                    showErrorMessage("Could not process image. Please try another file.");
-                                  }
-                                }, 100);
-                              } else {
-                                console.warn("No files selected");
-                              }
-                            } catch (error) {
-                              console.error("Error handling file input change:", error);
-                              showErrorMessage("Error processing your file. Please try again.");
-                            }
-                          }}
+                    <div className="space-y-6">
+                      <div>
+                        <label htmlFor="price" className="block text-white mb-2">Price (USD)</label>
+                        <input
+                          type="text"
+                          id="price"
+                          name="price"
+                          value={formData.price}
+                          onChange={handleChange}
+                          className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-[#F59E0B]/50"
+                          placeholder="29.99"
                         />
                       </div>
+                      
+                      <div>
+                        <label htmlFor="license" className="block text-white mb-2">License Type</label>
+                        <select
+                          id="license"
+                          name="license"
+                          value={formData.license}
+                          onChange={handleChange}
+                          className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-[#F59E0B]/50"
+                        >
+                          <option value="standard">Standard License</option>
+                          <option value="extended">Extended License</option>
+                          <option value="commercial">Commercial License</option>
+                          <option value="exclusive">Exclusive Rights</option>
+                        </select>
+                      </div>
+                      
+                      <div>
+                        <label htmlFor="tags" className="block text-white mb-2">Tags (comma-separated)</label>
+                        <input
+                          type="text"
+                          id="tags"
+                          name="tags"
+                          value={formData.tags}
+                          onChange={handleChange}
+                          className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-[#F59E0B]/50"
+                          placeholder="software, digital, tech, app"
+                        />
+                      </div>
+                      
+                      <div className="flex justify-between">
+                        <button 
+                          onClick={() => handleStepChange('prev')} 
+                          className="px-6 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-all flex items-center gap-2"
+                        >
+                          <ChevronLeft className="w-4 h-4" /> Previous
+                        </button>
+                        <button 
+                          onClick={() => handleStepChange('next')} 
+                          className="px-6 py-2 bg-[#F59E0B] text-white rounded-lg hover:bg-[#F59E0B]/80 transition-all flex items-center gap-2"
+                        >
+                          Next Step <ChevronRight className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 )}
                 
-                {/* Step 3: License & Finalize */}
+                {/* Step 3: Image Upload & Submit */}
                 {currentStep === 3 && (
-                  <div>
-                    <div className="space-y-2">
-                      <label className="block text-white/80 font-medium pl-1">
-                        <span className="flex items-center gap-2">
-                          <ShieldCheck className="w-4 h-4" />
-                          License Type
-                        </span>
-                      </label>
-                      <div className="space-y-3">
-                        {[
-                          { id: "standard", label: "Standard License", desc: "For personal or single commercial use" },
-                          { id: "extended", label: "Extended License", desc: "For multiple commercial projects and applications" },
-                          { id: "enterprise", label: "Enterprise License", desc: "For unlimited use within an organization" }
-                        ].map(option => (
-                          <label key={option.id} className={`block p-4 rounded-lg border transition-all cursor-pointer ${
-                            formData.license === option.id 
-                              ? "border-[#14B8A6] bg-[#14B8A6]/10" 
-                              : "border-white/10 bg-white/5 hover:bg-white/10"
-                          }`}>
-                            <div className="flex items-start">
-                              <input
-                                type="radio"
-                                name="license"
-                                value={option.id}
-                                checked={formData.license === option.id}
-                                onChange={handleChange}
-                                className="mt-1 text-[#14B8A6]"
+                  <div className="bg-white/5 rounded-lg p-6 border border-white/10">
+                    <h2 className="text-xl font-semibold text-white mb-6 flex items-center">
+                      <ImageIcon className="w-5 h-5 mr-2 text-[#F59E0B]" />
+                      Cover Image & Publish
+                    </h2>
+                    
+                    <div className="space-y-6">
+                      {/* Image Upload Area */}
+                      <div>
+                        <label className="block text-white mb-2">Product Image</label>
+                        <div 
+                          className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all ${
+                            isDraggingOver 
+                              ? 'border-[#F59E0B] bg-[#F59E0B]/10' 
+                              : 'border-white/20 hover:border-white/40 bg-white/5'
+                          }`}
+                          onDragOver={(e) => {
+                            e.preventDefault();
+                            setIsDraggingOver(true);
+                          }}
+                          onDragLeave={() => setIsDraggingOver(false)}
+                          onDrop={(e) => {
+                            e.preventDefault();
+                            setIsDraggingOver(false);
+                            if (e.dataTransfer.files.length > 0) {
+                              handleImageUpload(e.dataTransfer.files[0]);
+                            }
+                          }}
+                          onClick={() => {
+                            const input = document.createElement('input');
+                            input.type = 'file';
+                            input.accept = 'image/*';
+                            input.onchange = (e) => {
+                              const target = e.target as HTMLInputElement;
+                              if (target.files && target.files.length > 0) {
+                                handleImageUpload(target.files[0]);
+                              }
+                            };
+                            input.click();
+                          }}
+                        >
+                          {formData.previewImage ? (
+                            <div className="space-y-4">
+                              <img 
+                                src={formData.previewImage} 
+                                alt="Product preview" 
+                                className="max-h-[200px] mx-auto rounded shadow-lg"
                               />
-                              <div className="ml-3">
-                                <p className="text-white font-medium">{option.label}</p>
-                                <p className="text-white/70 text-sm">{option.desc}</p>
+                              <div className="flex justify-center">
+                                <button 
+                                  className="text-white/80 hover:text-white flex items-center gap-1"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setFormData(prev => ({ ...prev, previewImage: "", imageUrl: "" }));
+                                  }}
+                                >
+                                  <XIcon className="w-4 h-4" /> Remove Image
+                                </button>
                               </div>
                             </div>
-                          </label>
-                        ))}
+                          ) : (
+                            <div className="space-y-2">
+                              <UploadCloud className="w-12 h-12 mx-auto text-white/40" />
+                              <p className="text-white/60">Drag & drop an image here or click to browse</p>
+                              <p className="text-white/40 text-sm">Recommended size: 1200x800px (Max 5MB)</p>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                    
-                    <div className="mt-8 p-4 bg-[#14B8A6]/10 border border-[#14B8A6]/30 rounded-lg">
-                      <h3 className="text-white font-medium flex items-center gap-2 mb-2">
-                        <Check className="w-4 h-4 text-[#14B8A6]" />
-                        Trust Elements (Automatic)
-                      </h3>
-                      <div className="text-white/70 text-sm space-y-2">
-                        <p className="flex items-center gap-2">
-                          <Check className="w-3 h-3 text-[#14B8A6]" />
-                          Secure Transactions
-                        </p>
-                        <p className="flex items-center gap-2">
-                          <Check className="w-3 h-3 text-[#14B8A6]" />
-                          Buyer Protection
-                        </p>
-                        <p className="flex items-center gap-2">
-                          <Check className="w-3 h-3 text-[#14B8A6]" />
-                          Content Verification
-                        </p>
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="flex gap-4">
+                          <button 
+                            onClick={() => handleStepChange('prev')} 
+                            className="px-6 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-all flex items-center gap-2"
+                          >
+                            <ChevronLeft className="w-4 h-4" /> Previous
+                          </button>
+                          <button
+                            onClick={handleSaveDraft}
+                            disabled={isDraft}
+                            className="px-6 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-all flex items-center gap-2"
+                          >
+                            {isDraft ? (
+                              <>
+                                <Clock className="w-4 h-4 animate-spin" /> Saving...
+                              </>
+                            ) : (
+                              <>
+                                <Save className="w-4 h-4" /> Save Draft
+                              </>
+                            )}
+                          </button>
+                        </div>
+                        
+                        <div>
+                          <button
+                            onClick={handlePublish}
+                            disabled={isPublishing}
+                            className="px-6 py-3 bg-[#F59E0B] text-white rounded-lg hover:bg-[#F59E0B]/80 transition-all flex items-center gap-2 shadow-lg"
+                          >
+                            {isPublishing ? 'Publishing...' : 'Publish Product'}
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
                 )}
-                
-                {/* Navigation buttons */}
-                <div className="flex justify-between pt-6">
-                  {currentStep > 1 ? (
-                    <button
-                      onClick={() => handleStepChange('prev')}
-                      className="px-6 py-3 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-all flex items-center gap-2"
-                    >
-                      Previous
-                    </button>
-                  ) : (
-                    <div></div>
-                  )}
-                  
-                  {currentStep < totalSteps ? (
-                    <button
-                      onClick={() => handleStepChange('next')}
-                      className="px-6 py-3 bg-[#14B8A6] text-white rounded-lg hover:bg-[#14B8A6]/80 transition-all flex items-center gap-2"
-                    >
-                      Next
-                    </button>
-                  ) : (
-                    <div className="flex gap-3">
-                      <button
-                        onClick={handleSaveDraft}
-                        disabled={isDraft}
-                        className="px-6 py-3 border border-[#14B8A6] text-white rounded-lg hover:bg-[#14B8A6]/20 transition-all flex items-center gap-2"
-                      >
-                        <Save className="w-4 h-4" />
-                        {isDraft ? 'Saving...' : 'Save Draft'}
-                      </button>
-                      
-                      <button
-                        onClick={handlePublish}
-                        disabled={isPublishing}
-                        className="px-6 py-3 bg-[#F59E0B] text-white rounded-lg hover:bg-[#F59E0B]/80 transition-all flex items-center gap-2 shadow-lg"
-                      >
-                        {isPublishing ? 'Publishing...' : 'Publish Product'}
-                      </button>
-                    </div>
-                  )}
-                </div>
               </div>
               
               {/* Preview Column */}
@@ -994,101 +769,71 @@ export default function SimplePublish() {
                         {formData.iconName === "Zap" && <Zap className="w-6 h-6" />}
                         {formData.iconName === "Code" && <Code className="w-6 h-6" />}
                         {formData.iconName === "BarChart2" && <BarChart2 className="w-6 h-6" />}
-                        {formData.iconName === "Gift" && <Gift className="w-6 h-6" />}
-                        {formData.iconName === "FileText" && <FileText className="w-6 h-6" />}
-                        {formData.iconName === "Image" && <ImageIcon className="w-6 h-6" />}
-                        {formData.iconName === "Music" && <Music className="w-6 h-6" />}
-                        {formData.iconName === "Video" && <Video className="w-6 h-6" />}
-                        {formData.iconName === "Package" && <Package className="w-6 h-6" />}
-                        {formData.iconName === "BookOpen" && <BookOpen className="w-6 h-6" />}
                       </div>
                       <div>
-                        <h4 className="text-white font-medium text-lg leading-tight">
+                        <h3 className="text-white font-medium">
                           {formData.title || "Product Title"}
-                        </h4>
-                        <div className="flex items-center text-white/60 text-sm">
-                          <span>{formData.category}</span>
-                          <span className="mx-2">•</span>
-                          <span>${formData.price}</span>
-                        </div>
+                        </h3>
+                        <p className="text-white/60 text-sm">
+                          {formData.category || "Digital Assets"}
+                        </p>
                       </div>
                     </div>
                     
-                    <div className="mb-4 pb-4 border-b border-white/10">
-                      <p className="text-white/80 text-sm">
-                        {formData.description || "Enter a product description to see the preview"}
-                      </p>
-                    </div>
-                    
-                    {formData.tags && (
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {formData.tags.split(',').map((tag, index) => (
-                          <span 
-                            key={index} 
-                            className="px-2 py-1 bg-white/10 text-white/70 rounded-md text-xs"
-                          >
-                            {tag.trim()}
-                          </span>
-                        ))}
+                    {formData.previewImage && (
+                      <div className="mb-4">
+                        <img 
+                          src={formData.previewImage} 
+                          alt="Product preview" 
+                          className="w-full h-[150px] object-cover rounded-lg"
+                        />
                       </div>
                     )}
                     
-                    <div className="flex items-center justify-between text-white/60 text-sm">
-                      <div className="flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        <span>Just now</span>
+                    <p className="text-white/80 text-sm mb-4 line-clamp-3">
+                      {formData.description || "This is where your product description will appear. A good description helps potential buyers understand what they're getting."}
+                    </p>
+                    
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <ShieldCheck className="w-4 h-4 text-white/60" />
+                        <span className="text-white/60 text-sm">
+                          {formData.license === "standard" ? "Standard License" : 
+                           formData.license === "extended" ? "Extended License" :
+                           formData.license === "commercial" ? "Commercial License" : 
+                           "Exclusive Rights"}
+                        </span>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <ShieldCheck className="w-3 h-3" />
-                        <span>{formData.license} License</span>
+                      <div className="text-white font-bold">
+                        ${formData.price || "29.99"}
                       </div>
                     </div>
+                    
+                    {formData.tags && (
+                      <div className="flex flex-wrap gap-2 mt-4">
+                        {formData.tags.split(',').map((tag, index) => (
+                          tag.trim() && (
+                            <div 
+                              key={index} 
+                              className="bg-white/10 text-white/80 text-xs px-2 py-1 rounded-full"
+                            >
+                              {tag.trim()}
+                            </div>
+                          )
+                        ))}
+                      </div>
+                    )}
                   </div>
                   
-                  <div className="mt-6 bg-white/5 rounded-lg p-4 border border-white/10">
-                    <h4 className="text-white font-medium mb-2">Publishing Checklist</h4>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center gap-2 text-white/70">
-                        <div className={`w-4 h-4 rounded-full flex items-center justify-center ${
-                          formData.title ? 'bg-[#14B8A6] text-white' : 'bg-white/20'
-                        }`}>
-                          {formData.title && <Check className="w-3 h-3" />}
-                        </div>
-                        <span>Product Title</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-white/70">
-                        <div className={`w-4 h-4 rounded-full flex items-center justify-center ${
-                          formData.description ? 'bg-[#14B8A6] text-white' : 'bg-white/20'
-                        }`}>
-                          {formData.description && <Check className="w-3 h-3" />}
-                        </div>
-                        <span>Product Description</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-white/70">
-                        <div className={`w-4 h-4 rounded-full flex items-center justify-center ${
-                          formData.price ? 'bg-[#14B8A6] text-white' : 'bg-white/20'
-                        }`}>
-                          {formData.price && <Check className="w-3 h-3" />}
-                        </div>
-                        <span>Price Set</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-white/70">
-                        <div className={`w-4 h-4 rounded-full flex items-center justify-center ${
-                          formData.category ? 'bg-[#14B8A6] text-white' : 'bg-white/20'
-                        }`}>
-                          {formData.category && <Check className="w-3 h-3" />}
-                        </div>
-                        <span>Category Selected</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-white/70">
-                        <div className={`w-4 h-4 rounded-full flex items-center justify-center ${
-                          formData.tags ? 'bg-[#14B8A6] text-white' : 'bg-white/20'
-                        }`}>
-                          {formData.tags && <Check className="w-3 h-3" />}
-                        </div>
-                        <span>Tags Added</span>
-                      </div>
-                    </div>
+                  <div className="mt-6 text-white/60 text-sm">
+                    <p className="flex items-center gap-2 mb-2">
+                      <Check className="w-4 h-4 text-green-500" />
+                      Instant delivery upon purchase
+                    </p>
+                    <p className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-500" />
+                      Technical support included
+                    </p>
                   </div>
                 </div>
               </div>
