@@ -90,6 +90,16 @@ export function ProductCard({ product, index }: ProductCardProps) {
         <span className="text-xs text-white/80">
           {index % 2 === 0 ? "Trending" : "Top Rated"}
         </span>
+        
+        {/* Display product price */}
+        {product.price && !product.isFree && (
+          <>
+            <div className="h-4 w-px bg-white/10 mr-3 ml-3"></div>
+            <div className="text-green-400 font-medium text-sm">
+              ${typeof product.price === 'number' ? product.price.toFixed(2) : product.price}
+            </div>
+          </>
+        )}
       </div>
       
       <p className="text-[#A0A0A0] text-sm mb-6 flex-grow">{product.description}</p>

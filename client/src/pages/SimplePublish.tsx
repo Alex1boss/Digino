@@ -19,7 +19,8 @@ import {
   Upload,
   Check,
   Clock,
-  ShieldCheck
+  ShieldCheck,
+  X as XIcon
 } from "lucide-react";
 
 export default function SimplePublish() {
@@ -43,6 +44,30 @@ export default function SimplePublish() {
   // For draft functionality
   const [isDraft, setIsDraft] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
+  
+  // Handle image upload
+  const handleImageUpload = (file: File) => {
+    if (!file) return;
+    
+    // Check file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please upload an image file');
+      return;
+    }
+    
+    // Convert to data URL for preview
+    const reader = new FileReader();
+    reader.onload = (e: ProgressEvent<FileReader>) => {
+      const target = e.target as FileReader;
+      if (target && target.result) {
+        setFormData(prev => ({ 
+          ...prev, 
+          previewImage: target.result as string,
+        }));
+      }
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -109,7 +134,11 @@ export default function SimplePublish() {
         rating: 0,
         reviews: 0,
         sales: 0,
-        coverImage: "/assets/product-placeholder.jpg",
+        // Use uploaded preview image if available, otherwise fallback to placeholder
+        coverImage: formData.previewImage || "/assets/product-placeholder.jpg",
+        // Also set imageUrl and customIcon for consistency in all display components
+        imageUrl: formData.previewImage || "/assets/product-placeholder.jpg",
+        customIcon: formData.previewImage || "", 
         author: {
           id: 1,
           name: "Current User",
@@ -505,13 +534,60 @@ export default function SimplePublish() {
                       <label className="block text-white/80 font-medium pl-1">
                         <span className="flex items-center gap-2">
                           <Upload className="w-4 h-4" />
-                          Upload Preview Image (Coming Soon)
+                          Upload Preview Image
                         </span>
                       </label>
-                      <div className="border-2 border-dashed border-white/20 rounded-lg p-8 flex flex-col items-center justify-center bg-white/5 cursor-not-allowed">
-                        <ImageIcon className="w-10 h-10 text-white/30 mb-2" />
-                        <p className="text-white/50 text-center">Drag & drop your preview image here, or click to browse</p>
-                        <p className="text-white/30 text-sm mt-2">(This feature is coming soon)</p>
+                      <div 
+                        className="border-2 border-dashed border-white/20 rounded-lg p-8 flex flex-col items-center justify-center bg-white/5 cursor-pointer hover:border-white/40 hover:bg-white/10 transition-all"
+                        onClick={() => document.getElementById('image-upload').click()}
+                        onDragOver={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                        }}
+                        onDrop={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          
+                          if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                            const file = e.dataTransfer.files[0];
+                            handleImageUpload(file);
+                          }
+                        }}
+                      >
+                        {formData.previewImage ? (
+                          <div className="relative w-full h-40 mb-2">
+                            <img 
+                              src={formData.previewImage} 
+                              alt="Preview" 
+                              className="w-full h-full object-contain" 
+                            />
+                            <button 
+                              className="absolute top-2 right-2 bg-red-500/80 text-white p-1 rounded-full hover:bg-red-600"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setFormData(prev => ({ ...prev, previewImage: "" }));
+                              }}
+                            >
+                              <XIcon className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            <ImageIcon className="w-10 h-10 text-white/30 mb-2" />
+                            <p className="text-white/50 text-center">Drag & drop your preview image here, or click to browse</p>
+                          </>
+                        )}
+                        <input 
+                          type="file" 
+                          id="image-upload" 
+                          accept="image/*" 
+                          className="hidden"
+                          onChange={(e) => {
+                            if (e.target.files && e.target.files.length > 0) {
+                              handleImageUpload(e.target.files[0]);
+                            }
+                          }} 
+                        />
                       </div>
                     </div>
                   </div>
