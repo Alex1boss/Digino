@@ -21,9 +21,36 @@ export function ProductCard({ product, index }: ProductCardProps) {
   const isBlueAccent = index % 2 !== 0;
   const [, setLocation] = useLocation();
 
-  // Render the appropriate icon based on the iconName
-  const renderIcon = () => {
-    switch (product.iconName) {
+  // Render uploaded image or fallback to an icon
+  const renderIconOrImage = () => {
+    // If there's a custom icon (uploaded image), use it
+    if (product.customIcon) {
+      return (
+        <div className="w-full h-full rounded-xl overflow-hidden">
+          <img 
+            src={product.customIcon} 
+            alt={product.name} 
+            className="w-full h-full object-cover"
+          />
+        </div>
+      );
+    }
+    
+    // Otherwise use the coverImage or imageUrl if available
+    if (product.coverImage || product.imageUrl) {
+      return (
+        <div className="w-full h-full rounded-xl overflow-hidden">
+          <img 
+            src={product.coverImage || product.imageUrl} 
+            alt={product.name} 
+            className="w-full h-full object-cover"
+          />
+        </div>
+      );
+    }
+    
+    // Fallback to icon if no images are available
+    switch (product.iconName?.toLowerCase()) {
       case "box":
         return <Box className="w-7 h-7" />;
       case "code":
@@ -37,7 +64,8 @@ export function ProductCard({ product, index }: ProductCardProps) {
       case "mic":
         return <Mic className="w-7 h-7" />;
       default:
-        return <Cpu className="w-7 h-7" />;
+        // If there's an Icon component, use it
+        return product.Icon ? <product.Icon className="w-7 h-7" /> : <Cpu className="w-7 h-7" />;
     }
   };
 
@@ -62,13 +90,15 @@ export function ProductCard({ product, index }: ProductCardProps) {
       <div className="flex items-center mb-5">
         <div 
           className={cn(
-            "w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300",
-            isBlueAccent
-              ? "text-[#4F46E5] bg-[#4F46E5]/10"
-              : "text-[#4F46E5] bg-[#4F46E5]/5"
+            "w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 overflow-hidden",
+            product.customIcon || product.coverImage || product.imageUrl
+              ? "p-0" // No padding for images
+              : isBlueAccent
+                ? "text-[#4F46E5] bg-[#4F46E5]/10"
+                : "text-[#4F46E5] bg-[#4F46E5]/5"
           )}
         >
-          {renderIcon()}
+          {renderIconOrImage()}
         </div>
         <h3 className="text-xl ml-3 font-semibold text-white">
           {product.name}
