@@ -60,6 +60,8 @@ export interface Product extends ProductDB {
   rating?: number;
   reviews?: number;
   sales?: number;
+  customIcon?: string;
+  productImages?: string[];
   author?: {
     id: number;
     name: string;
