@@ -4,6 +4,14 @@ import { storage } from "./storage";
 import { getIconComponent, insertProductSchema, insertUserSchema } from "@shared/schema";
 import { ZodError } from 'zod';
 import bcrypt from 'bcrypt';
+import { 
+  handleProductImageUpload, 
+  handleAvatarUpload, 
+  configureFileUpload, 
+  ensureUploadDirs,
+  serveUploads
+} from "./upload";
+import path from "path";
 
 // Install bcrypt if not already installed
 try {
@@ -14,6 +22,19 @@ try {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Configure file upload middleware
+  app.use(configureFileUpload());
+  
+  // Ensure upload directories exist
+  ensureUploadDirs();
+  
+  // Serve uploaded files
+  app.use(serveUploads);
+  
+  // File upload routes
+  app.post("/api/upload/product-image", handleProductImageUpload);
+  app.post("/api/upload/avatar", handleAvatarUpload);
+  
   // User routes
   
   // Register a new user
