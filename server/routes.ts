@@ -162,7 +162,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Transform the products to include the Icon component reference
       const transformedProducts = products.map(product => ({
         ...product,
-        Icon: getIconComponent(product.iconName)
+        Icon: getIconComponent(product.iconName || "cpu")
       }));
       
       res.json(transformedProducts);
@@ -187,7 +187,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Transform the product to include the Icon component reference
       const transformedProduct = {
         ...product,
-        Icon: getIconComponent(product.iconName)
+        Icon: getIconComponent(product.iconName || "cpu")
       };
       
       res.json(transformedProduct);
@@ -209,7 +209,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Return the created product with the Icon reference
       res.status(201).json({
         ...newProduct,
-        Icon: getIconComponent(newProduct.iconName)
+        Icon: getIconComponent(newProduct.iconName || "cpu")
       });
     } catch (error) {
       console.error("Error creating product:", error);
@@ -304,7 +304,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Transform the products to include the Icon component reference
       const transformedProducts = products.map(product => ({
         ...product,
-        Icon: getIconComponent(product.iconName)
+        Icon: getIconComponent(product.iconName || "cpu")
       }));
       
       res.json(transformedProducts);
