@@ -623,76 +623,148 @@ export default function Explore() {
     }
   });
   
-  // Get products from localStorage that were added by the user
+  // Get products from localStorage and sessionStorage that were added by the user
   useEffect(() => {
     try {
-      console.log("Loading user products from localStorage...");
+      console.log("Loading user products from multiple sources...");
       
-      // Try loading from the new individual product storage system first
-      const productIndex = JSON.parse(localStorage.getItem('product_index') || '[]');
-      console.log("Product index found:", productIndex);
+      const allProducts = [];
       
-      if (Array.isArray(productIndex) && productIndex.length > 0) {
-        // We have individual products - new storage method
-        const loadedProducts = [];
+      // APPROACH #1: Try the sessionStorage method first (most reliable)
+      try {
+        // Load products from sessionStorage (our new ultra simplified approach)
+        const productIds = JSON.parse(sessionStorage.getItem('minimal_products') || '[]');
+        console.log("Session products found:", productIds);
         
-        // Load each product individually
-        for (const productId of productIndex) {
-          try {
-            const productKey = `product_${productId}`;
-            const productJson = localStorage.getItem(productKey);
-            
-            if (productJson) {
-              const product = JSON.parse(productJson);
-              // Add to our loaded products array
-              loadedProducts.push(product);
+        if (Array.isArray(productIds) && productIds.length > 0) {
+          for (const productId of productIds) {
+            try {
+              // First try to get full product with images
+              const fullProductJson = sessionStorage.getItem(`${productId}_full`);
+              
+              if (fullProductJson) {
+                // We have a full product with images
+                const product = JSON.parse(fullProductJson);
+                allProducts.push(product);
+                console.log("Loaded full session product:", productId);
+                continue; // Skip to next product
+              }
+              
+              // If no full product, try basic product
+              const basicProductJson = sessionStorage.getItem(productId);
+              if (basicProductJson) {
+                const basicProduct = JSON.parse(basicProductJson);
+                
+                // Try to get the image separately if it exists
+                try {
+                  const imageData = sessionStorage.getItem(`${productId}_image`);
+                  if (imageData) {
+                    // Add image data to the product
+                    basicProduct.coverImage = imageData;
+                    basicProduct.imageUrl = imageData;
+                    basicProduct.customIcon = imageData;
+                  }
+                } catch (imageError) {
+                  console.warn("Could not load image for product:", productId);
+                }
+                
+                allProducts.push(basicProduct);
+                console.log("Loaded basic session product:", productId);
+              }
+            } catch (productError) {
+              console.warn("Error loading session product:", productId, productError);
             }
-          } catch (individualError) {
-            console.warn(`Error loading product ${productId}:`, individualError);
-            // Continue loading other products
           }
         }
-        
-        console.log(`Loaded ${loadedProducts.length} products from individual storage`);
-        
-        // Transform stored products to match Product interface
-        const formattedProducts = loadedProducts.map((product: any) => {
-          // If product has a customIcon, we'll use that instead of an Icon component
-          return {
-            ...product,
-            // If we have a customIcon, we'll still set Icon as a fallback
-            Icon: getIconComponent(product.iconName || 'cpu'),
-            // Make sure coverImage is set if we have productImages
-            coverImage: product.coverImage || (product.productImages && product.productImages.length > 0 ? product.productImages[0] : ""),
-            // Ensure customIcon is preserved
-            customIcon: product.customIcon || ""
-          };
-        });
-        
-        setLocalProducts(formattedProducts);
-      } else {
-        // Fall back to the legacy storage method
-        const storedProducts = JSON.parse(localStorage.getItem('products') || '[]');
-        console.log("Products loaded from legacy localStorage:", storedProducts.length);
-        
-        // Transform stored products to match Product interface
-        const formattedProducts = storedProducts.map((product: any) => {
-          // If product has a customIcon, we'll use that instead of an Icon component
-          return {
-            ...product,
-            // If we have a customIcon, we'll still set Icon as a fallback
-            Icon: getIconComponent(product.iconName || 'cpu'),
-            // Make sure coverImage is set if we have productImages
-            coverImage: product.coverImage || (product.productImages && product.productImages.length > 0 ? product.productImages[0] : ""),
-            // Ensure customIcon is preserved
-            customIcon: product.customIcon || ""
-          };
-        });
-        
-        setLocalProducts(formattedProducts);
+      } catch (sessionError) {
+        console.warn("Error loading from sessionStorage:", sessionError);
       }
+      
+      // APPROACH #2: Try loading from the indexed localStorage system
+      try {
+        // Try loading from the new individual product storage system
+        const productIndex = JSON.parse(localStorage.getItem('product_index') || '[]');
+        console.log("Product index found in localStorage:", productIndex);
+        
+        if (Array.isArray(productIndex) && productIndex.length > 0) {
+          // We have individual products - new storage method
+          // Load each product individually
+          for (const productId of productIndex) {
+            try {
+              const productKey = `product_${productId}`;
+              const productJson = localStorage.getItem(productKey);
+              
+              if (productJson) {
+                const product = JSON.parse(productJson);
+                // Add to our loaded products array
+                allProducts.push(product);
+              }
+            } catch (individualError) {
+              console.warn(`Error loading product ${productId}:`, individualError);
+            }
+          }
+        }
+      } catch (indexError) {
+        console.warn("Error loading from indexed localStorage:", indexError);
+      }
+      
+      // APPROACH #3: Try the legacy localStorage array method
+      try {
+        const storedProducts = JSON.parse(localStorage.getItem('products') || '[]');
+        console.log("Products found in legacy localStorage:", storedProducts.length);
+        
+        if (Array.isArray(storedProducts) && storedProducts.length > 0) {
+          // Add these products to our collection
+          allProducts.push(...storedProducts);
+        }
+      } catch (legacyError) {
+        console.warn("Error loading from legacy localStorage:", legacyError);
+      }
+      
+      console.log(`Loaded ${allProducts.length} products total from all storage methods`);
+      
+      // If we have no products, set an empty array and return
+      if (allProducts.length === 0) {
+        console.log("No products found in any storage method");
+        setLocalProducts([]);
+        return;
+      }
+      
+      // Remove duplicates based on id
+      const uniqueProducts = [];
+      const seenIds = new Set();
+      
+      for (const product of allProducts) {
+        if (product.id && !seenIds.has(product.id)) {
+          seenIds.add(product.id);
+          uniqueProducts.push(product);
+        }
+      }
+      
+      console.log(`Found ${uniqueProducts.length} unique products after deduplication`);
+      
+      // Transform stored products to match Product interface
+      const formattedProducts = uniqueProducts.map((product: any) => {
+        // If product has a customIcon, we'll use that instead of an Icon component
+        return {
+          ...product,
+          // If we have a customIcon, we'll still set Icon as a fallback
+          Icon: getIconComponent(product.iconName || 'cpu'),
+          // Make sure coverImage is set if we have productImages
+          coverImage: product.coverImage || (product.productImages && product.productImages.length > 0 ? product.productImages[0] : ""),
+          // Ensure customIcon is preserved
+          customIcon: product.customIcon || "",
+          // Ensure other required fields have defaults
+          currency: product.currency || "USD",
+          rating: product.rating || 0, 
+          reviews: product.reviews || 0,
+          sales: product.sales || 0
+        };
+      });
+      
+      setLocalProducts(formattedProducts);
     } catch (error) {
-      console.error('Error loading products from localStorage:', error);
+      console.error('Error loading products from storage:', error);
       
       // If everything fails, at least provide an empty array
       setLocalProducts([]);

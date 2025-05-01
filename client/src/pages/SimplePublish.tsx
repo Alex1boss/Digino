@@ -341,250 +341,186 @@ export default function SimplePublish() {
     console.log("Publishing product...");
 
     try {
-      // Pre-emptive clean-up: Clear any non-essential localStorage items
-      try {
-        console.log("Cleaning up localStorage to free space...");
-        // Get all localStorage keys except our essential ones
-        const keysToPreserve = ['products', 'productDraft'];
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (key && !keysToPreserve.includes(key)) {
-            console.log("Removing non-essential item:", key);
-            localStorage.removeItem(key);
-          }
-        }
-      } catch (cleanupError) {
-        console.log("Cleanup failed, but continuing:", cleanupError);
-      }
-      
-      // Create a simple product object with all required fields
-      // Sanitize the image URL to ensure it's valid
-      const sanitizeImageUrl = (url: string | null | undefined) => {
-        if (!url) return "";
-        // Return the url only if it's a valid format (data URL, https, or http)
-        if (url.startsWith('data:') || url.startsWith('http')) {
-          return url;
-        }
-        return "";
-      };
+      // ULTRA SIMPLIFIED APPROACH FOR RELIABILITY:
+      // 1. Create a minimal product to avoid storage issues
+      // 2. Skip localStorage and use sessionStorage which tends to be more reliable for this use case
+      // 3. Use a bare minimum of data and skip images entirely if needed
 
-      // Generate a simple, unique ID
-      const uniqueId = Date.now() + "-" + Math.floor(Math.random() * 10000);
+      // Skip image to focus on core data first
+      const uniqueId = "product-" + Date.now();
       
-      // Get the sanitized image URL
-      const imageUrl = sanitizeImageUrl(formData.previewImage);
-      console.log("Sanitized image URL length:", imageUrl ? imageUrl.length : 0, "bytes");
-      
-      // Create the product object
-      const newProduct = {
+      // Create a minimal product object with essential fields only
+      const minimalProduct = {
         id: uniqueId,
-        name: formData.title || "Untitled Product",
-        description: formData.description || "No description provided",
+        name: formData.title,
+        description: formData.description,
         price: parseFloat(formData.price) || 0,
-        currency: "USD",
         category: formData.category || "Digital Assets",
-        rating: 0,
-        reviews: 0,
-        sales: 0,
-        // Use uploaded preview image if available
-        coverImage: imageUrl, 
-        // Make sure images are consistent across fields used by different components
-        imageUrl: imageUrl,
-        customIcon: imageUrl,  // Priority: customIcon is specifically for user uploads
-        author: {
-          id: 1,
-          name: "Current User",
-          avatar: "/assets/avatar.jpg"
-        },
-        createdAt: new Date().toISOString(),
-        iconName: formData.iconName || "cpu",
-        tags: formData.tags || "",
-        license: formData.license || "Standard",
-        fileType: formData.fileType || "software"
+        iconName: "cpu",  // Default icon
+        createdAt: new Date().toISOString()
       };
 
-      console.log("Product object created with ID:", uniqueId);
+      console.log("Created minimal product:", minimalProduct);
+
+      // First try to save just the minimal data to ensure base functionality works
+      sessionStorage.setItem(uniqueId, JSON.stringify(minimalProduct));
       
-      // NEW APPROACH: Store each product individually with its own key
-      // This avoids having to load and save the entire products array
-      const productKey = `product_${uniqueId}`;
-      
-      // Also maintain an index of product IDs
-      let productIndex = [];
+      // Now try to add it to our product list
+      let products = [];
       try {
-        const savedIndex = localStorage.getItem('product_index');
-        if (savedIndex) {
-          productIndex = JSON.parse(savedIndex);
-          if (!Array.isArray(productIndex)) {
-            console.warn("Product index was not an array, resetting");
-            productIndex = [];
-          }
+        const existingProducts = sessionStorage.getItem('minimal_products');
+        if (existingProducts) {
+          products = JSON.parse(existingProducts);
         }
-      } catch (indexError) {
-        console.error("Error parsing product index:", indexError);
-        productIndex = [];
+      } catch (e) {
+        console.log("Error parsing existing products, starting fresh");
+        products = [];
       }
       
-      // Add the new product ID to the index
-      productIndex.push(uniqueId);
+      products.push(uniqueId);
+      sessionStorage.setItem('minimal_products', JSON.stringify(products));
       
-      // First save the individual product (which contains the large image data)
+      console.log("Successfully saved minimal product");
+
+      // Now that we know basic storage works, try to add the image data if possible
       try {
-        // Try storing the full product first
-        const productString = JSON.stringify(newProduct);
-        console.log(`Saving product ${uniqueId}, size: ${productString.length} bytes`);
-        
-        // Check if this single product exceeds storage limits
-        if (productString.length > 4000000) { // 4MB safety limit
-          console.warn("Product too large, removing image data");
+        if (formData.previewImage) {
+          const imageUrl = formData.previewImage;
           
-          // Create a version without the large image data
-          const smallProduct = {
-            ...newProduct,
-            coverImage: "", 
-            imageUrl: "",
-            customIcon: "",
-            imageTooLarge: true
+          // Try to store the image in a separate key to isolate any potential issues
+          sessionStorage.setItem(`${uniqueId}_image`, imageUrl);
+          console.log("Saved image separately");
+          
+          // Now try to update the minimal product with image data
+          const fullProduct = {
+            ...minimalProduct,
+            coverImage: imageUrl,
+            imageUrl: imageUrl,
+            customIcon: imageUrl
           };
           
-          // Save the smaller version instead
-          localStorage.setItem(productKey, JSON.stringify(smallProduct));
-        } else {
-          // Save the full product
-          localStorage.setItem(productKey, productString);
-        }
-        
-        // Then save the index (which is much smaller)
-        localStorage.setItem('product_index', JSON.stringify(productIndex));
-        
-        // For backward compatibility, also update the 'products' array if it exists
-        try {
-          let allProducts = [];
-          const existingProducts = localStorage.getItem('products');
-          
-          if (existingProducts) {
-            allProducts = JSON.parse(existingProducts);
-            
-            // Only keep up to 10 products to avoid quota issues
-            if (allProducts.length > 9) {
-              allProducts = allProducts.slice(-9);
-            }
-          }
-          
-          // Add new product to array
-          allProducts.push(newProduct);
-          
-          // Save but don't fail if it exceeds quota
+          // Try to save the full product now
           try {
-            localStorage.setItem('products', JSON.stringify(allProducts));
-          } catch (e) {
-            console.warn("Could not update legacy products array:", e);
-            // This is non-critical so we continue
+            sessionStorage.setItem(`${uniqueId}_full`, JSON.stringify(fullProduct));
+            console.log("Saved full product with images");
+          } catch (imageError) {
+            console.warn("Could not save full product with images:", imageError);
+            // But the minimal product was already saved, so we can continue
           }
-        } catch (e) {
-          console.warn("Error updating legacy products array:", e);
-          // Again, this is non-critical
         }
-        
-        console.log("Successfully saved products");
-      } catch (storageError) {
-        console.error("Error saving to localStorage:", storageError);
-        
-        if (storageError instanceof DOMException && 
-            (storageError.name === 'QuotaExceededError' || 
-            storageError.name === 'NS_ERROR_DOM_QUOTA_REACHED')) {
-          
-          console.error("QuotaExceededError - localStorage is full");
-          
-          // Try saving a version without the image
-          try {
-            const smallProduct = {
-              ...newProduct,
-              coverImage: "", 
-              imageUrl: "",
-              customIcon: "",
-              imageTooLarge: true
-            };
-            
-            // Save the smaller version
-            localStorage.setItem(productKey, JSON.stringify(smallProduct));
-            localStorage.setItem('product_index', JSON.stringify(productIndex));
-            
-            console.log("Saved product without image data");
-          } catch (fallbackError) {
-            console.error("Even fallback storage failed:", fallbackError);
-            throw new Error("Could not save product - storage completely full. Please clear browser data.");
-          }
-        } else {
-          throw storageError;
-        }
+      } catch (imageError) {
+        console.warn("Image data could not be saved, but basic product was saved:", imageError);
+        // Continue since we already saved the minimal product
       }
       
-      // Success processing is complete, now show the success message
+      // Now try to use localStorage as a fallback/additional storage
       try {
-        console.log("Publication successful, showing success message");
-        
-        // Success message - using a better approach than alert
-        const successMessage = document.createElement('div');
-        successMessage.style.position = 'fixed';
-        successMessage.style.top = '50%';
-        successMessage.style.left = '50%';
-        successMessage.style.transform = 'translate(-50%, -50%)';
-        successMessage.style.backgroundColor = '#14B8A6';
-        successMessage.style.color = 'white';
-        successMessage.style.padding = '20px';
-        successMessage.style.borderRadius = '10px';
-        successMessage.style.zIndex = '9999';
-        successMessage.style.width = '90%';
-        successMessage.style.maxWidth = '400px';
-        successMessage.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-        successMessage.style.textAlign = 'center';
-        
-        successMessage.innerHTML = `
-          <h3 style="margin-top: 0; font-size: 18px; font-weight: bold;">Success!</h3>
-          <p style="margin-bottom: 20px;">Your product has been published successfully!</p>
-          <div>
-            <button style="padding: 8px 16px; background: white; color: #14B8A6; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">OK</button>
-          </div>
-        `;
-        
-        document.body.appendChild(successMessage);
-        
-        // Set up a timer to automatically navigate after showing success message
-        const redirectTimer = setTimeout(() => {
-          // Remove the message first
-          if (document.body.contains(successMessage)) {
-            document.body.removeChild(successMessage);
+        // First create an array entry if it doesn't exist
+        let localProducts = [];
+        try {
+          const localProductsJson = localStorage.getItem('products');
+          if (localProductsJson) {
+            localProducts = JSON.parse(localProductsJson);
           }
-          
-          // Then redirect to the explore page
-          window.location.href = "/#/explore";
-          window.location.reload(); 
-        }, 2000);
-        
-        // Allow manual dismissal with OK button
-        const okButton = successMessage.querySelector('button');
-        if (okButton) {
-          okButton.addEventListener('click', () => {
-            // Clear the automatic redirect timer
-            clearTimeout(redirectTimer);
-            
-            // Remove the message
-            document.body.removeChild(successMessage);
-            
-            // Immediately redirect
-            window.location.href = "/#/explore";
-            window.location.reload();
-          });
+        } catch (e) {
+          console.warn("Error parsing localStorage products:", e);
         }
-      } catch (uiError) {
-        console.error("Error showing success message:", uiError);
         
-        // Even if UI fails, try to redirect after a delay
-        setTimeout(() => {
+        // Create a complete product with all expected fields
+        const completeProduct = {
+          id: uniqueId,
+          name: formData.title,
+          description: formData.description,
+          price: parseFloat(formData.price) || 0,
+          currency: "USD",
+          category: formData.category || "Digital Assets",
+          rating: 0,
+          reviews: 0,
+          sales: 0,
+          coverImage: formData.previewImage || "",
+          imageUrl: formData.previewImage || "",
+          customIcon: formData.previewImage || "",
+          author: {
+            id: 1,
+            name: "Current User",
+            avatar: "/assets/avatar.jpg"
+          },
+          createdAt: new Date().toISOString(),
+          iconName: formData.iconName || "cpu",
+          tags: formData.tags || "",
+          license: formData.license || "Standard",
+          fileType: formData.fileType || "software"
+        };
+        
+        // Add to array
+        localProducts.push(completeProduct);
+        
+        // Try to save (but don't worry if it fails since we have sessionStorage backup)
+        try {
+          localStorage.setItem('products', JSON.stringify(localProducts));
+          console.log("Also saved to localStorage successfully");
+        } catch (e) {
+          console.warn("Could not save to localStorage, but sessionStorage is working:", e);
+        }
+      } catch (e) {
+        console.warn("Skipping localStorage backup due to error:", e);
+      }
+      
+      // Display success message
+      console.log("Publication successful, showing success message");
+      
+      // Success message
+      const successMessage = document.createElement('div');
+      successMessage.style.position = 'fixed';
+      successMessage.style.top = '50%';
+      successMessage.style.left = '50%';
+      successMessage.style.transform = 'translate(-50%, -50%)';
+      successMessage.style.backgroundColor = '#14B8A6';
+      successMessage.style.color = 'white';
+      successMessage.style.padding = '20px';
+      successMessage.style.borderRadius = '10px';
+      successMessage.style.zIndex = '9999';
+      successMessage.style.width = '90%';
+      successMessage.style.maxWidth = '400px';
+      successMessage.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+      successMessage.style.textAlign = 'center';
+      
+      successMessage.innerHTML = `
+        <h3 style="margin-top: 0; font-size: 18px; font-weight: bold;">Success!</h3>
+        <p style="margin-bottom: 20px;">Your product has been published successfully!</p>
+        <div>
+          <button style="padding: 8px 16px; background: white; color: #14B8A6; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">OK</button>
+        </div>
+      `;
+      
+      document.body.appendChild(successMessage);
+      
+      // Set up a timer to automatically navigate after showing success message
+      const redirectTimer = setTimeout(() => {
+        // Remove the message first
+        if (document.body.contains(successMessage)) {
+          document.body.removeChild(successMessage);
+        }
+        
+        // Then redirect to the explore page
+        window.location.href = "/#/explore";
+        window.location.reload(); 
+      }, 2000);
+      
+      // Allow manual dismissal with OK button
+      const okButton = successMessage.querySelector('button');
+      if (okButton) {
+        okButton.addEventListener('click', () => {
+          // Clear the automatic redirect timer
+          clearTimeout(redirectTimer);
+          
+          // Remove the message
+          document.body.removeChild(successMessage);
+          
+          // Immediately redirect
           window.location.href = "/#/explore";
           window.location.reload();
-        }, 1000);
+        });
       }
     } catch (e) {
       // More robust error logging
