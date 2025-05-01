@@ -45,6 +45,9 @@ export default function SimplePublish() {
   const [isDraft, setIsDraft] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   
+  // For drag and drop visual feedback
+  const [isDraggingOver, setIsDraggingOver] = useState(false);
+  
   // Handle image upload
   const handleImageUpload = (file: File) => {
     if (!file) {
@@ -612,58 +615,93 @@ export default function SimplePublish() {
                         </span>
                       </label>
                       <div 
-                        className="border-2 border-dashed border-white/20 rounded-lg p-8 flex flex-col items-center justify-center bg-white/5 cursor-pointer hover:border-white/40 hover:bg-white/10 transition-all"
+                        className={`border-2 border-dashed ${isDraggingOver ? 'border-[#14B8A6] bg-[#14B8A6]/10' : 'border-white/20 bg-white/5 hover:border-white/40 hover:bg-white/10'} rounded-lg p-8 flex flex-col items-center justify-center cursor-pointer transition-all duration-200`}
                         onClick={() => {
                           const uploadInput = document.getElementById('image-upload');
                           if (uploadInput) {
                             uploadInput.click();
                           }
                         }}
+                        onDragEnter={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setIsDraggingOver(true);
+                        }}
                         onDragOver={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
+                          setIsDraggingOver(true);
+                        }}
+                        onDragLeave={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setIsDraggingOver(false);
                         }}
                         onDrop={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
+                          setIsDraggingOver(false);
                           
-                          if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-                            const file = e.dataTransfer.files[0];
-                            handleImageUpload(file);
+                          try {
+                            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                              const file = e.dataTransfer.files[0];
+                              console.log("File dropped:", file.name, "Type:", file.type);
+                              
+                              // Check if it's actually an image file
+                              if (!file.type.startsWith('image/')) {
+                                showErrorMessage("Please drop an image file (JPEG, PNG, etc.)");
+                                return;
+                              }
+                              
+                              handleImageUpload(file);
+                            }
+                          } catch (error) {
+                            console.error("Error handling file drop:", error);
+                            showErrorMessage("Error processing your file. Please try again or use the browse button.");
                           }
                         }}
                       >
                         {formData.previewImage ? (
-                          <div className="relative w-full h-40 mb-2">
+                          <div className="relative w-full h-40 mb-2 animate-fadeIn">
                             <img 
                               src={formData.previewImage} 
                               alt="Preview" 
-                              className="w-full h-full object-contain" 
+                              className="w-full h-full object-contain rounded-md shadow-lg border border-white/20" 
                             />
-                            <button 
-                              className="absolute top-2 right-2 bg-red-500/80 text-white p-1 rounded-full hover:bg-red-600"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setFormData(prev => ({ ...prev, previewImage: "" }));
-                              }}
-                            >
-                              <XIcon className="w-4 h-4" />
-                            </button>
+                            <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 rounded-md">
+                              <button 
+                                className="absolute top-2 right-2 bg-red-500/90 text-white p-1.5 rounded-full hover:bg-red-600 shadow-md transition-all duration-200 hover:scale-110"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setFormData(prev => ({ ...prev, previewImage: "" }));
+                                }}
+                              >
+                                <XIcon className="w-4 h-4" />
+                              </button>
+                            </div>
                           </div>
                         ) : (
                           <>
-                            <ImageIcon className="w-10 h-10 text-white/30 mb-2" />
-                            <p className="text-white/50 text-center">Drag & drop your preview image here, or click to browse</p>
+                            <ImageIcon className={`w-12 h-12 ${isDraggingOver ? 'text-[#14B8A6]' : 'text-white/30'} mb-3 ${isDraggingOver ? 'animate-pulse' : ''}`} />
+                            <p className={`${isDraggingOver ? 'text-[#14B8A6]' : 'text-white/50'} text-center transition-colors duration-200`}>
+                              {isDraggingOver ? 'Release to upload image' : 'Drag & drop your preview image here, or click to browse'}
+                            </p>
                           </>
                         )}
                         <input 
                           type="file" 
                           id="image-upload" 
-                          accept="image/*" 
+                          accept="image/jpeg,image/png,image/gif,image/webp" 
                           className="hidden"
                           onChange={(e) => {
-                            if (e.target.files && e.target.files.length > 0) {
-                              handleImageUpload(e.target.files[0]);
+                            try {
+                              if (e.target.files && e.target.files.length > 0) {
+                                console.log("File selected:", e.target.files[0].name);
+                                handleImageUpload(e.target.files[0]);
+                              }
+                            } catch (error) {
+                              console.error("Error handling file input change:", error);
+                              showErrorMessage("Error processing your file. Please try again.");
                             }
                           }} 
                         />
