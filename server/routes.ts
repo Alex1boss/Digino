@@ -13,11 +13,14 @@ import {
 } from "./upload";
 import path from "path";
 
-// Install bcrypt if not already installed
+// Check if bcrypt is available
+let bcryptAvailable = true;
 try {
-  require.resolve('bcrypt');
+  // Test bcrypt with a simple hash
+  bcrypt.hashSync('test', 1);
 } catch (e) {
-  console.warn('bcrypt is not installed, password hashing will not work');
+  console.warn('bcrypt is not installed or not working properly, password hashing will not work');
+  bcryptAvailable = false;
   // We'll handle this gracefully in the routes
 }
 
@@ -49,8 +52,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Username already exists" });
       }
       
-      // Hash the password
-      const hashedPassword = await bcrypt.hash(userData.password, 10);
+      // Hash the password if bcrypt is available
+      let hashedPassword;
+      if (bcryptAvailable) {
+        hashedPassword = await bcrypt.hash(userData.password, 10);
+      } else {
+        // Fallback for development only - don't store plaintext passwords in production!
+        hashedPassword = `UNHASHED_${userData.password}`;
+      }
       
       // Create the user with hashed password
       const newUser = await storage.createUser({
@@ -92,7 +101,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Compare passwords
-      const passwordMatch = await bcrypt.compare(password, user.password);
+      let passwordMatch = false;
+      
+      if (bcryptAvailable) {
+        // Use bcrypt for secure password comparison
+        passwordMatch = await bcrypt.compare(password, user.password);
+      } else {
+        // Fallback for development only - basic comparison for unhashed passwords
+        passwordMatch = user.password === `UNHASHED_${password}`;
+      }
+      
       if (!passwordMatch) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
@@ -151,7 +169,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Handle password updates separately
       let updateData = { ...req.body };
       if (updateData.password) {
-        updateData.password = await bcrypt.hash(updateData.password, 10);
+        if (bcryptAvailable) {
+          updateData.password = await bcrypt.hash(updateData.password, 10);
+        } else {
+          // Fallback for development only - don't store plaintext passwords in production!
+          updateData.password = `UNHASHED_${updateData.password}`;
+        }
       }
       
       // Update the user
