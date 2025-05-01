@@ -22,6 +22,7 @@ import {
   ShieldCheck,
   X as XIcon
 } from "lucide-react";
+import { uploadProductImages, compressImage } from "../lib/uploadHelpers";
 
 export default function SimplePublish() {
   const [_, setLocation] = useLocation();
