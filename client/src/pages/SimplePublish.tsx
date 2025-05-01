@@ -85,62 +85,119 @@ export default function SimplePublish() {
     const resizeImage = (dataUrl: string): Promise<string> => {
       return new Promise((resolve, reject) => {
         try {
+          console.log("Starting image resize process");
+          
+          // Fallback in case of any errors
+          const handleResizeError = (err: any) => {
+            console.error("Image resize error:", err);
+            console.log("Using original image as fallback");
+            resolve(dataUrl); // Return original instead of failing
+          };
+          
+          // Create image element
           const img = new Image();
+          
+          // Set crossOrigin to anonymous to avoid CORS issues
+          img.crossOrigin = "anonymous";
+          
+          // Set timeout to handle potential loading issues
+          const loadTimeout = setTimeout(() => {
+            console.warn("Image load timeout - using original");
+            resolve(dataUrl);
+          }, 5000);
+          
           img.onload = () => {
-            // Create canvas for resizing
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
+            clearTimeout(loadTimeout);
             
-            if (!ctx) {
-              console.error("Failed to get canvas context");
-              reject("Canvas context not available");
-              return;
-            }
-            
-            // Calculate new dimensions - reduce to save space
-            const MAX_WIDTH = 600;
-            const MAX_HEIGHT = 600;
-            
-            let width = img.width;
-            let height = img.height;
-            
-            if (width > height) {
-              if (width > MAX_WIDTH) {
-                height = Math.round(height * MAX_WIDTH / width);
-                width = MAX_WIDTH;
+            try {
+              // Create canvas for resizing
+              const canvas = document.createElement('canvas');
+              const ctx = canvas.getContext('2d');
+              
+              if (!ctx) {
+                console.error("Failed to get canvas context");
+                handleResizeError("Canvas context not available");
+                return;
               }
-            } else {
-              if (height > MAX_HEIGHT) {
-                width = Math.round(width * MAX_HEIGHT / height);
-                height = MAX_HEIGHT;
+              
+              // Calculate new dimensions - reduce to save space
+              const MAX_WIDTH = 500; // Made slightly smaller
+              const MAX_HEIGHT = 500;
+              
+              let width = img.width;
+              let height = img.height;
+              
+              // Check for valid dimensions
+              if (!width || !height || width <= 0 || height <= 0) {
+                console.error("Invalid image dimensions:", width, "x", height);
+                handleResizeError("Invalid image dimensions");
+                return;
               }
+              
+              if (width > height) {
+                if (width > MAX_WIDTH) {
+                  height = Math.round(height * MAX_WIDTH / width);
+                  width = MAX_WIDTH;
+                }
+              } else {
+                if (height > MAX_HEIGHT) {
+                  width = Math.round(width * MAX_HEIGHT / height);
+                  height = MAX_HEIGHT;
+                }
+              }
+              
+              // Set canvas dimensions and draw resized image
+              canvas.width = width;
+              canvas.height = height;
+              
+              // Fill with background first (transparent images fix)
+              ctx.fillStyle = '#FFFFFF';
+              ctx.fillRect(0, 0, width, height);
+              
+              // Draw the image
+              ctx.drawImage(img, 0, 0, width, height);
+              
+              try {
+                // Try with JPEG first (smaller file size)
+                const resizedDataUrl = canvas.toDataURL('image/jpeg', 0.65); // 65% quality for even smaller size
+                
+                // Log info about the process
+                console.log("Image resized successfully");
+                console.log("Original dimensions:", img.width, "x", img.height);
+                console.log("New dimensions:", width, "x", height);
+                console.log("Original size (bytes):", dataUrl.length);
+                console.log("New size (bytes):", resizedDataUrl.length);
+                console.log("Size reduction:", Math.round((1 - resizedDataUrl.length / dataUrl.length) * 100) + "%");
+                
+                resolve(resizedDataUrl);
+              } catch (toDataUrlError) {
+                console.error("Error converting canvas to data URL:", toDataUrlError);
+                handleResizeError(toDataUrlError);
+              }
+            } catch (canvasError) {
+              console.error("Error working with canvas:", canvasError);
+              handleResizeError(canvasError);
             }
-            
-            // Set canvas dimensions and draw resized image
-            canvas.width = width;
-            canvas.height = height;
-            ctx.drawImage(img, 0, 0, width, height);
-            
-            // Convert to compressed JPEG to reduce file size
-            const resizedDataUrl = canvas.toDataURL('image/jpeg', 0.7); // 70% quality
-            
-            console.log("Image resized successfully");
-            console.log("Original dimensions:", img.width, "x", img.height);
-            console.log("New dimensions:", width, "x", height);
-            console.log("Size reduction:", Math.round((1 - resizedDataUrl.length / dataUrl.length) * 100) + "%");
-            
-            resolve(resizedDataUrl);
           };
           
-          img.onerror = () => {
-            console.error("Error loading image for resizing");
-            reject("Failed to load image");
+          img.onerror = (err) => {
+            clearTimeout(loadTimeout);
+            console.error("Error loading image for resizing:", err);
+            handleResizeError("Failed to load image");
           };
           
+          // Set source after event handlers
           img.src = dataUrl;
+          
+          // For some browsers, setting src isn't enough if the image is already cached
+          if (img.complete) {
+            console.log("Image already loaded - triggering onload");
+            img.onload(new Event('AlreadyLoaded') as any);
+          }
         } catch (error) {
-          console.error("Error in image resizing:", error);
-          reject(error);
+          console.error("Critical error in image resizing:", error);
+          // Still provide a fallback
+          resolve(dataUrl);
         }
       });
     };
@@ -823,17 +880,36 @@ export default function SimplePublish() {
                           setIsDraggingOver(false);
                           
                           try {
+                            console.log("File drop detected");
+                            
                             if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
                               const file = e.dataTransfer.files[0];
-                              console.log("File dropped:", file.name, "Type:", file.type);
+                              console.log("File dropped:", file.name, "Type:", file.type, "Size:", file.size);
                               
-                              // Check if it's actually an image file
-                              if (!file.type.startsWith('image/')) {
-                                showErrorMessage("Please drop an image file (JPEG, PNG, etc.)");
+                              // First check file size 
+                              if (file.size > 10 * 1024 * 1024) { // 10MB max
+                                showErrorMessage("Image too large (max 10MB). Please choose a smaller file.");
                                 return;
                               }
                               
-                              handleImageUpload(file);
+                              // Then check file type
+                              if (!file.type.startsWith('image/')) {
+                                showErrorMessage("Please upload an image file (JPEG, PNG, etc.)");
+                                return;
+                              }
+                              
+                              // Add a short delay to allow the UI to update
+                              setTimeout(() => {
+                                try {
+                                  handleImageUpload(file);
+                                } catch (processingError) {
+                                  console.error("Error in delayed image processing:", processingError);
+                                  showErrorMessage("Could not process image. Please try another file.");
+                                }
+                              }, 100);
+                            } else {
+                              console.warn("No files found in drop event");
+                              showErrorMessage("No valid file detected. Please try again.");
                             }
                           } catch (error) {
                             console.error("Error handling file drop:", error);
@@ -871,19 +947,40 @@ export default function SimplePublish() {
                         <input 
                           type="file" 
                           id="image-upload" 
-                          accept="image/jpeg,image/png,image/gif,image/webp" 
+                          accept="image/jpeg,image/png,image/gif,image/webp,image/*" 
                           className="hidden"
                           onChange={(e) => {
                             try {
+                              console.log("File input change detected");
                               if (e.target.files && e.target.files.length > 0) {
-                                console.log("File selected:", e.target.files[0].name);
-                                handleImageUpload(e.target.files[0]);
+                                const file = e.target.files[0];
+                                console.log("File selected:", file.name, "Type:", file.type, "Size:", file.size);
+                                
+                                // Check file size first
+                                if (file.size > 10 * 1024 * 1024) { // 10MB
+                                  showErrorMessage("Image too large (max 10MB). Please choose a smaller file.");
+                                  // Reset the input so user can try again
+                                  e.target.value = "";
+                                  return;
+                                }
+                                
+                                // Use a small delay to allow UI to update
+                                setTimeout(() => {
+                                  try {
+                                    handleImageUpload(file);
+                                  } catch (uploadError) {
+                                    console.error("Error in delayed file handling:", uploadError);
+                                    showErrorMessage("Could not process image. Please try another file.");
+                                  }
+                                }, 100);
+                              } else {
+                                console.warn("No files selected");
                               }
                             } catch (error) {
                               console.error("Error handling file input change:", error);
                               showErrorMessage("Error processing your file. Please try again.");
                             }
-                          }} 
+                          }}
                         />
                       </div>
                     </div>
