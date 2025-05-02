@@ -1,5 +1,5 @@
 import { useAuth } from "@/hooks/use-auth";
-import { Loader } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Redirect, Route } from "wouter";
 
 interface ProtectedRouteProps {
@@ -18,7 +18,7 @@ export function ProtectedRoute({ path, component: Component }: ProtectedRoutePro
           return (
             <div className="flex items-center justify-center min-h-screen">
               <div className="flex flex-col items-center gap-2">
-                <Loader className="h-8 w-8 animate-spin text-primary" />
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 <p className="text-muted-foreground">Checking authentication...</p>
               </div>
             </div>

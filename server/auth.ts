@@ -226,7 +226,7 @@ export function hasRole(role: string) {
       return res.status(401).json({ message: "Authentication required" });
     }
     
-    const user = req.user as User;
+    const user = req.user as Express.User;
     if (user.role !== role) {
       return res.status(403).json({ message: "Access denied" });
     }

@@ -152,12 +152,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
   });
 
+  // Ensure user is either the actual user object or null (not undefined)
+  const safeUser = user === undefined ? null : user;
+
   return (
     <AuthContext.Provider
       value={{
-        user,
+        user: safeUser,
         isLoading,
-        isAuthenticated: !!user,
+        isAuthenticated: !!safeUser,
         error,
         loginMutation,
         logoutMutation,

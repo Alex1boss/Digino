@@ -14,30 +14,45 @@ import {
   Plus,
   X,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Loader2
 } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
 import { Badge } from "./ui/badge";
 
 export default function Navbar() {
   const [location] = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [notificationCount, setNotificationCount] = useState(3);
   const [showWelcomeMessage, setShowWelcomeMessage] = useState(true);
-  const [userName, setUserName] = useState("Alex");
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   
   const userMenuRef = useRef<HTMLDivElement>(null);
   const notificationMenuRef = useRef<HTMLDivElement>(null);
-
-  // Toggle logged in state for demo purposes
-  const toggleLoggedIn = () => {
-    setIsLoggedIn(!isLoggedIn);
-    if (!isLoggedIn) {
-      setShowWelcomeMessage(true);
-    }
+  
+  // Get auth state from our auth hook
+  const { 
+    user, 
+    isAuthenticated, 
+    isLoading, 
+    loginMutation, 
+    logoutMutation 
+  } = useAuth();
+  
+  // Get username from authenticated user
+  const userName = user?.username || '';
+  
+  // Handle login redirect
+  const handleLoginClick = () => {
+    window.location.href = "/auth";
+  };
+  
+  // Handle logout
+  const handleLogout = () => {
+    logoutMutation.mutate();
+    setShowUserMenu(false);
   };
 
   // Close dropdowns when clicking outside
@@ -66,13 +81,13 @@ export default function Navbar() {
 
   // Hide welcome message after 5 seconds
   useEffect(() => {
-    if (isLoggedIn && showWelcomeMessage) {
+    if (isAuthenticated && showWelcomeMessage) {
       const timer = setTimeout(() => {
         setShowWelcomeMessage(false);
       }, 5000);
       return () => clearTimeout(timer);
     }
-  }, [isLoggedIn, showWelcomeMessage]);
+  }, [isAuthenticated, showWelcomeMessage]);
 
   return (
     <motion.header
@@ -81,16 +96,16 @@ export default function Navbar() {
       transition={{ duration: 0.5 }}
       className={`fixed top-0 left-0 right-0 z-50 py-4 ${
         isScrolled 
-          ? isLoggedIn 
+          ? isAuthenticated 
             ? "bg-[#0B0B2E]/90 shadow-md backdrop-blur-lg border-b border-[#0056D2]/10" 
             : "bg-[#0A0A23]/95 shadow-md backdrop-blur-lg"
-          : isLoggedIn
+          : isAuthenticated
             ? "bg-[#0B0B2E] border-b border-[#0056D2]/10 backdrop-blur-sm"
             : "bg-[#0A0A23] backdrop-blur-sm"
       } transition-all duration-300`}
     >
       {/* Welcome message - shows up when user logs in */}
-      {isLoggedIn && showWelcomeMessage && (
+      {isAuthenticated && showWelcomeMessage && (
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -106,7 +121,7 @@ export default function Navbar() {
         <Link href="/">
           <div className="flex items-center cursor-pointer">
             <div className={`mr-2 p-1.5 rounded ${
-              isLoggedIn 
+              isAuthenticated 
                 ? "text-[#0056D2] bg-[#0056D2]/10" 
                 : "text-[#4F46E5] bg-[#4F46E5]/10"
             }`}>
@@ -114,7 +129,7 @@ export default function Navbar() {
             </div>
             <h1 className="text-xl md:text-2xl font-semibold">
               <span className="text-white">Digino</span>
-              <span className={isLoggedIn ? "text-[#0056D2]" : "text-[#4F46E5]"}>AI</span>
+              <span className={isAuthenticated ? "text-[#0056D2]" : "text-[#4F46E5]"}>AI</span>
             </h1>
           </div>
         </Link>
@@ -145,7 +160,11 @@ export default function Navbar() {
 
         {/* User Actions Area */}
         <div className="flex items-center space-x-3">
-          {isLoggedIn ? (
+          {isLoading ? (
+            <Button disabled variant="ghost" size="icon" className="rounded-full">
+              <Loader2 className="h-5 w-5 animate-spin text-white/70" />
+            </Button>
+          ) : isAuthenticated ? (
             <div className="flex items-center space-x-4">
               {/* Search Button */}
               <Button variant="ghost" size="icon" className="rounded-full hover:bg-white/5">
@@ -208,7 +227,7 @@ export default function Navbar() {
                   onClick={() => setShowUserMenu(!showUserMenu)}
                 >
                   <div className="h-9 w-9 rounded-full bg-gradient-to-br from-[#0056D2] to-[#00C49A] flex items-center justify-center text-white font-medium border-2 border-white/10">
-                    {userName.charAt(0)}
+                    {userName.charAt(0).toUpperCase()}
                   </div>
                   {showUserMenu ? (
                     <ChevronUp size={16} className="text-white/70" />
@@ -222,11 +241,11 @@ export default function Navbar() {
                   <div className="absolute right-0 mt-2 w-56 bg-[#1A1A2E] border border-white/10 rounded-xl shadow-lg overflow-hidden p-1 z-50">
                     <div className="flex items-center gap-2 p-3 mb-1">
                       <div className="h-10 w-10 rounded-full bg-gradient-to-br from-[#0056D2] to-[#00C49A] flex items-center justify-center text-white font-medium border-2 border-white/10">
-                        {userName.charAt(0)}
+                        {userName.charAt(0).toUpperCase()}
                       </div>
                       <div className="flex flex-col">
                         <span className="text-sm font-medium text-white">{userName}</span>
-                        <span className="text-xs text-white/60">premium@example.com</span>
+                        <span className="text-xs text-white/60">{user?.email || ''}</span>
                       </div>
                     </div>
                     
@@ -259,7 +278,7 @@ export default function Navbar() {
                       <Button 
                         variant="ghost" 
                         className="w-full justify-start text-sm text-white hover:bg-[#0056D2]/20 rounded-md p-2.5"
-                        onClick={toggleLoggedIn}
+                        onClick={handleLogout}
                       >
                         <LogOut size={16} className="text-red-400 mr-3" />
                         <span>Log out</span>
@@ -286,15 +305,17 @@ export default function Navbar() {
               <Button
                 variant="outline"
                 className="border-[#0056D2]/20 text-white font-medium transition duration-200 text-sm md:text-base rounded-lg hover:bg-[#0056D2]/5"
-                onClick={toggleLoggedIn}
+                onClick={handleLoginClick}
               >
                 Sign In
               </Button>
-              <Button
-                className="bg-gradient-to-r from-[#0056D2] to-[#00C49A] hover:from-[#0056D2]/90 hover:to-[#00C49A]/90 text-white text-sm md:text-base rounded-lg"
-              >
-                Get Started
-              </Button>
+              <Link href="/auth">
+                <Button
+                  className="bg-gradient-to-r from-[#0056D2] to-[#00C49A] hover:from-[#0056D2]/90 hover:to-[#00C49A]/90 text-white text-sm md:text-base rounded-lg"
+                >
+                  Get Started
+                </Button>
+              </Link>
             </>
           )}
           
@@ -340,7 +361,7 @@ export default function Navbar() {
               <Link href="/sell" onClick={() => setShowMobileMenu(false)} className="py-2 px-4 rounded-lg hover:bg-white/5 text-white">
                 Sell
               </Link>
-              {isLoggedIn && (
+              {isAuthenticated && (
                 <>
                   <div className="w-full h-px bg-white/10 my-2"></div>
                   <Link href="/profile" onClick={() => setShowMobileMenu(false)} className="py-2 px-4 rounded-lg hover:bg-white/5 flex items-center gap-3 text-white">
@@ -355,6 +376,16 @@ export default function Navbar() {
                   <Link href="/settings" onClick={() => setShowMobileMenu(false)} className="py-2 px-4 rounded-lg hover:bg-white/5 flex items-center gap-3 text-white">
                     <Settings size={16} /> Settings
                   </Link>
+                  <Button
+                    variant="ghost"
+                    className="w-full py-2 px-4 rounded-lg hover:bg-white/5 flex items-center gap-3 text-red-400 justify-start text-base"
+                    onClick={() => {
+                      handleLogout();
+                      setShowMobileMenu(false);
+                    }}
+                  >
+                    <LogOut size={16} /> Log Out
+                  </Button>
                 </>
               )}
             </nav>
@@ -363,7 +394,7 @@ export default function Navbar() {
       </AnimatePresence>
       
       {/* Floating Action Button for Mobile - visible when logged in */}
-      {isLoggedIn && (
+      {isAuthenticated && (
         <div className="fixed bottom-20 right-4 md:bottom-8 md:right-8 z-30 lg:hidden">
           <motion.div
             initial={{ scale: 0, opacity: 0 }}
