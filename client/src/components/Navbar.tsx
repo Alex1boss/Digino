@@ -164,7 +164,7 @@ export default function Navbar() {
             <Button disabled variant="ghost" size="icon" className="rounded-full">
               <Loader2 className="h-5 w-5 animate-spin text-white/70" />
             </Button>
-          ) : isAuthenticated ? (
+          ) : isAuthenticated && user ? (
             <div className="flex items-center space-x-4">
               {/* Search Button */}
               <Button variant="ghost" size="icon" className="rounded-full hover:bg-white/5">
