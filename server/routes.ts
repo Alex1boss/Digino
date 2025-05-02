@@ -1,9 +1,8 @@
-import type { Express, Request, Response } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { getIconComponent, insertProductSchema, insertUserSchema } from "@shared/schema";
+import { getIconComponent, insertProductSchema } from "@shared/schema";
 import { ZodError } from 'zod';
-import bcrypt from 'bcrypt';
 import { 
   handleProductImageUpload, 
   handleAvatarUpload, 
@@ -11,18 +10,8 @@ import {
   ensureUploadDirs,
   serveUploads
 } from "./upload";
+import { setupAuth, isAuthenticated } from "./auth";
 import path from "path";
-
-// Check if bcrypt is available
-let bcryptAvailable = true;
-try {
-  // Test bcrypt with a simple hash
-  bcrypt.hashSync('test', 1);
-} catch (e) {
-  console.warn('bcrypt is not installed or not working properly, password hashing will not work');
-  bcryptAvailable = false;
-  // We'll handle this gracefully in the routes
-}
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Configure file upload middleware
@@ -34,107 +23,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Serve uploaded files
   app.use(serveUploads);
   
-  // File upload routes
-  app.post("/api/upload/product-image", handleProductImageUpload);
-  app.post("/api/upload/avatar", handleAvatarUpload);
+  // Set up authentication system
+  setupAuth(app);
   
-  // User routes
+  // File upload routes - require authentication
+  app.post("/api/upload/product-image", isAuthenticated, handleProductImageUpload);
+  app.post("/api/upload/avatar", isAuthenticated, handleAvatarUpload);
   
-  // Register a new user
-  app.post("/api/users/register", async (req: Request, res: Response) => {
-    try {
-      // Validate the request body
-      const userData = insertUserSchema.parse(req.body);
-      
-      // Check if username already exists
-      const existingUser = await storage.getUserByUsername(userData.username);
-      if (existingUser) {
-        return res.status(400).json({ message: "Username already exists" });
-      }
-      
-      // Hash the password if bcrypt is available
-      let hashedPassword;
-      if (bcryptAvailable) {
-        hashedPassword = await bcrypt.hash(userData.password, 10);
-      } else {
-        // Fallback for development only - don't store plaintext passwords in production!
-        hashedPassword = `UNHASHED_${userData.password}`;
-      }
-      
-      // Create the user with hashed password
-      const newUser = await storage.createUser({
-        ...userData,
-        password: hashedPassword
-      });
-      
-      // Remove password from response
-      const { password, ...userWithoutPassword } = newUser;
-      
-      res.status(201).json(userWithoutPassword);
-    } catch (error) {
-      console.error("Error registering user:", error);
-      
-      if (error instanceof ZodError) {
-        return res.status(400).json({ 
-          message: "Invalid user data", 
-          errors: error.errors 
-        });
-      }
-      
-      res.status(500).json({ message: "Failed to register user" });
-    }
-  });
+  // User routes - these are now managed by the auth system setup
   
-  // Login user
-  app.post("/api/users/login", async (req: Request, res: Response) => {
-    try {
-      const { username, password } = req.body;
-      
-      if (!username || !password) {
-        return res.status(400).json({ message: "Username and password are required" });
-      }
-      
-      // Find the user
-      const user = await storage.getUserByUsername(username);
-      if (!user) {
-        return res.status(401).json({ message: "Invalid credentials" });
-      }
-      
-      // Compare passwords
-      let passwordMatch = false;
-      
-      if (bcryptAvailable) {
-        // Use bcrypt for secure password comparison
-        passwordMatch = await bcrypt.compare(password, user.password);
-      } else {
-        // Fallback for development only - basic comparison for unhashed passwords
-        passwordMatch = user.password === `UNHASHED_${password}`;
-      }
-      
-      if (!passwordMatch) {
-        return res.status(401).json({ message: "Invalid credentials" });
-      }
-      
-      // Remove password from response
-      const { password: _, ...userWithoutPassword } = user;
-      
-      // In a production app, you would create a JWT token here
-      res.json({
-        user: userWithoutPassword,
-        message: "Login successful"
-      });
-    } catch (error) {
-      console.error("Error logging in:", error);
-      res.status(500).json({ message: "Failed to login" });
-    }
-  });
-  
-  // Get user profile
-  app.get("/api/users/:id", async (req: Request, res: Response) => {
+  // Get user profile for authenticated users or by ID
+  app.get("/api/users/:id", isAuthenticated, async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid user ID" });
+      }
+      
+      // Check if the user is trying to access their own profile
+      if (req.user && req.user.id !== id) {
+        // For non-admin users, prevent accessing other profiles
+        if (req.user.role !== 'admin') {
+          return res.status(403).json({ message: "Access denied" });
+        }
       }
       
       const user = await storage.getUser(id);
@@ -152,12 +63,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Update user profile
-  app.patch("/api/users/:id", async (req: Request, res: Response) => {
+  // Update user profile - require authentication
+  app.patch("/api/users/:id", isAuthenticated, async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid user ID" });
+      }
+      
+      // Check if the user is trying to update their own profile
+      if (req.user && req.user.id !== id) {
+        // For non-admin users, prevent updating other profiles
+        if (req.user.role !== 'admin') {
+          return res.status(403).json({ message: "Access denied" });
+        }
       }
       
       // Get existing user
@@ -166,15 +85,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User not found" });
       }
       
-      // Handle password updates separately
+      // Handle password updates using our hashPassword function
       let updateData = { ...req.body };
       if (updateData.password) {
-        if (bcryptAvailable) {
-          updateData.password = await bcrypt.hash(updateData.password, 10);
-        } else {
-          // Fallback for development only - don't store plaintext passwords in production!
-          updateData.password = `UNHASHED_${updateData.password}`;
-        }
+        const { hashPassword } = await import('./auth');
+        updateData.password = await hashPassword(updateData.password);
       }
       
       // Update the user
@@ -241,8 +156,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create a new product
-  app.post("/api/products", async (req: Request, res: Response) => {
+  // Create a new product - require authentication
+  app.post("/api/products", isAuthenticated, async (req: Request, res: Response) => {
     try {
       console.log("Received product data:", JSON.stringify(req.body, null, 2));
       
@@ -282,8 +197,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Update an existing product
-  app.patch("/api/products/:id", async (req: Request, res: Response) => {
+  // Update an existing product - require authentication
+  app.patch("/api/products/:id", isAuthenticated, async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
