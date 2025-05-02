@@ -222,16 +222,8 @@ const FeaturedProductCard = ({
         transition: { duration: 0.2 }
       }}
       className="relative group cursor-pointer"
+      onClick={() => onProductSelect(product)}
     >
-      {/* Premium outer glow */}
-      <div 
-        className="absolute -inset-1 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-xl"
-        style={{ 
-          background: `linear-gradient(45deg, ${colorSet.primary}50, transparent, ${colorSet.secondary}50)`,
-          zIndex: 0
-        }}
-      ></div>
-      
       {/* Card body */}
       <div 
         className="relative rounded-2xl overflow-hidden z-10 bg-gradient-to-br from-[#191919] to-[#0c0c0c]"
@@ -303,253 +295,49 @@ const FeaturedProductCard = ({
             )}
           </motion.div>
           
-          {/* Premium vignette and depth effects */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c0c] via-transparent to-transparent z-20 opacity-90"></div>
-          <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-transparent z-20 opacity-40"></div>
-          <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/20 z-20 opacity-30"></div>
-          
-          {/* Premium highlight edge */}
-          <div 
-            className="absolute top-0 left-0 right-0 h-1 z-30 opacity-80"
-            style={{ background: `linear-gradient(90deg, transparent, ${colorSet.primary}60, transparent)` }}
-          ></div>
-          
-          {/* Badges */}
-          <div className="absolute top-4 left-4 z-30 flex flex-col gap-2">
-            {/* Premium badge */}
-            {index % 3 === 0 && (
-              <Badge3D 
-                label="Premium" 
-                icon={Sparkles} 
-                color={colorSet.primary}
-                glowColor={colorSet.primary}
-              />
-            )}
-            
-            {/* Bestseller badge */}
-            {index % 5 === 0 && (
-              <Badge3D 
-                label="Bestseller" 
-                icon={Award} 
-                color="#FFD700"
-                glowColor="#FFD700"
-              />
-            )}
-          </div>
-          
-          {/* Hot/New labels */}
-          {(index % 4 === 0 || product.price && product.price > 50) && (
-            <div className="absolute top-4 right-4 z-30">
-              <Badge3D 
-                label={index % 2 === 0 ? "Hot 🔥" : "New ✨"} 
-                icon={index % 2 === 0 ? Zap : Sparkles} 
-                color={index % 2 === 0 ? "#FF4D4D" : "#00CFFF"}
-                glowColor={index % 2 === 0 ? "#FF4D4D" : "#00CFFF"}
-              />
-            </div>
-          )}
-          
-          {/* Sale tag if applicable */}
-          {index % 6 === 0 && (
-            <div className="absolute bottom-4 right-4 z-30">
-              <div className="bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 shadow-lg">
-                <span>SAVE 40%</span>
+          {/* Content with 3D layered effect */}
+          <div className="p-6 relative z-20">
+            {/* Category with visual embellishment */}
+            <div className="flex items-center gap-2 mb-3">
+              <div 
+                className="px-3 py-1 text-xs font-medium rounded-full flex items-center gap-1.5"
+                style={{
+                  background: `${colorSet.primary}20`,
+                  color: colorSet.primary,
+                  border: `1px solid ${colorSet.primary}40`,
+                  boxShadow: `0 2px 6px ${colorSet.primary}20`
+                }}
+              >
+                {product.category === "ai_tools" ? <Cpu className="w-3.5 h-3.5" /> : 
+                 product.category === "templates" ? <Layers className="w-3.5 h-3.5" /> :
+                 product.category === "graphics" ? <Box className="w-3.5 h-3.5" /> :
+                 product.category === "Software" ? <Code className="w-3.5 h-3.5" /> :
+                 <Tag className="w-3.5 h-3.5" />}
+                <span>{product.category || "Digital Product"}</span>
               </div>
             </div>
-          )}
-        </div>
-        
-        {/* Content with 3D layered effect */}
-        <div className="p-6 relative z-20">
-          {/* Floating particles effect */}
-          <div className="absolute inset-0 overflow-hidden opacity-20 pointer-events-none">
-            <div className="absolute top-1/4 left-1/3 w-1 h-1 rounded-full bg-white animate-pulse" style={{ animationDuration: '4s' }}></div>
-            <div className="absolute top-3/4 left-1/2 w-1 h-1 rounded-full bg-white animate-ping" style={{ animationDuration: '6s' }}></div>
-          </div>
-          
-          {/* Category with visual embellishment */}
-          <div className="flex items-center gap-2 mb-3">
-            <div 
-              className="px-3 py-1 text-xs font-medium rounded-full flex items-center gap-1.5"
-              style={{
-                background: `${colorSet.primary}20`,
-                color: colorSet.primary,
-                border: `1px solid ${colorSet.primary}40`,
-                boxShadow: `0 2px 6px ${colorSet.primary}20`
-              }}
-            >
-              {product.category === "ai_tools" ? <Cpu className="w-3.5 h-3.5" /> : 
-               product.category === "templates" ? <Layers className="w-3.5 h-3.5" /> :
-               product.category === "graphics" ? <Box className="w-3.5 h-3.5" /> :
-               product.category === "Software" ? <Code className="w-3.5 h-3.5" /> :
-               <Tag className="w-3.5 h-3.5" />}
-              <span>{product.category || "Digital Product"}</span>
-            </div>
             
-            {/* Verified badge with premium styling */}
-            {index % 2 === 0 && (
-              <motion.div 
-                className="px-2 py-1 text-xs font-medium rounded-full flex items-center gap-1.5"
-                initial={{ opacity: 0.8 }}
-                whileHover={{ 
-                  opacity: 1,
-                  scale: 1.05,
-                  boxShadow: `0 0 10px ${colorSet.accent}40`,
-                  transition: { duration: 0.2 }
-                }}
-                style={{
-                  background: `rgba(13, 153, 255, 0.15)`,
-                  color: `#0D99FF`,
-                  border: `1px solid rgba(13, 153, 255, 0.3)`,
-                  boxShadow: `0 2px 5px rgba(13, 153, 255, 0.2)`
-                }}
-              >
-                <Check className="w-3 h-3" /> Verified
-              </motion.div>
-            )}
-          </div>
-          
-          {/* Product Icon */}
-          <div className="mb-3">
-            {renderProductIcon(product, { className: "w-7 h-7 text-white mb-2" })}
-          </div>
-          
-          {/* Title with premium styling and hover effect - Bold, futuristic font */}
-          <motion.h3 
-            className="text-xl font-bold mb-2 line-clamp-2 font-['Space Grotesk',sans-serif]"
-            style={{
-              background: `linear-gradient(90deg, #fff, ${colorSet.primary}80)`,
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              textShadow: `0 2px 10px ${colorSet.primary}30`
-            }}
-            whileHover={{ 
-              scale: 1.01,
-              textShadow: `0 2px 15px ${colorSet.primary}50`,
-              transition: { duration: 0.2 }
-            }}
-          >
-            {product.name}
-          </motion.h3>
-          
-          {/* Description with improved styling - One-line tagline with emphasis on innovation */}
-          <p className="mb-4 text-sm line-clamp-1 italic" style={{ color: 'rgba(255,255,255,0.7)' }}>
-            {product.description || "Power your ideas with intelligence"}
-          </p>
-          
-          {/* Creator info with enhanced visuals */}
-          <div className="flex items-center gap-2 mb-4">
-            <Avatar3D letter={product.author?.name?.[0] || "C"} size="sm" verified={index % 2 === 0} />
-            <div className="flex flex-col">
-              <span className="text-sm text-white">
-                by <span className="font-medium" style={{ color: colorSet.primary }}>
-                  {product.author?.name || "Creator"}
-                </span>
-              </span>
-              <span className="text-xs text-gray-400">
-                {index % 2 === 0 ? "Top Seller" : "Featured Creator"}
-              </span>
-            </div>
-          </div>
-          
-          {/* Divider with gradient */}
-          <div 
-            className="h-px w-full my-4 opacity-30"
-            style={{ 
-              background: `linear-gradient(90deg, transparent, ${colorSet.primary}80, transparent)` 
-            }}
-          ></div>
-          
-          {/* Rating and Trust - 5 subtle golden stars with Verified badge */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-1">
-              {[...Array(5)].map((_, i) => (
-                <Star 
-                  key={i} 
-                  className={`w-3 h-3 ${
-                    i < Math.floor(rating) 
-                      ? "text-yellow-400 fill-yellow-400" 
-                      : i < rating 
-                        ? "text-yellow-400 fill-yellow-400 opacity-50" 
-                        : "text-gray-600"
-                  }`} 
-                />
-              ))}
-              {index % 2 === 0 && (
-                <div className="flex items-center ml-2 px-1.5 py-0.5 rounded-sm bg-white/5 border border-green-500/20">
-                  <Check className="w-2.5 h-2.5 text-green-500 mr-0.5" />
-                  <span className="text-xs text-green-400 font-medium">Verified</span>
-                </div>
-              )}
-            </div>
-          </div>
-          
-          {/* Price Badge - Right-aligned, floating with neon glow */}
-          <div className="absolute top-4 right-4 z-20">
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="px-3 py-1.5 rounded-full flex items-center gap-1.5 bg-black/50 backdrop-blur-lg border border-white/10"
-              style={{ 
-                boxShadow: `0 0 10px ${colorSet.primary}70`,
-                background: `rgba(0,0,0,0.5)` 
-              }}
-            >
-              <DollarSign className="w-3.5 h-3.5 text-green-400" />
-              <span className="text-sm font-semibold text-white">From ${premiumPrice.toFixed(2)}</span>
-            </motion.div>
-          </div>
-          
-          <div className="flex items-center justify-between mt-2">
+            {/* Product name */}
+            <h3 className="text-xl font-medium text-white mb-1 line-clamp-1">{product.name}</h3>
             
-            {/* Buttons – Hidden Until Hover */}
-            <div className="flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              {/* "Preview" button with eye icon */}
-              <motion.button
-                className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium"
-                style={{
-                  background: `rgba(30, 30, 30, 0.8)`,
-                  border: `1px solid ${colorSet.primary}40`,
-                  color: colorSet.primary,
-                  backdropFilter: 'blur(4px)'
-                }}
-                whileHover={{ 
-                  scale: 1.05,
-                  boxShadow: `0 0 15px ${colorSet.primary}30`,
-                }}
-                whileTap={{ scale: 0.95 }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onProductSelect(product);
-                }}
-              >
-                <motion.div 
-                  animate={{ y: [0, -2, 0] }} 
-                  transition={{ repeat: Infinity, duration: 1.5 }}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-                    <circle cx="12" cy="12" r="3" />
-                  </svg>
-                </motion.div>
-                <span>Preview</span>
-              </motion.button>
+            {/* Product description */}
+            <p className="text-gray-400 text-sm line-clamp-2 mb-3">
+              {product.description}
+            </p>
+            
+            {/* Pricing and rating row */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-baseline gap-1">
+                <span className="text-lg font-bold">${product.price ? product.price.toFixed(2) : "0.00"}</span>
+                <span className="text-gray-500 text-sm">{product.currency || "USD"}</span>
+              </div>
               
-              {/* "Buy Now" button with shopping bag icon */}
-              <motion.button
-                className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium"
-                style={{
-                  background: `linear-gradient(135deg, ${colorSet.primary}, ${colorSet.secondary})`,
-                  boxShadow: `0 5px 15px ${colorSet.primary}40, inset 0 1px 1px rgba(255,255,255,0.3)`
-                }}
-                whileHover={{ 
-                  scale: 1.05,
-                  boxShadow: `0 8px 25px ${colorSet.primary}60, inset 0 1px 1px rgba(255,255,255,0.5)`,
-                }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <ShoppingCart className="w-4 h-4" />
-                <span>Buy Now</span>
-              </motion.button>
+              {/* Rating stars */}
+              <div className="flex items-center gap-1 text-amber-400">
+                <Star className="w-4 h-4 fill-current" />
+                <span className="text-sm font-medium text-white">{product.rating || rating}</span>
+                <span className="text-xs text-gray-500">({product.reviews || Math.floor(Math.random() * 50) + 5})</span>
+              </div>
             </div>
           </div>
         </div>
@@ -559,9 +347,7 @@ const FeaturedProductCard = ({
 };
 
 export default function Explore() {
-  // Framer motion animations
-  const controls = useAnimation();
-  const { scrollY } = useScroll();
+  // UI State 
   const [scrolled, setScrolled] = useState(false);
   const [activeTab, setActiveTab] = useState("trending");
   const [searchQuery, setSearchQuery] = useState("");
@@ -573,26 +359,7 @@ export default function Explore() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [, setLocation] = useLocation();
   
-  const heroRef = useRef<HTMLDivElement>(null);
-  const bannerYPos = useTransform(
-    scrollY, 
-    [0, 300], 
-    [0, -30]
-  );
-  
-  const bannerScale = useTransform(
-    scrollY, 
-    [0, 300], 
-    [1, 0.9]
-  );
-  
-  const bannerOpacity = useTransform(
-    scrollY, 
-    [0, 300], 
-    [1, 0.8]
-  );
-  
-  // Scroll handler for sticky header effects
+  // Handle scroll events for UI
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 50) {
@@ -606,179 +373,32 @@ export default function Explore() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
   
-  const [localProducts, setLocalProducts] = useState<Product[]>([]);
-  
-  // Fetch products from API
-  const { data: apiProducts, isLoading } = useQuery({
+  // Fetch products from the database via API
+  const { data: products, isLoading } = useQuery({
     queryKey: ['/api/products'],
     queryFn: async () => {
       const res = await fetch('/api/products');
       if (!res.ok) throw new Error('Failed to fetch products');
-      const products = await res.json();
-      // Make sure every product has a valid Icon component
-      return products.map((product: any) => ({
+      const data = await res.json();
+      console.log("Products loaded from database:", data.length);
+      
+      // Make sure every product has a valid Icon component and other required properties
+      return data.map((product: any) => ({
         ...product,
-        Icon: getIconComponent(product.iconName || 'cpu')
+        Icon: getIconComponent(product.iconName || 'cpu'),
+        // Ensure these properties exist for consistent UI
+        currency: product.currency || "USD",
+        rating: product.rating || 0,
+        reviews: product.reviews || 0,
+        sales: product.sales || 0,
+        // Make sure coverImage is set if we have productImages
+        coverImage: product.coverImage || (product.productImages && product.productImages.length > 0 ? product.productImages[0] : "")
       }));
     }
   });
   
-  // Get products from localStorage and sessionStorage that were added by the user
-  useEffect(() => {
-    try {
-      console.log("Loading user products from multiple sources...");
-      
-      const allProducts = [];
-      
-      // APPROACH #1: Try the sessionStorage method first (most reliable)
-      try {
-        // Load products from sessionStorage (our new ultra simplified approach)
-        const productIds = JSON.parse(sessionStorage.getItem('minimal_products') || '[]');
-        console.log("Session products found:", productIds);
-        
-        if (Array.isArray(productIds) && productIds.length > 0) {
-          for (const productId of productIds) {
-            try {
-              // First try to get full product with images
-              const fullProductJson = sessionStorage.getItem(`${productId}_full`);
-              
-              if (fullProductJson) {
-                // We have a full product with images
-                const product = JSON.parse(fullProductJson);
-                allProducts.push(product);
-                console.log("Loaded full session product:", productId);
-                continue; // Skip to next product
-              }
-              
-              // If no full product, try basic product
-              const basicProductJson = sessionStorage.getItem(productId);
-              if (basicProductJson) {
-                const basicProduct = JSON.parse(basicProductJson);
-                
-                // Try to get the image separately if it exists
-                try {
-                  const imageData = sessionStorage.getItem(`${productId}_image`);
-                  if (imageData) {
-                    // Add image data to the product
-                    basicProduct.coverImage = imageData;
-                    basicProduct.imageUrl = imageData;
-                    basicProduct.customIcon = imageData;
-                  }
-                } catch (imageError) {
-                  console.warn("Could not load image for product:", productId);
-                }
-                
-                allProducts.push(basicProduct);
-                console.log("Loaded basic session product:", productId);
-              }
-            } catch (productError) {
-              console.warn("Error loading session product:", productId, productError);
-            }
-          }
-        }
-      } catch (sessionError) {
-        console.warn("Error loading from sessionStorage:", sessionError);
-      }
-      
-      // APPROACH #2: Try loading from the indexed localStorage system
-      try {
-        // Try loading from the new individual product storage system
-        const productIndex = JSON.parse(localStorage.getItem('product_index') || '[]');
-        console.log("Product index found in localStorage:", productIndex);
-        
-        if (Array.isArray(productIndex) && productIndex.length > 0) {
-          // We have individual products - new storage method
-          // Load each product individually
-          for (const productId of productIndex) {
-            try {
-              const productKey = `product_${productId}`;
-              const productJson = localStorage.getItem(productKey);
-              
-              if (productJson) {
-                const product = JSON.parse(productJson);
-                // Add to our loaded products array
-                allProducts.push(product);
-              }
-            } catch (individualError) {
-              console.warn(`Error loading product ${productId}:`, individualError);
-            }
-          }
-        }
-      } catch (indexError) {
-        console.warn("Error loading from indexed localStorage:", indexError);
-      }
-      
-      // APPROACH #3: Try the legacy localStorage array method
-      try {
-        const storedProducts = JSON.parse(localStorage.getItem('products') || '[]');
-        console.log("Products found in legacy localStorage:", storedProducts.length);
-        
-        if (Array.isArray(storedProducts) && storedProducts.length > 0) {
-          // Add these products to our collection
-          allProducts.push(...storedProducts);
-        }
-      } catch (legacyError) {
-        console.warn("Error loading from legacy localStorage:", legacyError);
-      }
-      
-      console.log(`Loaded ${allProducts.length} products total from all storage methods`);
-      
-      // If we have no products, set an empty array and return
-      if (allProducts.length === 0) {
-        console.log("No products found in any storage method");
-        setLocalProducts([]);
-        return;
-      }
-      
-      // Remove duplicates based on id
-      const uniqueProducts = [];
-      const seenIds = new Set();
-      
-      for (const product of allProducts) {
-        if (product.id && !seenIds.has(product.id)) {
-          seenIds.add(product.id);
-          uniqueProducts.push(product);
-        }
-      }
-      
-      console.log(`Found ${uniqueProducts.length} unique products after deduplication`);
-      
-      // Transform stored products to match Product interface
-      const formattedProducts = uniqueProducts.map((product: any) => {
-        // If product has a customIcon, we'll use that instead of an Icon component
-        return {
-          ...product,
-          // If we have a customIcon, we'll still set Icon as a fallback
-          Icon: getIconComponent(product.iconName || 'cpu'),
-          // Make sure coverImage is set if we have productImages
-          coverImage: product.coverImage || (product.productImages && product.productImages.length > 0 ? product.productImages[0] : ""),
-          // Ensure customIcon is preserved
-          customIcon: product.customIcon || "",
-          // Ensure other required fields have defaults
-          currency: product.currency || "USD",
-          rating: product.rating || 0, 
-          reviews: product.reviews || 0,
-          sales: product.sales || 0
-        };
-      });
-      
-      setLocalProducts(formattedProducts);
-    } catch (error) {
-      console.error('Error loading products from storage:', error);
-      
-      // If everything fails, at least provide an empty array
-      setLocalProducts([]);
-    }
-  }, []);
-  
-  // Combine API products and localStorage products
-  const allProducts = [...(apiProducts || []), ...localProducts];
-  
-  // Use only real products from API and localStorage
-  const enhancedProducts = allProducts;
-  
   // Filter products based on active filters
-  const filteredProducts = enhancedProducts.filter(product => {
+  const filteredProducts = (products || []).filter(product => {
     // Search query filter
     if (searchQuery && !product.name.toLowerCase().includes(searchQuery.toLowerCase()) && 
         !product.description.toLowerCase().includes(searchQuery.toLowerCase())) {
@@ -821,17 +441,17 @@ export default function Explore() {
     return 0;
   });
   
-  // Artificial categories with counts
+  // Categories with counts
   const categories = [
-    { name: 'All', count: enhancedProducts.length, icon: <Grid3X3 className="text-white" />, color: '#BB86FC' },
-    { name: 'ai_tools', count: enhancedProducts.filter(p => p.category === 'ai_tools').length || 3, icon: <Cpu className="text-blue-400" />, color: '#6366F1' },
-    { name: 'templates', count: 12, icon: <Layers className="text-cyan-400" />, color: '#00CFFF' },
-    { name: 'graphics', count: 8, icon: <Box className="text-teal-400" />, color: '#10B981' },
-    { name: 'Software', count: 14, icon: <Code className="text-amber-400" />, color: '#F59E0B' },
-    { name: 'Digital Assets', count: 6, icon: <Tag className="text-red-400" />, color: '#EF4444' },
+    { name: 'All', count: (products || []).length, icon: <Grid3X3 className="text-white" />, color: '#BB86FC' },
+    { name: 'ai_tools', count: (products || []).filter(p => p.category === 'ai_tools').length || 3, icon: <Cpu className="text-blue-400" />, color: '#6366F1' },
+    { name: 'templates', count: (products || []).filter(p => p.category === 'templates').length || 12, icon: <Layers className="text-cyan-400" />, color: '#00CFFF' },
+    { name: 'graphics', count: (products || []).filter(p => p.category === 'graphics').length || 8, icon: <Box className="text-teal-400" />, color: '#10B981' },
+    { name: 'Software', count: (products || []).filter(p => p.category === 'Software').length || 14, icon: <Code className="text-amber-400" />, color: '#F59E0B' },
+    { name: 'Digital Assets', count: (products || []).filter(p => p.category === 'Digital Assets').length || 6, icon: <Tag className="text-red-400" />, color: '#EF4444' },
   ];
   
-  // Artificial creators
+  // Artificial creators for UI
   const creators = [
     { name: 'Alex Chen', followers: 1258, products: 12, isVerified: true, avatar: '' },
     { name: 'Maria Rodriguez', followers: 864, products: 8, isVerified: true, avatar: '' },
@@ -839,9 +459,9 @@ export default function Explore() {
     { name: 'Sarah Johnson', followers: 932, products: 5, isVerified: false, avatar: '' },
   ];
   
-  // Statistics data
+  // Statistics data for UI
   const statsData = [
-    { title: 'Digital Products', value: enhancedProducts.length + 280, icon: <Layers className="w-5 h-5" /> },
+    { title: 'Digital Products', value: (products || []).length + 280, icon: <Layers className="w-5 h-5" /> },
     { title: 'Creators', value: '2.5K+', icon: <MessageSquare className="w-5 h-5" /> },
     { title: 'AI-Powered Tools', value: '400+', icon: <Cpu className="w-5 h-5" /> },
   ];
@@ -879,16 +499,16 @@ export default function Explore() {
                   key={item}
                   href="#"
                   className={cn(
-                    "text-sm font-medium transition-colors relative",
-                    index === 0 ? "text-white" : "text-gray-400 hover:text-white"
+                    "relative text-sm transition-colors hover:text-white",
+                    index === 0 ? "text-white" : "text-gray-400"
                   )}
-                  whileHover={{ scale: 1.05 }}
+                  whileHover={{ y: -2 }}
                 >
                   {item}
                   {index === 0 && (
                     <motion.div 
                       className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-purple-500 to-blue-500"
-                      layoutId="active-nav-indicator"
+                      layoutId="navIndicator"
                     />
                   )}
                 </motion.a>
@@ -896,916 +516,353 @@ export default function Explore() {
             </nav>
           </div>
           
-          {/* Search and user */}
+          {/* Search and user actions */}
           <div className="flex items-center space-x-4">
-            <div className="relative w-full max-w-xs hidden md:block">
+            <div className="relative hidden md:block">
               <Input 
-                type="text" 
-                placeholder="Search products..." 
-                className="rounded-full bg-white/5 border-white/10 focus:border-purple-500 pl-10 pr-4 py-2"
+                className="w-64 bg-white/5 border-white/10 text-white pl-10 focus:bg-white/10 focus:border-purple-500/50 transition-all"
+                placeholder="Search products..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             </div>
             
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center cursor-pointer shadow-lg"
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="rounded-full bg-white/5 hover:bg-white/10 text-white"
             >
-              <Avatar3D letter="U" verified={true} size="sm" />
-            </motion.div>
+              <Heart className="w-5 h-5" />
+            </Button>
+            
+            <Button 
+              variant="ghost" 
+              size="icon"
+              className="rounded-full bg-white/5 hover:bg-white/10 text-white"
+            >
+              <ShoppingCart className="w-5 h-5" />
+            </Button>
+            
+            <div className="hidden md:flex items-center gap-2">
+              <motion.div 
+                className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center text-white font-semibold"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                JD
+              </motion.div>
+            </div>
           </div>
         </div>
       </header>
       
-      <main className="relative z-10 pt-28 pb-24">
-        {/* Header Section - Simple Elegant Premium */}
-        <section className="container mx-auto px-4 mb-10">
-          <motion.div
+      {/* Main content */}
+      <main className="relative pb-20 z-10 pt-32 container mx-auto px-4">
+        {/* Hero section with advanced 3D stats */}
+        <div className="mb-16">
+          <motion.h1 
+            className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 max-w-3xl"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="text-center mb-8"
           >
-            <h1 className="text-3xl font-bold mb-2 text-white">
-              Explore All Digital Products
-            </h1>
-            <p className="text-gray-400 max-w-2xl mx-auto">
-              Browse our complete catalog of high-quality digital assets from top creators
-            </p>
-          </motion.div>
-
-          {/* Search Bar */}
-          <div className="max-w-md mx-auto relative mb-8">
-            <Input
-              type="text"
-              placeholder="Search products..."
-              className="w-full bg-white/5 border-white/10 focus:border-purple-500 rounded-full pl-10 pr-4 py-2.5"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+            Discover premium <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-500 via-blue-500 to-purple-500">digital products</span> created by experts
+          </motion.h1>
+          
+          <motion.p 
+            className="text-gray-400 text-lg max-w-2xl mb-10"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            Explore thousands of high-quality digital assets, tools, and software built by a global community of creators.
+          </motion.p>
+          
+          {/* 3D Statistics cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {statsData.map((stat, index) => (
+              <motion.div
+                key={stat.title}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 + (index * 0.1) }}
+              >
+                <StatsCard3D
+                  title={stat.title}
+                  value={stat.value}
+                  icon={stat.icon}
+                  colorIndex={index}
+                />
+              </motion.div>
+            ))}
           </div>
-        </section>
+        </div>
         
-        {/* Category Tabs */}
-        <section className="container mx-auto px-4 mb-8">
-          <div className="bg-[#0D0D13] rounded-lg p-2 overflow-x-auto no-scrollbar">
-            <Tabs
-              defaultValue="all"
-              className="w-full"
-              onValueChange={(value) => {
-                if (value === "all") {
-                  setActiveCategory("All");
-                } else if (value === "templates") {
-                  setActiveCategory("templates");
-                } else if (value === "ebooks") {
-                  setActiveCategory("Digital Assets");
-                } else if (value === "courses") {
-                  setActiveCategory("Software");
-                } else if (value === "graphics") {
-                  setActiveCategory("graphics");
-                } else if (value === "softdev") {
-                  setActiveCategory("ai_tools");
-                }
-              }}
-            >
-              <TabsList className="w-full h-auto bg-transparent flex justify-center flex-wrap space-x-1">
-                <TabsTrigger 
-                  value="all"
-                  className="px-3 py-1.5 text-sm font-medium rounded-full data-[state=active]:bg-purple-600 data-[state=active]:text-white"
-                >
-                  <motion.div className="flex items-center gap-1" whileHover={{ scale: 1.05 }}>
-                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="2"/>
-                      <rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="2"/>
-                      <rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="2"/>
-                      <rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="2"/>
-                    </svg>
-                    All
-                  </motion.div>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="templates" 
-                  className="px-3 py-1.5 text-sm font-medium rounded-full data-[state=active]:bg-[#00CFFF] data-[state=active]:text-white"
-                >
-                  <motion.div className="flex items-center gap-1" whileHover={{ scale: 1.05 }}>
-                    <Layers className="w-4 h-4" />
-                    Templates
-                  </motion.div>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="ebooks" 
-                  className="px-3 py-1.5 text-sm font-medium rounded-full data-[state=active]:bg-green-600 data-[state=active]:text-white"
-                >
-                  <motion.div className="flex items-center gap-1" whileHover={{ scale: 1.05 }}>
-                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M4 19.5V4.5C4 3.67157 4.67157 3 5.5 3H18.5C19.3284 3 20 3.67157 20 4.5V19.5C20 20.3284 19.3284 21 18.5 21H5.5C4.67157 21 4 20.3284 4 19.5Z" stroke="currentColor" strokeWidth="2"/>
-                      <path d="M9 7H15" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                      <path d="M9 11H15" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                      <path d="M9 15H13" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                    </svg>
-                    E-books
-                  </motion.div>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="courses" 
-                  className="px-3 py-1.5 text-sm font-medium rounded-full data-[state=active]:bg-blue-600 data-[state=active]:text-white"
-                >
-                  <motion.div className="flex items-center gap-1" whileHover={{ scale: 1.05 }}>
-                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M12 3L21 8.5V15.5L12 21L3 15.5V8.5L12 3Z" stroke="currentColor" strokeWidth="2"/>
-                      <path d="M12 21V15.5" stroke="currentColor" strokeWidth="2"/>
-                      <path d="M21 8.5L12 15.5L3 8.5" stroke="currentColor" strokeWidth="2"/>
-                    </svg>
-                    Courses
-                  </motion.div>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="graphics" 
-                  className="px-3 py-1.5 text-sm font-medium rounded-full data-[state=active]:bg-pink-600 data-[state=active]:text-white"
-                >
-                  <motion.div className="flex items-center gap-1" whileHover={{ scale: 1.05 }}>
-                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2"/>
-                      <path d="M14.5 9.5C14.5 10.8807 13.3807 12 12 12C10.6193 12 9.5 10.8807 9.5 9.5C9.5 8.11929 10.6193 7 12 7C13.3807 7 14.5 8.11929 14.5 9.5Z" stroke="currentColor" strokeWidth="2"/>
-                      <path d="M6 18.7553C7.61149 16.4821 9.73203 15 12 15C14.268 15 16.3885 16.4821 18 18.7553" stroke="currentColor" strokeWidth="2"/>
-                    </svg>
-                    Graphics
-                  </motion.div>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="softdev" 
-                  className="px-3 py-1.5 text-sm font-medium rounded-full data-[state=active]:bg-amber-600 data-[state=active]:text-white"
-                >
-                  <motion.div className="flex items-center gap-1" whileHover={{ scale: 1.05 }}>
-                    <Code className="w-4 h-4" />
-                    SoftDev
-                  </motion.div>
-                </TabsTrigger>
+        {/* Mobile search - only show on small screens */}
+        <div className="relative mb-8 md:hidden">
+          <Input 
+            className="w-full bg-white/5 border-white/10 text-white pl-10 focus:bg-white/10 focus:border-purple-500/50 transition-all"
+            placeholder="Search products..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+        </div>
+        
+        {/* Category filters */}
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold mb-4">Browse Categories</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {categories.map((category, index) => (
+              <motion.div
+                key={category.name}
+                onClick={() => setActiveCategory(category.name)}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 + (index * 0.05) }}
+              >
+                <Category3DCard
+                  icon={category.icon}
+                  name={category.name}
+                  count={category.count}
+                  color={category.color}
+                  isActive={activeCategory === category.name}
+                />
+              </motion.div>
+            ))}
+          </div>
+        </div>
+        
+        {/* Sorting and filtering controls */}
+        <div className="flex flex-col md:flex-row justify-between mb-8 space-y-4 md:space-y-0">
+          {/* Browse tabs */}
+          <div className="flex items-center">
+            <Tabs defaultValue="trending" value={activeTab} onValueChange={setActiveTab} className="w-full md:w-auto">
+              <TabsList className="bg-white/5 p-1">
+                <TabsTrigger value="trending" className="px-4">Trending</TabsTrigger>
+                <TabsTrigger value="newest" className="px-4">Newest</TabsTrigger>
+                <TabsTrigger value="popular" className="px-4">Popular</TabsTrigger>
+                <TabsTrigger value="for-you" className="px-4">For You</TabsTrigger>
               </TabsList>
             </Tabs>
           </div>
-        </section>
+          
+          {/* Right side controls */}
+          <div className="flex items-center space-x-4">
+            {/* Filter button */}
+            <Button 
+              variant="outline" 
+              className="border-white/10 bg-white/5 hover:bg-white/10 text-white hover:text-white"
+              onClick={() => setShowMoreFilters(!showMoreFilters)}
+            >
+              <Filter className="w-4 h-4 mr-2" />
+              Filters
+              <ChevronDown className={cn("ml-2 h-4 w-4 transition-transform", showMoreFilters ? "rotate-180" : "")} />
+            </Button>
+            
+            {/* 3D view toggle */}
+            <div className="hidden md:flex items-center space-x-2">
+              <Label htmlFor="view3d" className="text-sm text-gray-400">3D View</Label>
+              <Switch
+                id="view3d"
+                checked={view3D}
+                onCheckedChange={setView3D}
+              />
+            </div>
+          </div>
+        </div>
         
-        {/* Advanced Filters */}
-        <section className="container mx-auto px-4 mb-6">
-          <div className="bg-[#0D0D13] rounded-lg p-4 mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <Filter className="w-4 h-4 text-gray-400" />
-                <span className="text-sm font-medium text-white">Advanced Filters</span>
+        {/* Advanced filters panel */}
+        {showMoreFilters && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="bg-white/5 backdrop-blur-lg rounded-xl p-5 mb-8 border border-white/10"
+          >
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Price range slider */}
+              <div>
+                <Label className="block text-sm mb-2">Price Range</Label>
+                <Slider
+                  value={priceRange}
+                  min={0}
+                  max={1000}
+                  step={1}
+                  onValueChange={setPriceRange}
+                  className="my-4"
+                />
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-400">${priceRange[0]}</span>
+                  <span className="text-sm text-gray-400">${priceRange[1]}</span>
+                </div>
               </div>
               
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="text-gray-400 hover:text-white"
-                onClick={() => setShowMoreFilters(!showMoreFilters)}
-              >
-                <ChevronDown className={`w-4 h-4 transition-transform ${showMoreFilters ? 'rotate-180' : ''}`} />
-              </Button>
+              {/* Premium filter */}
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="premium"
+                  checked={showPremiumOnly}
+                  onCheckedChange={setShowPremiumOnly}
+                />
+                <Label htmlFor="premium" className="text-sm">Show Premium Only</Label>
+              </div>
             </div>
-            
-            {showMoreFilters && (
-              <motion.div 
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.3 }}
-                className="space-y-4"
-              >
-                {/* Price range */}
-                <div>
-                  <div className="flex justify-between mb-2">
-                    <Label className="text-sm text-gray-400">Price Range</Label>
-                    <span className="text-xs text-gray-400">${priceRange[0]} - ${priceRange[1]}</span>
-                  </div>
-                  <Slider 
-                    defaultValue={[0, 1000]} 
-                    max={1000} 
-                    step={10}
-                    value={priceRange}
-                    onValueChange={setPriceRange}
-                    className="py-2"
-                  />
-                </div>
-                
-                {/* Filters grid */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {/* Verified filter */}
-                  <div className="flex items-center justify-between bg-[#181820] rounded-lg p-3">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-[#0D99FF]/10 flex items-center justify-center">
-                        <Check className="w-4 h-4 text-[#0D99FF]" />
-                      </div>
-                      <span className="text-sm text-white">Verified Only</span>
-                    </div>
-                    <Switch id="verified-only" />
-                  </div>
-                  
-                  {/* Featured filter */}
-                  <div className="flex items-center justify-between bg-[#181820] rounded-lg p-3">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-[#F59E0B]/10 flex items-center justify-center">
-                        <Award className="w-4 h-4 text-[#F59E0B]" />
-                      </div>
-                      <span className="text-sm text-white">Featured Only</span>
-                    </div>
-                    <Switch id="featured-only" />
-                  </div>
-                  
-                  {/* Premium filter */}
-                  <div className="flex items-center justify-between bg-[#181820] rounded-lg p-3">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-[#BB86FC]/10 flex items-center justify-center">
-                        <Sparkles className="w-4 h-4 text-[#BB86FC]" />
-                      </div>
-                      <span className="text-sm text-white">Premium Only</span>
-                    </div>
-                    <Switch 
-                      id="premium-only" 
-                      checked={showPremiumOnly}
-                      onCheckedChange={setShowPremiumOnly}
-                    />
-                  </div>
-                </div>
-                
-                {/* Rating filter */}
-                <div>
-                  <Label className="text-sm text-gray-400 mb-2 block">Minimum Rating</Label>
-                  <div className="flex items-center gap-2">
-                    {[...Array(5)].map((_, index) => (
-                      <Button
-                        key={index}
-                        variant="outline"
-                        size="sm"
-                        className={`rounded-md bg-[#181820] border-0 hover:bg-[#242430] ${index <= 3 ? 'text-yellow-400' : 'text-gray-500'}`}
-                      >
-                        <Star className={`w-4 h-4 ${index <= 3 ? 'fill-yellow-400' : ''}`} />
-                      </Button>
-                    ))}
-                    <span className="text-sm text-gray-400 ml-2">4.0+</span>
-                  </div>
-                </div>
-                
-                <div className="flex justify-between pt-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    className="rounded-full border-gray-700 text-gray-400 hover:text-white"
-                  >
-                    Reset Filters
-                  </Button>
-                  
-                  <Button 
-                    size="sm"
-                    className="rounded-full bg-gradient-to-r from-purple-600 to-blue-600"
-                  >
-                    Apply Filters
-                  </Button>
-                </div>
-              </motion.div>
-            )}
-          </div>
-          
-          {/* Filter result count */}
-          <div className="flex justify-between items-center mb-4">
-            <span className="text-sm text-gray-400">
-              {filteredProducts.length} products found matching your criteria
-            </span>
-            
-            <div className="flex items-center gap-2">
-              <Label className="text-sm text-gray-400">View:</Label>
-              <Button
-                variant={view3D ? "default" : "outline"} 
-                size="sm"
-                className={`rounded-l-md rounded-r-none px-3 ${view3D ? 'bg-purple-600' : 'bg-[#181820] border-[#242430]'}`}
-                onClick={() => setView3D(true)}
-              >
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 3L21 8.5V15.5L12 21L3 15.5V8.5L12 3Z" stroke="currentColor" strokeWidth="2"/>
-                  <path d="M12 21V15.5" stroke="currentColor" strokeWidth="2"/>
-                  <path d="M21 8.5L12 15.5L3 8.5" stroke="currentColor" strokeWidth="2"/>
-                </svg>
-              </Button>
-              <Button
-                variant={!view3D ? "default" : "outline"} 
-                size="sm"
-                className={`rounded-r-md rounded-l-none px-3 ${!view3D ? 'bg-purple-600' : 'bg-[#181820] border-[#242430]'}`}
-                onClick={() => setView3D(false)}
-              >
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="2"/>
-                  <rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="2"/>
-                  <rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="2"/>
-                  <rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="2"/>
-                </svg>
-              </Button>
-            </div>
-          </div>
-        </section>
+          </motion.div>
+        )}
         
-        {/* Product Grid */}
-        <section id="featured-products" className="container mx-auto px-4 mb-12">
+        {/* Products grid */}
+        <div className="mb-16">
+          <h2 className="text-xl font-semibold mb-6 flex items-center">
+            <span>Featured Products</span>
+            {isLoading && <span className="ml-2 text-sm text-gray-400">Loading...</span>}
+          </h2>
+          
           {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="h-96 rounded-xl bg-white/5 animate-pulse"></div>
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {Array(8).fill(0).map((_, i) => (
+                <div key={i} className="rounded-xl overflow-hidden bg-white/5 animate-pulse h-80"></div>
               ))}
             </div>
           ) : sortedProducts.length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="bg-[#0D0D13] rounded-xl p-8 text-center"
-            >
-              <div className="w-20 h-20 mx-auto rounded-full bg-purple-500/10 flex items-center justify-center mb-4">
-                <Search className="w-8 h-8 text-purple-500" />
-              </div>
-              <h3 className="text-xl font-medium mb-2">No Products Found</h3>
-              <p className="text-gray-400 mb-6">
-                Try adjusting your filters or search term.
+            <div className="text-center py-16">
+              <Rocket className="mx-auto h-12 w-12 text-gray-500 mb-4" />
+              <h3 className="text-2xl font-medium mb-2">No products found</h3>
+              <p className="text-gray-400 max-w-md mx-auto">
+                Try adjusting your search or filter criteria to find what you're looking for.
               </p>
-              <Button 
-                onClick={() => {
-                  setActiveCategory('All');
-                  setSearchQuery('');
-                  setPriceRange([0, 1000]);
-                  setShowPremiumOnly(false);
-                }}
-                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-full px-6"
-              >
-                Reset Filters
-              </Button>
-            </motion.div>
+            </div>
           ) : (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-            >
-              {/* Ultra Premium 3D Product Cards */}
-              {sortedProducts.map((product, index) => {
-                // Generate unique colors based on product category for visual variety
-                const gradients = {
-                  ai_tools: { 
-                    from: "from-violet-600", 
-                    to: "to-indigo-700", 
-                    glow: "rgba(139, 92, 246, 0.3)" 
-                  },
-                  templates: { 
-                    from: "from-blue-600", 
-                    to: "to-cyan-600", 
-                    glow: "rgba(59, 130, 246, 0.3)" 
-                  },
-                  graphics: { 
-                    from: "from-emerald-600", 
-                    to: "to-teal-700", 
-                    glow: "rgba(16, 185, 129, 0.3)" 
-                  },
-                  Software: { 
-                    from: "from-amber-500", 
-                    to: "to-orange-700", 
-                    glow: "rgba(245, 158, 11, 0.3)" 
-                  },
-                  "Digital Assets": { 
-                    from: "from-rose-600", 
-                    to: "to-pink-700", 
-                    glow: "rgba(244, 63, 94, 0.3)" 
-                  }
-                };
-                
-                // Select gradient based on category or default
-                const gradient = gradients[product.category as keyof typeof gradients] || 
-                               { from: "from-violet-600", to: "to-indigo-700", glow: "rgba(139, 92, 246, 0.3)" };
-                
-                return (
-                  <motion.div
-                    key={product.id || index}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: index * 0.08, type: "spring", stiffness: 100 }}
-                    whileHover={{ 
-                      y: -10, 
-                      transition: { duration: 0.2 } 
-                    }}
-                    className="group relative"
-                    style={{ perspective: "1200px" }}
-                    onClick={() => {
-                      console.log("Product wrapper clicked:", product.name, product.id);
-                      // Navigate to product detail page using wouter
-                      setLocation(`/product/${product.id}`);
-                    }}
-                  >
-                    {/* 3D product card with glassmorphism */}
-                    <motion.div
-                      whileHover={{ 
-                        rotateX: 2, 
-                        rotateY: 5,
-                        z: 10
-                      }}
-                      transition={{ type: "spring", stiffness: 300 }}
-                      className="relative h-full rounded-xl bg-gradient-to-b from-gray-900/90 to-gray-950/90 backdrop-blur-xl border border-white/5 shadow-xl overflow-hidden cursor-pointer"
-                      style={{
-                        transformStyle: "preserve-3d",
-                        backfaceVisibility: "hidden",
-                        boxShadow: `0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.05), 0 0 20px ${gradient.glow}`
-                      }}
-                    >
-                      {/* Shine effect overlay */}
-                      <div 
-                        className="absolute inset-0 opacity-0 group-hover:opacity-30 transition-opacity duration-700 shine-animation"
-                        style={{
-                          background: "linear-gradient(105deg, transparent 20%, rgba(255, 255, 255, 0.3) 50%, transparent 80%)",
-                          backgroundSize: "200% 200%",
-                          zIndex: 5
-                        }}
-                      />
-                      
-                      {/* Floating particles for premium effect */}
-                      {[...Array(8)].map((_, i) => (
-                        <motion.div
-                          key={i}
-                          className="absolute w-1 h-1 rounded-full bg-white opacity-0 group-hover:opacity-30"
-                          style={{
-                            top: `${10 + Math.random() * 80}%`,
-                            left: `${10 + Math.random() * 80}%`,
-                          }}
-                          animate={{
-                            y: [0, -20, 0],
-                            opacity: [0, 0.3, 0],
-                          }}
-                          transition={{
-                            duration: 2 + Math.random() * 3,
-                            repeat: Infinity,
-                            delay: Math.random() * 2,
-                          }}
-                        />
-                      ))}
-
-                      {/* Premium highlight edge */}
-                      <div 
-                        className={`absolute top-0 left-0 right-0 h-1 z-10 opacity-70 bg-gradient-to-r ${gradient.from} ${gradient.to}`}
-                      />
-                      
-                      {/* Header with product image/icon */}
-                      <div className="relative h-48 overflow-hidden">
-                        {/* Background gradient */}
-                        <div className={`absolute inset-0 bg-gradient-to-br opacity-30 ${gradient.from} ${gradient.to}`} />
-                        
-                        {/* Featured accent circles */}
-                        <div className="absolute -bottom-6 -left-6 w-24 h-24 rounded-full bg-white/5 backdrop-blur-md" />
-                        <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-white/5 backdrop-blur-md" />
-                        
-                        {/* Product image or icon */}
-                        <div className="absolute inset-0 flex items-center justify-center z-10">
-                          {/* Check for any available image source with priority order */}
-                          {product.customIcon || product.coverImage || product.imageUrl ? (
-                            <div 
-                              className="w-full h-full transform transition-transform duration-500 ease-out group-hover:scale-110 bg-cover bg-center"
-                              style={{ 
-                                backgroundImage: `url(${product.customIcon || product.coverImage || product.imageUrl})`,
-                                backgroundSize: 'cover',
-                                backgroundPosition: 'center'
-                              }}
-                            />
-                          ) : (
-                            <motion.div 
-                              whileHover={{ 
-                                scale: 1.1,
-                                rotate: [-1, 1, -1], 
-                                transition: { rotate: { repeat: Infinity, duration: 2 } }
-                              }}
-                              className={`w-28 h-28 rounded-full flex items-center justify-center backdrop-blur-lg float-animation`}
-                              style={{ 
-                                background: `linear-gradient(135deg, ${gradient.glow}, rgba(20, 20, 20, 0.7))`,
-                                boxShadow: `0 20px 25px -5px ${gradient.glow}, 0 0 25px 0 rgba(0, 0, 0, 0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.1)`
-                              }}
-                            >
-                              {renderProductIcon(product, { className: "w-14 h-14 text-white pulse-animation" })}
-                            </motion.div>
-                          )}
-                        </div>
-                        
-                        {/* Premium badge overlay */}
-                        {(product.price || 0) > 49.99 && (
-                          <div className="absolute top-4 right-4 z-20">
-                            <motion.div
-                              whileHover={{ scale: 1.1 }}
-                              className="px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-lg border border-white/10 shadow-lg flex items-center gap-1.5"
-                              style={{ boxShadow: `0 0 15px ${gradient.glow}` }}
-                            >
-                              <div className={`w-2 h-2 rounded-full bg-gradient-to-r ${gradient.from} ${gradient.to}`} />
-                              <span className="text-white text-xs font-semibold">PREMIUM</span>
-                            </motion.div>
-                          </div>
-                        )}
-                        
-                        {/* Category label */}
-                        <div className="absolute top-4 left-4 z-20">
-                          <motion.div
-                            whileHover={{ scale: 1.05 }}
-                            className="px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-lg border border-white/10 shadow-lg text-xs font-medium uppercase tracking-wider"
-                          >
-                            {product.category || "DIGITAL"}
-                          </motion.div>
-                        </div>
-                        
-                        {/* Overlay gradient for better text contrast */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/20 to-transparent z-10" />
-                      </div>
-                      
-                      {/* Product details with 3D layered effect */}
-                      <div className="relative z-20 p-6 -mt-8" style={{ transform: "translateZ(20px)" }}>
-                        {/* Product title with verified badge */}
-                        <div className="flex items-start justify-between mb-3">
-                          <h3 className="text-xl font-bold text-white">
-                            {product.name}
-                          </h3>
-                          
-                          {index % 2 === 0 && (
-                            <motion.div
-                              whileHover={{ scale: 1.1 }}
-                              className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20"
-                            >
-                              <Check className="w-3 h-3 text-emerald-500" />
-                              <span className="text-xs font-medium text-emerald-400">Verified</span>
-                            </motion.div>
-                          )}
-                        </div>
-                        
-                        {/* Description */}
-                        <p className="text-gray-300 text-sm mb-4">
-                          {product.description || "No description"}
-                        </p>
-                        
-                        {/* Creator with avatar */}
-                        <div className="flex items-center gap-2 mb-4">
-                          <motion.div 
-                            whileHover={{ scale: 1.1, rotate: 10 }}
-                            className="w-8 h-8 rounded-full overflow-hidden border-2 border-white/10 shadow-inner"
-                            style={{ 
-                              background: `linear-gradient(135deg, ${gradient.from.replace('from-', '')}, ${gradient.to.replace('to-', '')})`,
-                              boxShadow: `0 0 10px ${gradient.glow}`
-                            }}
-                          >
-                            <div className="w-full h-full flex items-center justify-center text-white font-bold text-sm">
-                              {product.author?.name?.[0] || "C"}
-                            </div>
-                          </motion.div>
-                          
-                          <div className="flex flex-col">
-                            <span className="text-xs text-gray-300">Creator</span>
-                            <span className="text-sm font-semibold text-white">{product.author?.name || "Anonymous"}</span>
-                          </div>
-                        </div>
-                        
-                        {/* Stats row */}
-                        <div className="grid grid-cols-3 gap-2 mb-5">
-                          {/* Rating */}
-                          <div className="bg-white/5 backdrop-blur-sm rounded-lg p-2 flex flex-col items-center">
-                            <div className="flex mb-1">
-                              {[...Array(5)].map((_, i) => (
-                                <Star 
-                                  key={i}
-                                  className={`w-3 h-3 ${
-                                    i < Math.floor(product.rating || 4.5) 
-                                      ? "text-yellow-400 fill-yellow-400" 
-                                      : "text-gray-700"
-                                  }`}
-                                />
-                              ))}
-                            </div>
-                            <span className="text-xs text-gray-400">
-                              {product.rating?.toFixed(1) || "4.8"} ({product.reviews || "85"})
-                            </span>
-                          </div>
-                          
-                          {/* Downloads */}
-                          <div className="bg-white/5 backdrop-blur-sm rounded-lg p-2 flex flex-col items-center">
-                            <Zap className="w-4 h-4 text-amber-400 mb-1" />
-                            <span className="text-xs text-gray-400">
-                              {(product.sales || 125) + (index * 15)}+ Sales
-                            </span>
-                          </div>
-                          
-                          {/* File size or similar */}
-                          <div className="bg-white/5 backdrop-blur-sm rounded-lg p-2 flex flex-col items-center">
-                            <DollarSign className="w-4 h-4 text-green-400 mb-1" />
-                            <span className="text-xs text-gray-400">
-                              Premium
-                            </span>
-                          </div>
-                        </div>
-                        
-                        {/* Bottom price and action */}
-                        <div className="flex items-center justify-between mt-2">
-                          <motion.div 
-                            className="flex flex-col"
-                            whileHover={{ 
-                              scale: 1.05,
-                              transition: { type: "spring", stiffness: 400, damping: 10 }
-                            }}
-                          >
-                            <div className="relative">
-                              <span className="text-3xl font-bold" style={{ 
-                                background: `linear-gradient(to right, #fff, ${gradient.from.replace('from-', '')})`,
-                                WebkitBackgroundClip: 'text',
-                                WebkitTextFillColor: 'transparent',
-                                textShadow: '0 0 20px rgba(255, 255, 255, 0.2)'
-                              }}>
-                                ${product.price || "59.99"}
-                              </span>
-                              {/* Premium price glow effect */}
-                              <div className="absolute -inset-1 bg-gradient-to-r from-transparent via-white/10 to-transparent rounded-full blur-md -z-10"></div>
-                            </div>
-                            <span className="text-gray-500 text-xs">USD</span>
-                          </motion.div>
-                          
-                          {/* CTA Button with 3D effect */}
-                          <motion.button
-                            whileHover={{ 
-                              scale: 1.05,
-                              boxShadow: `0 8px 20px ${gradient.glow}, 0 0 0 1px rgba(255, 255, 255, 0.2)`,
-                            }}
-                            whileTap={{ scale: 0.95 }}
-                            className={`relative px-4 py-2.5 rounded-lg text-white font-medium text-sm flex items-center gap-2 bg-gradient-to-r ${gradient.from} ${gradient.to} overflow-hidden`}
-                            style={{ 
-                              boxShadow: `0 4px 10px ${gradient.glow}, 0 0 0 1px rgba(255, 255, 255, 0.1)`,
-                              textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)'
-                            }}
-                          >
-                            {/* Shine overlay */}
-                            <div className="absolute top-0 left-0 w-full h-full shine-animation opacity-50"></div>
-                            
-                            {/* Button content */}
-                            <div className="relative z-10 flex items-center gap-2">
-                              <ShoppingCart className="w-4 h-4" />
-                              Add to Cart
-                            </div>
-                          </motion.button>
-                        </div>
-                      </div>
-                    </motion.div>
-                    
-                    {/* Reflection effect */}
-                    <div 
-                      className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-[95%] h-[20px] rounded-[100%] bg-gradient-to-r from-transparent via-[rgba(120,119,198,0.1)] to-transparent blur-md"
-                      style={{ zIndex: -1 }}
-                    />
-                  </motion.div>
-                )
-              })}
-            </motion.div>
-          )}
-        </section>
-        
-        {/* Featured Creators Section */}
-        <section className="container mx-auto px-4 py-10 mb-12">
-          <div className="flex items-end justify-between mb-8">
-            <div>
-              <Badge className="mb-2 px-3 py-1 bg-yellow-500/10 text-yellow-400 border-yellow-500/20">
-                <Award className="w-3.5 h-3.5 mr-1.5" /> Featured
-              </Badge>
-              <h2 className="text-2xl md:text-3xl font-bold">Top Creators</h2>
-            </div>
-            <Button variant="link" className="text-purple-400">
-              View All <ChevronDown className="w-4 h-4 ml-1" />
-            </Button>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {creators.map((creator, index) => (
-              <CreatorCard
-                key={index}
-                name={creator.name}
-                avatar={creator.avatar}
-                isVerified={creator.isVerified}
-                followers={creator.followers}
-                products={creator.products}
-              />
-            ))}
-          </div>
-        </section>
-        
-        {/* CTA Banner */}
-        <section className="container mx-auto px-4 mb-20">
-          <Card3D
-            className="p-8 md:p-12 bg-gradient-to-br from-[#1E1E1E] to-[#121212] border-none overflow-hidden"
-            bgClassName="from-purple-600/10 via-transparent to-blue-600/5"
-            glowClassName="from-purple-600/20 via-transparent to-blue-600/20"
-          >
-            <div className="flex flex-col md:flex-row items-center justify-between">
-              <div className="mb-6 md:mb-0 relative z-10">
-                <Badge className="mb-2 px-3 py-1 bg-green-500/10 text-green-400 border-green-500/20">
-                  <DollarSign className="w-3.5 h-3.5 mr-1.5" /> Income Potential
-                </Badge>
-                <h2 className="text-2xl md:text-3xl font-bold mb-3">
-                  Start Selling Your Digital Products
-                </h2>
-                <p className="text-gray-400 max-w-md">
-                  Join thousands of creators earning income by sharing their expertise through digital products.
-                </p>
-              </div>
-              
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white text-lg px-8 py-6 rounded-full font-medium">
-                  <Rocket className="w-5 h-5 mr-2" />
-                  Become a Seller
-                </Button>
-              </motion.div>
-            </div>
-            
-            {/* Decorative elements */}
-            <div className="absolute top-0 right-0 w-64 h-64 opacity-30 pointer-events-none">
-              <motion.div 
-                className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 blur-3xl"
-                animate={{
-                  scale: [1, 1.2, 1],
-                  opacity: [0.2, 0.4, 0.2],
-                }}
-                transition={{
-                  duration: 8,
-                  repeat: Infinity,
-                  repeatType: "reverse",
-                }}
-              />
-            </div>
-          </Card3D>
-        </section>
-      </main>
-      
-      {/* Footer */}
-      <footer className="relative z-10 border-t border-white/10 py-12 px-4">
-        <div className="container mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <h3 className="text-xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-blue-500">
-                3D Marketplace
-              </h3>
-              <p className="text-gray-400 text-sm mb-4">
-                The next-generation digital marketplace for premium AI tools, templates, and assets.
-              </p>
-            </div>
-            
-            <div>
-              <h4 className="text-white font-medium mb-4">Products</h4>
-              <ul className="space-y-2">
-                {["AI Tools", "Templates", "Graphics", "Software", "APIs"].map(item => (
-                  <li key={item}>
-                    <a href="#" className="text-gray-400 hover:text-white text-sm">
-                      {item}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="text-white font-medium mb-4">Resources</h4>
-              <ul className="space-y-2">
-                {["Documentation", "Tutorials", "Blog", "Community", "Changelog"].map(item => (
-                  <li key={item}>
-                    <a href="#" className="text-gray-400 hover:text-white text-sm">
-                      {item}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="text-white font-medium mb-4">Company</h4>
-              <ul className="space-y-2">
-                {["About", "Careers", "Contact", "Privacy", "Terms"].map(item => (
-                  <li key={item}>
-                    <a href="#" className="text-gray-400 hover:text-white text-sm">
-                      {item}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-          
-          <div className="border-t border-white/10 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
-            <p className="text-gray-500 text-sm">
-              © 2025 3D Marketplace. All rights reserved.
-            </p>
-            
-            <div className="flex space-x-4 mt-4 md:mt-0">
-              {["Twitter", "Discord", "GitHub", "YouTube"].map(item => (
-                <a 
-                  key={item} 
-                  href="#" 
-                  className="text-gray-400 hover:text-white text-sm"
-                >
-                  {item}
-                </a>
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {sortedProducts.map((product, index) => (
+                <FeaturedProductCard 
+                  key={product.id || index}
+                  product={product}
+                  index={index}
+                  onProductSelect={setSelectedProduct}
+                />
               ))}
             </div>
+          )}
+        </div>
+        
+        {/* Featured creators section */}
+        <div className="mb-16">
+          <h2 className="text-xl font-semibold mb-6">Featured Creators</h2>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            {creators.map((creator, index) => (
+              <motion.div
+                key={creator.name}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 + (index * 0.05) }}
+              >
+                <CreatorCard
+                  name={creator.name}
+                  avatar={creator.avatar}
+                  isVerified={creator.isVerified}
+                  followers={creator.followers}
+                  products={creator.products}
+                />
+              </motion.div>
+            ))}
           </div>
         </div>
-      </footer>
-      
-      {/* Mobile bottom navigation */}
-      <BottomNav />
-      
-      {/* Debug button to test ProductDetail */}
-      <button 
-        onClick={() => {
-          const firstProduct = sortedProducts[0];
-          if (firstProduct) {
-            window.location.href = `/product/${firstProduct.id}`;
-          }
-        }}
-        className="fixed bottom-24 left-4 bg-blue-500 text-white px-4 py-2 rounded-full z-50 flex items-center gap-2"
-      >
-        <Search className="w-4 h-4" />
-        Test Detail
-      </button>
-
-      {/* Simple Product Detail Modal */}
-      {selectedProduct && (
-        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-          <div className="bg-gray-900 rounded-xl w-full max-w-4xl max-h-[90vh] overflow-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-start mb-6">
-                <h2 className="text-2xl font-bold">{selectedProduct.name}</h2>
-                <button 
-                  className="p-2 bg-gray-800 rounded-full"
-                  onClick={() => setSelectedProduct(null)}
-                >
-                  <XIcon className="w-5 h-5" />
-                </button>
-              </div>
+        
+        {/* Get started CTA */}
+        <div className="rounded-2xl overflow-hidden relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 opacity-50 z-0"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(0,0,0,0)_0%,rgba(0,0,0,0.8)_80%)] z-10"></div>
+          
+          {/* Decorative elements */}
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-purple-500/20 blur-3xl"></div>
+          <div className="absolute bottom-0 right-0 w-64 h-64 rounded-full bg-blue-500/20 blur-3xl"></div>
+          
+          <div className="relative z-20 p-8 md:p-12 flex flex-col md:flex-row items-center justify-between">
+            <div className="mb-8 md:mb-0">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to start selling?</h2>
+              <p className="text-white/80 max-w-md mb-6">
+                Join thousands of creators selling digital products and earning passive income on our platform.
+              </p>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Image */}
-                <div className="bg-gray-800 rounded-xl overflow-hidden h-72">
-                  {selectedProduct.customIcon || selectedProduct.coverImage || selectedProduct.imageUrl ? (
-                    <div 
-                      className="w-full h-full bg-cover bg-center"
-                      style={{ backgroundImage: `url(${selectedProduct.customIcon || selectedProduct.coverImage || selectedProduct.imageUrl})` }}
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <selectedProduct.Icon className="w-24 h-24 text-gray-400" />
-                    </div>
-                  )}
-                </div>
+              <div className="flex flex-wrap gap-4">
+                <Button className="bg-white text-purple-600 hover:bg-gray-100">
+                  <Cpu className="mr-2 h-4 w-4" />
+                  Start Selling
+                </Button>
                 
-                {/* Details */}
-                <div>
-                  <div className="mb-4">
-                    <span className="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full text-sm">
-                      {selectedProduct.category || "Digital Product"}
-                    </span>
-                  </div>
-                  
-                  <p className="text-gray-300 mb-6">{selectedProduct.description}</p>
-                  
-                  <div className="mb-6">
-                    <p className="text-gray-400 mb-1">Price:</p>
-                    <p className="text-4xl font-bold">${selectedProduct.price || "59.99"}</p>
-                  </div>
-                  
-                  <button 
-                    className="w-full py-3 bg-blue-600 hover:bg-blue-700 rounded-xl font-medium"
-                    onClick={() => {
-                      // Handle purchase
-                      setSelectedProduct(null);
-                    }}
-                  >
-                    Buy Now
-                  </button>
-                  
-                  <button 
-                    className="w-full py-3 mt-3 border border-white/10 hover:bg-white/5 rounded-xl font-medium"
-                    onClick={() => setSelectedProduct(null)}
-                  >
-                    Close
-                  </button>
-                </div>
+                <Button variant="outline" className="border-white/20 bg-white/10 hover:bg-white/20 text-white">
+                  Learn More
+                </Button>
               </div>
+            </div>
+            
+            <div className="w-full md:w-auto">
+              <Card3D 
+                className="w-full md:w-80 h-40"
+                glowColor="#BB86FC"
+              >
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="bg-purple-500/20 p-2 rounded-full">
+                      <DollarSign className="h-6 w-6 text-purple-400" />
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm text-gray-400">Average earnings</div>
+                      <div className="text-2xl font-bold">$1,250</div>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <div className="text-sm text-gray-400">Products</div>
+                      <div className="text-lg font-medium">12+</div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-gray-400">Success rate</div>
+                      <div className="text-lg font-medium">94%</div>
+                    </div>
+                  </div>
+                </div>
+              </Card3D>
             </div>
           </div>
         </div>
-      )}
+      </main>
       
-      {/* Debug indicator for selectedProduct */}
-      {selectedProduct && (
-        <div className="fixed bottom-20 right-4 bg-green-500 text-white px-4 py-2 rounded-full z-50">
-          Product selected: {selectedProduct.name}
-        </div>
-      )}
+      {/* Bottom mobile navigation */}
+      <BottomNav />
+      
+      {/* Product detail modal */}
+      <AnimatePresence>
+        {selectedProduct && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-[#121212] rounded-2xl overflow-hidden relative max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+            >
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute top-4 right-4 z-50 rounded-full bg-black/40 hover:bg-black/60 text-white"
+                onClick={() => setSelectedProduct(null)}
+              >
+                <XIcon className="h-5 w-5" />
+              </Button>
+              
+              <ProductDetail product={selectedProduct} />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
