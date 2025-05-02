@@ -11,6 +11,7 @@ import Profile3D from "./pages/Profile3D";
 import ProfileEdit from "./pages/ProfileEdit";
 import UploadProduct from "./pages/UploadProduct";
 import SimplePublish from "./pages/SimplePublish";
+import DirectPublish from "./pages/DirectPublish";
 import ProductDetailPage from "./pages/ProductDetail";
 import BottomNav from "./components/BottomNav";
 import Explore from "./pages/Explore";
@@ -27,6 +28,7 @@ function Router() {
       <Route path="/profile/edit" component={ProfileEdit} />
       <Route path="/product/new" component={UploadProduct} />
       <Route path="/publish" component={SimplePublish} />
+      <Route path="/direct-publish" component={DirectPublish} />
       <Route component={NotFound} />
     </Switch>
   );
