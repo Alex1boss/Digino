@@ -83,18 +83,19 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
 
   const categoryColors = getCategoryColor(product.category || undefined);
   const productImages = getProductImages(product);
-  // Use real product images if available, otherwise show image icon
-  const images = productImages.length > 0 ? productImages : [];
+  // Use real product images if available, otherwise show a default image
+  const fallbackImage = product.iconName ? `/icons/${product.iconName}.svg` : '';
+  const images = productImages.length > 0 ? productImages : (fallbackImage ? [fallbackImage] : []);
 
   const nextImage = () => {
-    if (isAnimating) return;
+    if (isAnimating || images.length <= 1) return;
     setIsAnimating(true);
     setCurrentImageIndex((prev) => (prev + 1) % images.length);
     setTimeout(() => setIsAnimating(false), 500);
   };
 
   const prevImage = () => {
-    if (isAnimating) return;
+    if (isAnimating || images.length <= 1) return;
     setIsAnimating(true);
     setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
     setTimeout(() => setIsAnimating(false), 500);
@@ -178,38 +179,44 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
               </motion.div>
             </AnimatePresence>
             
-            {/* Navigation arrows */}
-            <button
-              onClick={prevImage}
-              className="absolute left-4 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-white/10 backdrop-blur-md border border-white/10 hover:bg-white/20 transition-colors"
-            >
-              <ChevronLeft className="w-6 h-6 text-white" />
-            </button>
-            
-            <button
-              onClick={nextImage}
-              className="absolute right-4 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-white/10 backdrop-blur-md border border-white/10 hover:bg-white/20 transition-colors"
-            >
-              <ChevronRight className="w-6 h-6 text-white" />
-            </button>
-            
-            {/* Thumbnail indicators */}
-            <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-2 z-10">
-              {images.map((_, index) => (
+            {/* Navigation arrows - only show if multiple images */}
+            {images.length > 1 && (
+              <>
                 <button
-                  key={index}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setCurrentImageIndex(index);
-                  }}
-                  className={`w-2.5 h-2.5 rounded-full transition-all ${
-                    index === currentImageIndex 
-                      ? `w-8 bg-gradient-to-r ${categoryColors.gradient}` 
-                      : 'bg-white/30'
-                  }`}
-                />
-              ))}
-            </div>
+                  onClick={prevImage}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-white/10 backdrop-blur-md border border-white/10 hover:bg-white/20 transition-colors"
+                >
+                  <ChevronLeft className="w-6 h-6 text-white" />
+                </button>
+                
+                <button
+                  onClick={nextImage}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-white/10 backdrop-blur-md border border-white/10 hover:bg-white/20 transition-colors"
+                >
+                  <ChevronRight className="w-6 h-6 text-white" />
+                </button>
+              </>
+            )}
+            
+            {/* Thumbnail indicators - only show if there are multiple images */}
+            {images.length > 1 && (
+              <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-2 z-10">
+                {images.map((_, index: number) => (
+                  <button
+                    key={index}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setCurrentImageIndex(index);
+                    }}
+                    className={`w-2.5 h-2.5 rounded-full transition-all ${
+                      index === currentImageIndex 
+                        ? `w-8 bg-gradient-to-r ${categoryColors.gradient}` 
+                        : 'bg-white/30'
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
           </div>
           
           {/* Right column - Product details */}

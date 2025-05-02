@@ -872,7 +872,7 @@ export default function Explore() {
                 <XIcon className="h-5 w-5" />
               </Button>
               
-              <ProductDetail product={selectedProduct} />
+              <ProductDetail product={selectedProduct} onClose={() => setSelectedProduct(null)} />
             </motion.div>
           </motion.div>
         )}
