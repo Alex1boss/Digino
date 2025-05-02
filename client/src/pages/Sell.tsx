@@ -102,8 +102,74 @@ export default function Sell() {
     fileInputRef.current?.click();
   };
   
-  // Handle product image upload
-  const handleProductImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Compress image before uploading to reduce file size
+  const compressImage = async (file: File, maxWidthOrHeight = 1200): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      if (!file.type.startsWith('image/')) {
+        reject(new Error('Not an image file'));
+        return;
+      }
+      
+      const reader = new FileReader();
+      
+      reader.onload = (event) => {
+        if (!event.target?.result) {
+          reject(new Error('Failed to read file'));
+          return;
+        }
+        
+        const img = new Image();
+        img.src = event.target.result as string;
+        
+        img.onload = () => {
+          // Calculate dimensions while maintaining aspect ratio
+          let width = img.width;
+          let height = img.height;
+          
+          if (width > height && width > maxWidthOrHeight) {
+            height = Math.round((height * maxWidthOrHeight) / width);
+            width = maxWidthOrHeight;
+          } else if (height > maxWidthOrHeight) {
+            width = Math.round((width * maxWidthOrHeight) / height);
+            height = maxWidthOrHeight;
+          }
+          
+          // Create canvas and context
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          
+          if (!ctx) {
+            reject(new Error('Failed to get canvas context'));
+            return;
+          }
+          
+          // Draw image on canvas with new dimensions
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          // Get compressed data URL
+          const quality = 0.7; // Adjust quality (0.1 to 1.0)
+          const compressedDataUrl = canvas.toDataURL(file.type, quality);
+          
+          resolve(compressedDataUrl);
+        };
+        
+        img.onerror = () => {
+          reject(new Error('Error loading image'));
+        };
+      };
+      
+      reader.onerror = () => {
+        reject(new Error('Error reading file'));
+      };
+      
+      reader.readAsDataURL(file);
+    });
+  };
+  
+  // Handle product image upload with compression
+  const handleProductImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
     
@@ -115,40 +181,37 @@ export default function Sell() {
     
     const imageFilesArray = Array.from(files);
     const newImages: string[] = [];
-    let loadedImages = 0;
     
-    imageFilesArray.forEach(file => {
-      if (!file.type.startsWith('image/')) {
-        alert('Please select image files only (JPEG, PNG, etc.)');
-        return;
-      }
-      
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        if (e.target?.result) {
-          const imageDataUrl = e.target.result as string;
-          newImages.push(imageDataUrl);
-          loadedImages++;
-          
-          if (loadedImages === imageFilesArray.length) {
-            const updatedImages = [...productImages, ...newImages];
-            setProductImages(updatedImages);
-            setFormData(prev => ({
-              ...prev,
-              productImages: updatedImages
-            }));
+    try {
+      // Process files in parallel using Promise.all
+      const compressedImages = await Promise.all(
+        imageFilesArray.map(async (file) => {
+          if (!file.type.startsWith('image/')) {
+            throw new Error('Please select image files only (JPEG, PNG, etc.)');
           }
-        }
-      };
-      reader.onerror = () => {
-        alert('Error reading file. Please try again.');
-      };
-      reader.readAsDataURL(file);
-    });
+          
+          // Compress the image to reduce size
+          const compressedImage = await compressImage(file);
+          return compressedImage;
+        })
+      );
+      
+      // Update state with compressed images
+      const updatedImages = [...productImages, ...compressedImages];
+      setProductImages(updatedImages);
+      setFormData(prev => ({
+        ...prev,
+        productImages: updatedImages
+      }));
+      
+    } catch (error) {
+      console.error('Error processing images:', error);
+      alert('Error processing images. Please try again.');
+    }
   };
   
-  // Handle product image drop
-  const handleProductImageDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  // Handle product image drop with compression
+  const handleProductImageDrop = async (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
     
@@ -162,37 +225,33 @@ export default function Sell() {
     }
     
     const imageFilesArray = Array.from(files);
-    const newImages: string[] = [];
-    let loadedImages = 0;
     
-    imageFilesArray.forEach(file => {
-      if (!file.type.startsWith('image/')) {
-        alert('Please select image files only (JPEG, PNG, etc.)');
-        return;
-      }
-      
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        if (e.target?.result) {
-          const imageDataUrl = e.target.result as string;
-          newImages.push(imageDataUrl);
-          loadedImages++;
-          
-          if (loadedImages === imageFilesArray.length) {
-            const updatedImages = [...productImages, ...newImages];
-            setProductImages(updatedImages);
-            setFormData(prev => ({
-              ...prev,
-              productImages: updatedImages
-            }));
+    try {
+      // Process files in parallel using Promise.all with the same compression function
+      const compressedImages = await Promise.all(
+        imageFilesArray.map(async (file) => {
+          if (!file.type.startsWith('image/')) {
+            throw new Error('Please select image files only (JPEG, PNG, etc.)');
           }
-        }
-      };
-      reader.onerror = () => {
-        alert('Error reading file. Please try again.');
-      };
-      reader.readAsDataURL(file);
-    });
+          
+          // Compress the image to reduce size
+          const compressedImage = await compressImage(file);
+          return compressedImage;
+        })
+      );
+      
+      // Update state with compressed images
+      const updatedImages = [...productImages, ...compressedImages];
+      setProductImages(updatedImages);
+      setFormData(prev => ({
+        ...prev,
+        productImages: updatedImages
+      }));
+      
+    } catch (error) {
+      console.error('Error processing dropped images:', error);
+      alert('Error processing images. Please try again.');
+    }
   };
   
   // Handle removing a specific product image
@@ -217,8 +276,8 @@ export default function Sell() {
     productImageRef.current?.click();
   };
   
-  // Handle product icon upload
-  const handleProductIconUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Handle product icon upload with compression
+  const handleProductIconUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       if (!file.type.startsWith('image/')) {
@@ -226,27 +285,25 @@ export default function Sell() {
         return;
       }
       
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        if (e.target?.result) {
-          const iconDataUrl = e.target.result as string;
-          setProductIcon(iconDataUrl);
-          setFormData(prev => ({
-            ...prev,
-            customIcon: iconDataUrl,
-            iconName: "" // Clear the selected icon name when using custom icon
-          }));
-        }
-      };
-      reader.onerror = () => {
-        alert('Error reading file. Please try again.');
-      };
-      reader.readAsDataURL(file);
+      try {
+        // Use the same compression function but with smaller dimensions for icons
+        const compressedIcon = await compressImage(file, 600);
+        
+        setProductIcon(compressedIcon);
+        setFormData(prev => ({
+          ...prev,
+          customIcon: compressedIcon,
+          iconName: "" // Clear the selected icon name when using custom icon
+        }));
+      } catch (error) {
+        console.error('Error processing icon image:', error);
+        alert('Error processing image. Please try again.');
+      }
     }
   };
   
-  // Handle product icon drop
-  const handleProductIconDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  // Handle product icon drop with compression
+  const handleProductIconDrop = async (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
     
@@ -257,19 +314,20 @@ export default function Sell() {
         return;
       }
       
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        if (e.target?.result) {
-          const iconDataUrl = e.target.result as string;
-          setProductIcon(iconDataUrl);
-          setFormData(prev => ({
-            ...prev,
-            customIcon: iconDataUrl,
-            iconName: "" // Clear the selected icon name when using custom icon
-          }));
-        }
-      };
-      reader.readAsDataURL(file);
+      try {
+        // Use the same compression function but with smaller dimensions for icons
+        const compressedIcon = await compressImage(file, 600);
+        
+        setProductIcon(compressedIcon);
+        setFormData(prev => ({
+          ...prev,
+          customIcon: compressedIcon,
+          iconName: "" // Clear the selected icon name when using custom icon
+        }));
+      } catch (error) {
+        console.error('Error processing icon image:', error);
+        alert('Error processing image. Please try again.');
+      }
     }
   };
   
