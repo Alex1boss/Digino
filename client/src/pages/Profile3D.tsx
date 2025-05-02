@@ -26,7 +26,8 @@ import {
   ChevronRight,
   Zap,
   Layers,
-  TrendingUp
+  TrendingUp,
+  Loader2
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -39,6 +40,7 @@ import { Avatar3D } from "@/components/ui/3d-avatar";
 import { Card3D } from "@/components/ui/3d-card";
 import { Badge3D } from "@/components/ui/3d-badge";
 import { StatsCard3D } from "@/components/ui/3d-stats-card";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function Profile3D() {
   const [isFollowing, setIsFollowing] = useState(false);
@@ -57,36 +59,40 @@ export default function Profile3D() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Mock user data
-  const user = {
-    name: "Alex Johnson",
-    username: "alexjohnson",
-    avatar: "/avatar-placeholder.svg",
-    role: "Enterprise Seller",
-    bio: "Expert in creating premium digital products. Passionate about AI, design, and creating tools that help businesses grow.",
-    location: "San Francisco, CA",
-    website: "alexjohnson.design",
-    email: "alex@example.com",
-    joinDate: "June 2021",
+  // Get authenticated user data
+  const { user: authUser, isLoading: isAuthLoading } = useAuth();
+
+  // Default badges for all users
+  const defaultBadges = [
+    { name: "Verified User", icon: Shield, color: "#0056D2" }
+  ];
+
+  // Define user profile data based on auth user
+  const user = authUser ? {
+    name: authUser.fullName || authUser.username,
+    username: authUser.username,
+    avatar: authUser.avatarUrl || "/avatar-placeholder.svg",
+    role: authUser.role || "User",
+    bio: authUser.bio || "Digital product creator and marketplace user",
+    location: "Unknown",
+    website: "",
+    email: authUser.email || "",
+    joinDate: authUser.createdAt ? new Date(authUser.createdAt).toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'long'
+    }) : "Recently",
     stats: {
-      products: 24,
-      sold: 1452,
-      followers: 8590,
-      following: 345,
-      rating: 4.9
+      products: 0,
+      sold: 0,
+      followers: 0,
+      following: 0,
+      rating: 5.0
     },
-    badges: [
-      { name: "Verified Seller", icon: Shield, color: "#0056D2" },
-      { name: "Top Rated", icon: Award, color: "#00C49A" },
-      { name: "Expert", icon: Star, color: "#BB86FC" },
-    ],
+    badges: defaultBadges,
     activity: [
-      { action: "Created new product", time: "2 hours ago", link: "#" },
-      { action: "Updated profile information", time: "Yesterday", link: "#" },
-      { action: "Earned Top Seller Badge", time: "3 days ago", link: "#" },
-      { action: "Sold 100th product", time: "1 week ago", link: "#" },
+      { action: "Joined the platform", time: "Recently", link: "#" }
     ]
-  };
+  } : null;
 
   // Get products data
   const { data: products = [], isLoading } = useQuery<Product[]>({
@@ -97,6 +103,38 @@ export default function Profile3D() {
   const userProducts = products.slice(0, 6);
   const userPurchases = products.slice(2, 5);
   const userSaved = products.slice(1, 4);
+
+  // Show loading state while auth is loading
+  if (isAuthLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[#070720]">
+        <div className="flex flex-col items-center gap-4 p-8">
+          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+          <p className="text-white text-lg">Loading your profile...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  // Show error state if user is not authenticated
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[#070720]">
+        <div className="flex flex-col items-center gap-4 p-8 max-w-md text-center">
+          <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center">
+            <User className="h-8 w-8 text-red-500" />
+          </div>
+          <h2 className="text-white text-2xl font-bold">Authentication Required</h2>
+          <p className="text-white/70">Please log in to view your profile</p>
+          <Link href="/auth">
+            <Button className="bg-gradient-to-r from-[#0056D2] to-[#00C49A] hover:opacity-90 text-white mt-2">
+              Go to Login
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative min-h-screen bg-[#070720] text-white overflow-hidden" ref={profileRef}>
@@ -250,12 +288,7 @@ export default function Profile3D() {
                     <StatsCard3D title="Following" value={user.stats.following} color="#4F46E5" />
                     <StatsCard3D 
                       title="Rating" 
-                      value={
-                        <div className="flex items-center">
-                          <span>{user.stats.rating}</span>
-                          <Star size={16} className="text-yellow-400 ml-1" fill="currentColor" />
-                        </div>
-                      } 
+                      value={user.stats.rating}
                       color="#FFD700" 
                     />
                   </div>
