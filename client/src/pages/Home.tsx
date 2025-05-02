@@ -15,43 +15,29 @@ export default function Home() {
   const [location] = useLocation();
   const [showHero, setShowHero] = useState(true);
   const [activeTab, setActiveTab] = useState(location === "/" ? "home" : "explore");
-  const [localProducts, setLocalProducts] = useState<Product[]>([]);
-  
-  // Get products from API
-  const { data: apiProducts, isLoading } = useQuery<Product[]>({
+  // Get products from database via API
+  const { data: products, isLoading } = useQuery<Product[]>({
     queryKey: ['/api/products'],
     queryFn: async () => {
       const res = await fetch('/api/products');
       if (!res.ok) throw new Error('Failed to fetch products');
-      const products = await res.json();
-      // Make sure every product has a valid Icon component
-      return products.map((product: any) => ({
+      const data = await res.json();
+      console.log("Products loaded from database:", data.length);
+      
+      // Make sure every product has a valid Icon component and other required properties
+      return data.map((product: any) => ({
         ...product,
-        Icon: getIconComponent(product.iconName || 'cpu')
+        Icon: getIconComponent(product.iconName || 'cpu'),
+        // Ensure these properties exist for consistent UI rendering
+        currency: product.currency || "USD",
+        rating: product.rating || 0,
+        reviews: product.reviews || 0,
+        sales: product.sales || 0,
+        // Make sure coverImage is set if we have productImages
+        coverImage: product.coverImage || (product.productImages && product.productImages.length > 0 ? product.productImages[0] : "")
       }));
     }
   });
-  
-  // Also load products from localStorage
-  useEffect(() => {
-    try {
-      const savedProducts = localStorage.getItem('products');
-      if (savedProducts) {
-        const parsedProducts = JSON.parse(savedProducts);
-        console.log("Products loaded from localStorage:", parsedProducts);
-        
-        // Add Icon property to each product from localStorage
-        const productsWithIcons = parsedProducts.map((product: any) => ({
-          ...product,
-          Icon: getIconComponent(product.iconName || "cpu")
-        }));
-        
-        setLocalProducts(productsWithIcons);
-      }
-    } catch (error) {
-      console.error("Error loading products from localStorage:", error);
-    }
-  }, []);
 
   // Update the active tab when the location changes
   useEffect(() => {
@@ -89,7 +75,7 @@ export default function Home() {
         
         {/* Unified products section with expanded features for explore mode */}
         <ProductsSection 
-          products={[...(apiProducts || []), ...localProducts]} 
+          products={products || []} 
           isLoading={isLoading} 
           isExploreMode={activeTab === "explore"}
         />

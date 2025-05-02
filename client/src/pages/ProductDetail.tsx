@@ -27,29 +27,54 @@ export default function ProductDetailPage() {
       try {
         console.log("Fetching product details for ID:", productId);
         
-        // First check if product exists in localStorage
-        try {
-          const storedProducts = JSON.parse(localStorage.getItem('products') || '[]');
-          const localProduct = storedProducts.find((p: any) => p.id?.toString() === productId);
+        // Get product directly from the API (database)
+        const response = await fetch(`/api/products/${productId}`);
+        
+        if (!response.ok) {
+          // If specific endpoint doesn't exist, try getting all products and filter
+          const allProductsResponse = await fetch('/api/products');
+          const products = await allProductsResponse.json() as Product[];
+          const foundProduct = products.find(p => p.id?.toString() === productId);
           
-          if (localProduct) {
-            console.log("Found product in localStorage:", localProduct);
+          if (foundProduct) {
+            console.log("Product found in all products:", foundProduct);
+            
             // Add Icon property
             import("../schema").then(({ getIconComponent }) => {
-              localProduct.Icon = getIconComponent(localProduct.iconName || "Zap");
+              foundProduct.Icon = getIconComponent(foundProduct.iconName || "cpu");
             });
-            return localProduct;
+            
+            return {
+              ...foundProduct,
+              // Ensure these properties exist for consistent UI
+              currency: foundProduct.currency || "USD",
+              rating: foundProduct.rating || 0,
+              reviews: foundProduct.reviews || 0,
+              sales: foundProduct.sales || 0
+            };
           }
-        } catch (e) {
-          console.error("Error checking localStorage:", e);
+          
+          console.log("Product not found in database");
+          return null;
         }
         
-        // Fallback to API if not found in localStorage
-        const response = await fetch('/api/products');
-        const products = await response.json() as Product[];
-        const foundProduct = products.find(p => p.id?.toString() === productId);
-        console.log("Product from API:", foundProduct);
-        return foundProduct || null;
+        // Product was found via direct endpoint
+        const product = await response.json();
+        console.log("Product found via API:", product);
+        
+        // Add Icon property
+        import("../schema").then(({ getIconComponent }) => {
+          product.Icon = getIconComponent(product.iconName || "cpu");
+        });
+        
+        return {
+          ...product,
+          // Ensure these properties exist for consistent UI
+          currency: product.currency || "USD",
+          rating: product.rating || 0,
+          reviews: product.reviews || 0,
+          sales: product.sales || 0
+        };
       } catch (error) {
         console.error("Error fetching product details:", error);
         return null;
