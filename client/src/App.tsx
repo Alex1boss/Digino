@@ -1,4 +1,4 @@
-import { Switch, Route, Redirect } from "wouter";
+import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "./components/ui/toaster";
@@ -15,20 +15,29 @@ import DirectPublish from "./pages/DirectPublish";
 import ProductDetailPage from "./pages/ProductDetail";
 import BottomNav from "./components/BottomNav";
 import Explore from "./pages/Explore";
+import AuthPage from "./pages/AuthPage";
+import { AuthProvider } from "./hooks/use-auth";
+import { ProtectedRoute } from "./components/ui/protected-route";
 
 function Router() {
   return (
     <Switch>
+      {/* Public routes */}
       <Route path="/" component={Home} />
       <Route path="/explore" component={Explore} />
       <Route path="/product/:id" component={ProductDetailPage} />
-      <Route path="/buy" component={Buy} />
-      <Route path="/sell" component={Sell} />
-      <Route path="/profile" component={Profile3D} />
-      <Route path="/profile/edit" component={ProfileEdit} />
-      <Route path="/product/new" component={UploadProduct} />
-      <Route path="/publish" component={SimplePublish} />
-      <Route path="/direct-publish" component={DirectPublish} />
+      <Route path="/auth" component={AuthPage} />
+      
+      {/* Protected routes that require authentication */}
+      <ProtectedRoute path="/buy" component={Buy} />
+      <ProtectedRoute path="/sell" component={Sell} />
+      <ProtectedRoute path="/profile" component={Profile3D} />
+      <ProtectedRoute path="/profile/edit" component={ProfileEdit} />
+      <ProtectedRoute path="/product/new" component={UploadProduct} />
+      <ProtectedRoute path="/publish" component={SimplePublish} />
+      <ProtectedRoute path="/direct-publish" component={DirectPublish} />
+      
+      {/* Fallback route */}
       <Route component={NotFound} />
     </Switch>
   );
@@ -38,9 +47,11 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <Toaster />
-        <Router />
-        <BottomNav />
+        <AuthProvider>
+          <Toaster />
+          <Router />
+          <BottomNav />
+        </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );

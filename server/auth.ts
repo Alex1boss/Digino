@@ -7,24 +7,25 @@ import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 import { db } from "./db";
 import { storage } from "./storage";
-import { User } from "@shared/schema";
+// Don't import the User type as we're redefining it in the Express namespace
+// import { User } from "@shared/schema";
 import { pool } from "./db";
 
 // Extend Express.User with our application's User type
 declare global {
   namespace Express {
-    // Use the User type from our schema
+    // Use the User type from our schema, but make it compatible with our database model
     interface User {
       id: number;
       username: string;
-      email?: string;
       password: string;
-      fullName?: string;
-      avatarUrl?: string;
-      bio?: string;
-      role?: string;
-      createdAt?: Date;
-      updatedAt?: Date;
+      email: string | null;
+      fullName: string | null;
+      avatarUrl: string | null;
+      bio: string | null;
+      role: "user" | "admin" | "seller" | null;
+      createdAt: Date | null;
+      updatedAt: Date | null;
     }
   }
 }
@@ -166,7 +167,7 @@ export function setupAuth(app: Express) {
 
   // Login
   app.post("/api/login", (req: Request, res: Response, next: NextFunction) => {
-    passport.authenticate("local", (err: Error, user: User, info: any) => {
+    passport.authenticate("local", (err: Error, user: Express.User | false, info: any) => {
       if (err) {
         return next(err);
       }
@@ -204,7 +205,7 @@ export function setupAuth(app: Express) {
     }
     
     // Return user info without password
-    const { password, ...userInfo } = req.user as User;
+    const { password, ...userInfo } = req.user as Express.User;
     res.json(userInfo);
   });
 }
