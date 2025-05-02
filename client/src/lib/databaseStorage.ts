@@ -122,3 +122,27 @@ export async function fetchProductsByAuthor(authorId: number): Promise<Product[]
   
   return response.json();
 }
+
+/**
+ * Save a product draft to the database
+ * This creates a product with isPublished=false instead of using localStorage
+ */
+export async function saveProductDraft(draftData: Partial<Product>): Promise<Product> {
+  // Make sure the draft is marked as unpublished
+  const productDraft = {
+    ...draftData,
+    isPublished: false
+  };
+  
+  // Use the existing createProduct function but mark it as a draft
+  return await createProduct(productDraft);
+}
+
+/**
+ * Fetch all draft products for a user
+ */
+export async function fetchUserDrafts(userId: number): Promise<Product[]> {
+  // We can reuse the fetchProductsByAuthor function but filter for unpublished products
+  const products = await fetchProductsByAuthor(userId);
+  return products.filter(product => !product.isPublished);
+}

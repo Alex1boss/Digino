@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "../components/Navbar";
 import { 
@@ -284,6 +284,28 @@ export default function Sell() {
     productIconRef.current?.click();
   };
   
+  // Load draft data from database on initial render
+  useEffect(() => {
+    const loadDrafts = async () => {
+      try {
+        // Import the user drafts loader function
+        const { fetchUserDrafts } = await import('../lib/databaseStorage');
+        
+        // Fetch drafts for user ID 1 (in a real app, get this from auth state)
+        const drafts = await fetchUserDrafts(1);
+        console.log("Loaded drafts from database:", drafts);
+        
+        // Here you could show a UI that lets users select from their drafts
+        // For now we'll just log them to the console
+      } catch (error) {
+        console.error("Error loading drafts:", error);
+      }
+    };
+    
+    // Call the async function
+    loadDrafts();
+  }, []);
+  
   // Simulate file upload with progress
   const simulateFileUpload = () => {
     if (selectedFiles.length === 0) return;
@@ -433,27 +455,39 @@ export default function Sell() {
     }, 50);
   };
   
-  // Handle save draft
-  const handleSaveDraft = () => {
+  // Handle save draft - async version to use database
+  const handleSaveDraft = async () => {
     
     setIsSaving(true);
     
-    // Save the current form data to localStorage as a draft
-    const draft = {
-      id: `draft-${Date.now()}`,
-      date: new Date().toISOString(),
-      data: formData
-    };
-    
-    // Get existing drafts and add this one
-    const existingDrafts = JSON.parse(localStorage.getItem('productDrafts') || '[]');
-    localStorage.setItem('productDrafts', JSON.stringify([...existingDrafts, draft]));
-    
-    // Simulate saving process
-    setTimeout(() => {
+    try {
+      // Import the saveProductDraft function dynamically to avoid circular imports
+      const { saveProductDraft } = await import('../lib/databaseStorage');
+      
+      // Create product draft object for database
+      const draftProduct: any = {
+        name: formData.title || "Untitled Draft Product",
+        description: formData.description || "Draft description",
+        price: parseFloat(formData.price) || 29.99,
+        currency: "USD",
+        category: "Digital Assets" as "Digital Assets", // Type assertion to match enum
+        licenseType: "Standard" as "Standard", // Type assertion to match enum
+        coverImage: productImages.length > 0 ? productImages[0] : "", 
+        imageUrl: productImages.length > 0 ? productImages[0] : "",
+        productImages: formData.productImages,
+        authorId: 1, // Default user ID - in a real app, get this from auth state
+        iconName: formData.iconName || "cpu",
+        customIcon: formData.customIcon || "",
+        isPublished: false, // Mark as draft/unpublished
+      };
+      
+      // Save to database
+      const savedDraft = await saveProductDraft(draftProduct);
+      console.log("Draft saved to database:", savedDraft);
+      
       setIsSaving(false);
       
-      // Use custom toast instead of alert
+      // Show success toast
       const toast = document.createElement('div');
       toast.style.position = 'fixed';
       toast.style.bottom = '20px';
@@ -475,7 +509,33 @@ export default function Sell() {
         toast.style.opacity = '0';
         setTimeout(() => document.body.removeChild(toast), 300);
       }, 2000);
-    }, 1500);
+    } catch (error) {
+      console.error("Error saving draft:", error);
+      setIsSaving(false);
+      
+      // Show error toast
+      const errorToast = document.createElement('div');
+      errorToast.style.position = 'fixed';
+      errorToast.style.bottom = '20px';
+      errorToast.style.right = '20px';
+      errorToast.style.backgroundColor = '#ef4444';
+      errorToast.style.color = 'white';
+      errorToast.style.padding = '10px 16px';
+      errorToast.style.borderRadius = '4px';
+      errorToast.style.zIndex = '9999';
+      errorToast.style.transition = 'opacity 0.3s ease';
+      errorToast.style.opacity = '0';
+      errorToast.style.display = 'flex';
+      errorToast.style.alignItems = 'center';
+      errorToast.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>Failed to save draft!';
+      
+      document.body.appendChild(errorToast);
+      setTimeout(() => { errorToast.style.opacity = '1'; }, 10);
+      setTimeout(() => {
+        errorToast.style.opacity = '0';
+        setTimeout(() => document.body.removeChild(errorToast), 300);
+      }, 2000);
+    }
   };
   
   // Handle preview function has been removed and replaced with inline implementation
