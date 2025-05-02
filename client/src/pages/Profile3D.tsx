@@ -48,6 +48,9 @@ export default function Profile3D() {
   const [activeTab, setActiveTab] = useState("products");
   const profileRef = useRef<HTMLDivElement>(null);
   
+  // Get authentication state
+  const { user: authUser, isLoading: isAuthLoading } = useAuth();
+  
   // For parallax scrolling effect
   const { scrollY } = useScroll();
   const backgroundY = useTransform(scrollY, [0, 500], [0, 150]);
@@ -59,13 +62,21 @@ export default function Profile3D() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Get authenticated user data
-  const { user: authUser, isLoading: isAuthLoading } = useAuth();
-
   // Default badges for all users
   const defaultBadges = [
     { name: "Verified User", icon: Shield, color: "#0056D2" }
   ];
+
+  // Get user's specific products
+  const { data: userProducts = [], isLoading: userProductsLoading } = useQuery<Product[]>({
+    queryKey: ['/api/user/products'],
+    enabled: !!authUser, // Only run this query if the user is authenticated
+  });
+
+  // Placeholder data for purchases and saved items
+  const userPurchases: Product[] = [];
+  const userSaved: Product[] = [];
+  const isLoading = userProductsLoading;
 
   // Define user profile data based on auth user
   const user = authUser ? {
@@ -82,7 +93,7 @@ export default function Profile3D() {
       month: 'long'
     }) : "Recently",
     stats: {
-      products: 0,
+      products: userProducts.length,
       sold: 0,
       followers: 0,
       following: 0,
@@ -93,16 +104,6 @@ export default function Profile3D() {
       { action: "Joined the platform", time: "Recently", link: "#" }
     ]
   } : null;
-
-  // Get products data
-  const { data: products = [], isLoading } = useQuery<Product[]>({
-    queryKey: ['/api/products'],
-  });
-
-  // Filter products for this user
-  const userProducts = products.slice(0, 6);
-  const userPurchases = products.slice(2, 5);
-  const userSaved = products.slice(1, 4);
 
   // Show loading state while auth is loading
   if (isAuthLoading) {
@@ -264,15 +265,23 @@ export default function Profile3D() {
                     </div>
                     <div className="flex items-center gap-2 text-white/70">
                       <Globe size={16} className="text-[#00C49A]" />
-                      <a href={`https://${user.website}`} target="_blank" rel="noopener" className="hover:text-[#00C49A] transition-colors">
-                        {user.website}
-                      </a>
+                      {user.website ? (
+                        <a href={`https://${user.website}`} target="_blank" rel="noopener" className="hover:text-[#00C49A] transition-colors">
+                          {user.website}
+                        </a>
+                      ) : (
+                        <span className="text-white/40">No website</span>
+                      )}
                     </div>
                     <div className="flex items-center gap-2 text-white/70">
                       <Mail size={16} className="text-[#00C49A]" />
-                      <a href={`mailto:${user.email}`} className="hover:text-[#00C49A] transition-colors">
-                        {user.email}
-                      </a>
+                      {user.email ? (
+                        <a href={`mailto:${user.email}`} className="hover:text-[#00C49A] transition-colors">
+                          {user.email}
+                        </a>
+                      ) : (
+                        <span className="text-white/40">No email</span>
+                      )}
                     </div>
                     <div className="flex items-center gap-2 text-white/70">
                       <Calendar size={16} className="text-[#00C49A]" />
@@ -288,7 +297,7 @@ export default function Profile3D() {
                     <StatsCard3D title="Following" value={user.stats.following} color="#4F46E5" />
                     <StatsCard3D 
                       title="Rating" 
-                      value={user.stats.rating}
+                      value={user.stats.rating.toString()} 
                       color="#FFD700" 
                     />
                   </div>
@@ -369,8 +378,8 @@ export default function Profile3D() {
                 <div className="p-4">
                   <div className="flex justify-between mb-2">
                     <div>
-                      <span className="text-[#00C49A] font-semibold">Level 4: Enterprise Seller</span>
-                      <p className="text-sm text-white/60">72% progress to Level 5</p>
+                      <span className="text-[#00C49A] font-semibold">Level 1: Creator</span>
+                      <p className="text-sm text-white/60">Progress to Level 2</p>
                     </div>
                     <div className="text-right">
                       <span className="text-white font-semibold">72 / 100</span>
@@ -437,13 +446,13 @@ export default function Profile3D() {
 
                 {isLoading ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {[...Array(6)].map((_, i) => (
+                    {[...Array(3)].map((_, i) => (
                       <Card3D key={i} className="h-72">
                         <div className="h-full animate-pulse" />
                       </Card3D>
                     ))}
                   </div>
-                ) : (
+                ) : userProducts.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {userProducts.map((product, index) => (
                       <motion.div
@@ -456,16 +465,25 @@ export default function Profile3D() {
                       </motion.div>
                     ))}
                   </div>
+                ) : (
+                  <Card3D className="p-8 text-center">
+                    <div className="flex flex-col items-center gap-4">
+                      <div className="w-16 h-16 bg-[#0056D2]/10 rounded-full flex items-center justify-center">
+                        <Package className="h-8 w-8 text-[#0056D2]" />
+                      </div>
+                      <h3 className="text-xl font-bold">No Products Yet</h3>
+                      <p className="text-white/60 max-w-md mx-auto mb-4">You haven't created any products yet. Start selling by creating your first digital product.</p>
+                      <Link href="/product/new">
+                        <Button className="bg-gradient-to-r from-[#0056D2] to-[#00C49A] hover:opacity-90 text-white">
+                          Create Your First Product
+                        </Button>
+                      </Link>
+                    </div>
+                  </Card3D>
                 )}
-
-                <div className="mt-6 text-center">
-                  <Button variant="outline" className="border-white/10 hover:bg-white/5">
-                    View All Products
-                  </Button>
-                </div>
               </TabsContent>
 
-              {/* Other tabs content */}
+              {/* Other tabs with empty states */}
               <TabsContent value="purchases" className="mt-0">
                 <div className="flex items-center justify-between mb-6">
                   <motion.h2 
@@ -478,33 +496,25 @@ export default function Profile3D() {
                   </motion.h2>
                   <Link href="/explore">
                     <Button variant="outline" className="border-white/10 hover:bg-white/5">
-                      Browse More
+                      Browse Marketplace
                     </Button>
                   </Link>
                 </div>
 
-                {isLoading ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {[...Array(3)].map((_, i) => (
-                      <Card3D key={i} className="h-72">
-                        <div className="h-full animate-pulse" />
-                      </Card3D>
-                    ))}
+                <Card3D className="p-8 text-center">
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="w-16 h-16 bg-[#00C49A]/10 rounded-full flex items-center justify-center">
+                      <ShoppingBag className="h-8 w-8 text-[#00C49A]" />
+                    </div>
+                    <h3 className="text-xl font-bold">No Purchases Yet</h3>
+                    <p className="text-white/60 max-w-md mx-auto mb-4">You haven't purchased any products yet. Explore our marketplace to find amazing digital products.</p>
+                    <Link href="/explore">
+                      <Button className="bg-gradient-to-r from-[#0056D2] to-[#00C49A] hover:opacity-90 text-white">
+                        Explore Marketplace
+                      </Button>
+                    </Link>
                   </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {userPurchases.map((product, index) => (
-                      <motion.div
-                        key={product.id}
-                        initial={{ opacity: 0, y: 50 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: index * 0.1 }}
-                      >
-                        <ProductCard product={product} index={index} />
-                      </motion.div>
-                    ))}
-                  </div>
-                )}
+                </Card3D>
               </TabsContent>
 
               {/* Activity */}
@@ -518,9 +528,6 @@ export default function Profile3D() {
                   >
                     Recent Activity
                   </motion.h2>
-                  <Button variant="outline" className="border-white/10 hover:bg-white/5">
-                    View All
-                  </Button>
                 </div>
 
                 <Card3D 
@@ -548,9 +555,9 @@ export default function Profile3D() {
                           <p className="text-sm text-white/60">{item.time}</p>
                         </div>
                       </div>
-                      <Link href={item.link}>
-                        <Button variant="ghost" size="sm" className="text-[#0056D2]">
-                          <ChevronRight size={16} />
+                      <Link href={item.link || "#"}>
+                        <Button variant="ghost" size="icon" className="text-white/60 hover:text-white">
+                          <ChevronRight size={18} />
                         </Button>
                       </Link>
                     </motion.div>
@@ -558,7 +565,7 @@ export default function Profile3D() {
                 </Card3D>
               </TabsContent>
 
-              {/* Stats */}
+              {/* Stats Tab */}
               <TabsContent value="stats" className="mt-0">
                 <div className="flex items-center justify-between mb-6">
                   <motion.h2 
@@ -567,122 +574,67 @@ export default function Profile3D() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
                   >
-                    Performance Stats
+                    Account Statistics
                   </motion.h2>
-                  <Button variant="outline" className="border-white/10 hover:bg-white/5">
-                    Download Report
-                  </Button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Earnings Card */}
-                  <Card3D 
-                    className="w-full" 
-                    bgClassName="bg-[#131340]/90 backdrop-blur-sm"
-                  >
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                  <Card3D>
                     <div className="p-6">
-                      <div className="flex justify-between items-center mb-4">
-                        <h3 className="font-bold text-lg">Monthly Earnings</h3>
-                        <Button variant="ghost" size="sm" className="text-[#0056D2]">
-                          View Details
-                        </Button>
-                      </div>
-                      
-                      <motion.div 
-                        className="flex items-end gap-4"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: 0.2 }}
-                      >
-                        <div className="text-3xl font-bold">$12,480</div>
-                        <div className="text-[#00C49A] text-sm font-medium flex items-center">
-                          ↑ 24% from last month
+                      <h3 className="text-lg font-medium mb-4 flex items-center gap-2">
+                        <Zap size={18} className="text-[#00C49A]" />
+                        <span>Account Overview</span>
+                      </h3>
+                      <div className="space-y-4">
+                        <div>
+                          <div className="flex justify-between text-sm mb-1">
+                            <span className="text-white/70">Account Type</span>
+                            <span className="font-medium">{user.role}</span>
+                          </div>
+                          <div className="flex justify-between text-sm mb-1">
+                            <span className="text-white/70">Joined</span>
+                            <span className="font-medium">{user.joinDate}</span>
+                          </div>
+                          <div className="flex justify-between text-sm mb-1">
+                            <span className="text-white/70">Total Products</span>
+                            <span className="font-medium">{user.stats.products}</span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-white/70">Total Sales</span>
+                            <span className="font-medium">{user.stats.sold}</span>
+                          </div>
                         </div>
-                      </motion.div>
-                      
-                      <div className="mt-6 grid grid-cols-3 gap-4">
-                        <motion.div 
-                          className="bg-white/5 rounded-lg p-3"
-                          initial={{ opacity: 0, scale: 0.9 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ duration: 0.3, delay: 0.3 }}
-                          whileHover={{ scale: 1.05, backgroundColor: "rgba(255, 255, 255, 0.08)" }}
-                        >
-                          <div className="text-sm text-white/60">Today</div>
-                          <div className="font-bold">$580</div>
-                        </motion.div>
-                        <motion.div 
-                          className="bg-white/5 rounded-lg p-3"
-                          initial={{ opacity: 0, scale: 0.9 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ duration: 0.3, delay: 0.4 }}
-                          whileHover={{ scale: 1.05, backgroundColor: "rgba(255, 255, 255, 0.08)" }}
-                        >
-                          <div className="text-sm text-white/60">This Week</div>
-                          <div className="font-bold">$3,240</div>
-                        </motion.div>
-                        <motion.div 
-                          className="bg-white/5 rounded-lg p-3"
-                          initial={{ opacity: 0, scale: 0.9 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ duration: 0.3, delay: 0.5 }}
-                          whileHover={{ scale: 1.05, backgroundColor: "rgba(255, 255, 255, 0.08)" }}
-                        >
-                          <div className="text-sm text-white/60">This Month</div>
-                          <div className="font-bold">$12,480</div>
-                        </motion.div>
                       </div>
                     </div>
                   </Card3D>
 
-                  {/* Customer Rating Card */}
-                  <Card3D 
-                    className="w-full" 
-                    bgClassName="bg-[#131340]/90 backdrop-blur-sm"
-                  >
+                  <Card3D>
                     <div className="p-6">
-                      <div className="flex justify-between items-center mb-4">
-                        <h3 className="font-bold text-lg">Customer Ratings</h3>
-                        <Button variant="ghost" size="sm" className="text-[#0056D2]">
-                          View All
-                        </Button>
-                      </div>
-                      
-                      <div className="flex items-center gap-6">
-                        <motion.div 
-                          className="text-center"
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ duration: 0.5, delay: 0.3 }}
-                        >
-                          <div className="text-4xl font-bold flex items-center justify-center">
-                            {user.stats.rating}
-                            <Star size={24} className="text-yellow-400 ml-1" fill="currentColor" />
+                      <h3 className="text-lg font-medium mb-4 flex items-center gap-2">
+                        <TrendingUp size={18} className="text-[#0056D2]" />
+                        <span>Engagement</span>
+                      </h3>
+                      <div className="space-y-4">
+                        <div>
+                          <div className="flex justify-between text-sm mb-1">
+                            <span className="text-white/70">Profile Views</span>
+                            <span className="font-medium">0</span>
                           </div>
-                          <div className="text-sm text-white/60 mt-1">Overall Rating</div>
-                        </motion.div>
-                        
-                        <div className="flex-1 space-y-2">
-                          {[5, 4, 3, 2, 1].map((star, index) => (
-                            <motion.div 
-                              key={star} 
-                              className="flex items-center gap-2"
-                              initial={{ opacity: 0, x: -20 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ duration: 0.3, delay: 0.3 + index * 0.1 }}
-                            >
-                              <div className="text-sm w-2">{star}</div>
-                              <Star size={12} className="text-yellow-400" fill="currentColor" />
-                              <div className="h-1.5 bg-white/10 flex-1 rounded-full overflow-hidden">
-                                <motion.div 
-                                  className="h-full bg-yellow-400 rounded-full"
-                                  initial={{ width: 0 }}
-                                  animate={{ width: `${100 - (5 - star) * 20 - Math.floor(Math.random() * 10)}%` }}
-                                  transition={{ duration: 1, delay: 0.5 + index * 0.1, ease: "easeOut" }}
-                                />
-                              </div>
-                            </motion.div>
-                          ))}
+                          <div className="flex justify-between text-sm mb-1">
+                            <span className="text-white/70">Followers</span>
+                            <span className="font-medium">{user.stats.followers}</span>
+                          </div>
+                          <div className="flex justify-between text-sm mb-1">
+                            <span className="text-white/70">Following</span>
+                            <span className="font-medium">{user.stats.following}</span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-white/70">Rating</span>
+                            <span className="font-medium flex items-center">
+                              {user.stats.rating}
+                              <Star size={14} className="text-yellow-400 ml-1" fill="currentColor" />
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </div>

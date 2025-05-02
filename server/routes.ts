@@ -284,6 +284,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch author products" });
     }
   });
+  
+  // Get products for the currently authenticated user
+  app.get("/api/user/products", isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = req.user!.id;
+      const products = await storage.getProductsByAuthor(userId);
+      
+      // Transform the products to include the Icon component reference
+      const transformedProducts = products.map(product => ({
+        ...product,
+        Icon: getIconComponent(product.iconName || "cpu")
+      }));
+      
+      res.json(transformedProducts);
+    } catch (error) {
+      console.error("Error fetching current user products:", error);
+      res.status(500).json({ message: "Failed to fetch your products" });
+    }
+  });
 
   const httpServer = createServer(app);
   return httpServer;
