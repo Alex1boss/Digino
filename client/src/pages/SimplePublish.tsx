@@ -39,27 +39,32 @@ export default function SimplePublish() {
       
       console.log("Sending product data:", productData);
       
-      const response = await fetch('/api/products', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(productData),
-      });
+      // Using XMLHttpRequest instead of fetch for more detailed error reporting
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', '/api/products', true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
       
-      const responseText = await response.text();
-      console.log("Response status:", response.status);
-      console.log("Response text:", responseText);
+      xhr.onload = function() {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          console.log("Response received:", xhr.responseText);
+          setSuccess(true);
+        } else {
+          console.error("Error response:", xhr.status, xhr.statusText, xhr.responseText);
+          setError(`Server error: ${xhr.status} ${xhr.statusText}`);
+        }
+        setIsSubmitting(false);
+      };
       
-      if (!response.ok) {
-        throw new Error(`Failed to create product: ${response.status} ${response.statusText}`);
-      }
+      xhr.onerror = function() {
+        console.error("Network error occurred");
+        setError("Network error - check your connection");
+        setIsSubmitting(false);
+      };
       
-      setSuccess(true);
+      xhr.send(JSON.stringify(productData));
     } catch (err) {
-      console.error("Error creating product:", err);
+      console.error("Error in submit handler:", err);
       setError(err instanceof Error ? err.message : "Unknown error occurred");
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -109,6 +114,24 @@ export default function SimplePublish() {
             </div>
           ) : (
             <form onSubmit={handleSubmit}>
+              <div className="mb-4">
+                <label className="block text-gray-700 mb-2">Product Data</label>
+                <div className="bg-gray-100 p-3 rounded">
+                  <pre className="text-xs break-all whitespace-pre-wrap">
+                    {JSON.stringify({
+                      name: formData.title,
+                      description: formData.description,
+                      price: parseFloat(formData.price) || 29.99,
+                      category: formData.category,
+                      iconName: formData.iconName,
+                      tags: formData.tags,
+                      licenseType: formData.license,
+                      authorId: 1
+                    }, null, 2)}
+                  </pre>
+                </div>
+              </div>
+              
               <button
                 type="submit"
                 disabled={isSubmitting}
@@ -116,6 +139,15 @@ export default function SimplePublish() {
               >
                 {isSubmitting ? "Publishing..." : "Publish Product"}
               </button>
+              
+              <div className="mt-4">
+                <p className="text-sm text-gray-500">Connection Information:</p>
+                <div className="bg-gray-100 p-2 rounded text-xs mt-1">
+                  <p>API Endpoint: /api/products</p>
+                  <p>Method: POST</p>
+                  <p>Content-Type: application/json</p>
+                </div>
+              </div>
             </form>
           )}
         </div>
