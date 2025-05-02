@@ -12,14 +12,29 @@ interface ProductDetailProps {
   onClose: () => void;
 }
 
-// Sample product images for demonstration
-const demoImages = [
-  "https://images.unsplash.com/photo-1522542550221-31fd19575a2d?q=80&w=1000&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1633356122102-3fe601e05bd2?q=80&w=1000&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1581287053822-fd7bf4f4bfec?q=80&w=1000&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1522199755839-a2bacb67c546?q=80&w=1000&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1579403124614-197f69d8187b?q=80&w=1000&auto=format&fit=crop",
-];
+// Function to get all available product images
+const getProductImages = (product: Product): string[] => {
+  const images: string[] = [];
+  
+  // Add main cover image if available
+  if (product.coverImage) {
+    images.push(product.coverImage);
+  }
+  
+  // Add any productImages array items
+  if (product.productImages && Array.isArray(product.productImages)) {
+    // Filter out any that match the cover image to avoid duplicates
+    const additionalImages = product.productImages.filter(img => img !== product.coverImage);
+    images.push(...additionalImages);
+  }
+  
+  // Add imageUrl if it exists and is different
+  if (product.imageUrl && !images.includes(product.imageUrl)) {
+    images.push(product.imageUrl);
+  }
+  
+  return images;
+};
 
 export default function ProductDetail({ product, onClose }: ProductDetailProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -67,7 +82,9 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
   };
 
   const categoryColors = getCategoryColor(product.category || undefined);
-  const images = product.imageUrl ? [product.imageUrl, ...demoImages.slice(0, 4)] : demoImages;
+  const productImages = getProductImages(product);
+  // Use real product images if available, otherwise show image icon
+  const images = productImages.length > 0 ? productImages : [];
 
   const nextImage = () => {
     if (isAnimating) return;

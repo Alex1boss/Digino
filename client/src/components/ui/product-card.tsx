@@ -56,10 +56,10 @@ export function ProductCard({ product, index }: ProductCardProps) {
   // Check if this is verified
   const isVerified = index % 2 === 0;
 
-  // Handle the background image
-  const hasImage = product.coverImage && product.coverImage !== "/path/to/placeholder.jpg";
-  const productImage = hasImage ? product.coverImage : null;
-  const imageUrl = product.imageUrl && product.imageUrl !== "/path/to/placeholder.jpg" ? product.imageUrl : null;
+  // Handle the product image more effectively
+  const hasImage = product.coverImage || product.imageUrl || (product.productImages && product.productImages.length > 0);
+  const productImage = product.coverImage || (product.productImages && product.productImages.length > 0 ? product.productImages[0] : null);
+  const imageUrl = product.imageUrl;
 
   return (
     <motion.div
@@ -75,14 +75,24 @@ export function ProductCard({ product, index }: ProductCardProps) {
       {/* Product image/preview area */}
       {(productImage || imageUrl) ? (
         <div 
-          className="h-40 w-full bg-white relative overflow-hidden"
+          className="h-40 w-full bg-gray-900 relative overflow-hidden flex items-center justify-center"
           style={{ 
-            backgroundImage: `url(${productImage || imageUrl})`,
             backgroundSize: 'contain',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
           }}
         >
+          <img 
+            src={productImage || imageUrl || ''} 
+            alt={product.name}
+            className="max-h-40 max-w-full object-contain"
+            loading="lazy"
+            onError={(e) => {
+              // Fallback to icon on image error
+              e.currentTarget.style.display = 'none';
+              e.currentTarget.parentElement?.classList.add('bg-gradient-to-r', 'from-gray-900', 'to-black');
+            }}
+          />
           {/* Action buttons */}
           <div className="absolute bottom-3 right-3 flex space-x-2">
             <Button 

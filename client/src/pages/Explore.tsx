@@ -373,7 +373,7 @@ export default function Explore() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
   
-  // Fetch products from the database via API
+  // Fetch products from the database via API with optimized loading
   const { data: products, isLoading } = useQuery({
     queryKey: ['/api/products'],
     queryFn: async () => {
@@ -382,19 +382,33 @@ export default function Explore() {
       const data = await res.json();
       console.log("Products loaded from database:", data.length);
       
-      // Make sure every product has a valid Icon component and other required properties
-      return data.map((product: any) => ({
-        ...product,
-        Icon: getIconComponent(product.iconName || 'cpu'),
-        // Ensure these properties exist for consistent UI
-        currency: product.currency || "USD",
-        rating: product.rating || 0,
-        reviews: product.reviews || 0,
-        sales: product.sales || 0,
-        // Make sure coverImage is set if we have productImages
-        coverImage: product.coverImage || (product.productImages && product.productImages.length > 0 ? product.productImages[0] : "")
-      }));
-    }
+      // Process products in chunks to avoid UI freezing with large datasets
+      const processedProducts: Product[] = [];
+      const chunkSize = 10;
+      
+      for (let i = 0; i < data.length; i += chunkSize) {
+        const chunk = data.slice(i, i + chunkSize);
+        
+        // Process each chunk
+        const processedChunk = chunk.map((product: any) => ({
+          ...product,
+          Icon: getIconComponent(product.iconName || 'cpu'),
+          // Ensure these properties exist for consistent UI
+          currency: product.currency || "USD",
+          rating: product.rating || 0,
+          reviews: product.reviews || 0,
+          sales: product.sales || 0,
+          // Make sure coverImage is set if we have productImages
+          coverImage: product.coverImage || (product.productImages && product.productImages.length > 0 
+            ? product.productImages[0] : null)
+        }));
+        
+        processedProducts.push(...processedChunk);
+      }
+      
+      return processedProducts;
+    },
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes to reduce repeated fetches
   });
   
   // Filter products based on active filters
