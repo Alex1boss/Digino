@@ -304,7 +304,7 @@ export default function Sell() {
   };
   
   // Product publish handler with proper user feedback
-  const handlePublish = () => {
+  const handlePublish = async () => {
     // Show a custom publication dialog instead of using alert
     const publishDialog = document.createElement('div');
     publishDialog.style.position = 'fixed';
@@ -349,7 +349,7 @@ export default function Sell() {
     // Animate progress bar
     let progress = 0;
     const progressBar = document.getElementById('publish-progress-bar');
-    const progressInterval = setInterval(() => {
+    const progressInterval = setInterval(async () => {
       progress += 5;
       if (progressBar) progressBar.style.width = `${progress}%`;
       
@@ -357,37 +357,31 @@ export default function Sell() {
         clearInterval(progressInterval);
         
         try {
-          // Create product object
-          const newProduct = {
-            id: Date.now(),
+          // Import the createProduct function dynamically to avoid circular imports
+          const { createProduct } = await import('../lib/databaseStorage');
+          
+          // Create product object for database with correct types
+          // Use type assertions to match the required enum types
+          const newProduct: any = {
             name: formData.title || "Untitled Product",
             description: formData.description || "No description",
             price: parseFloat(formData.price) || 29.99,
             currency: "USD",
-            category: formData.category || "Digital Assets",
-            rating: 0,
-            reviews: 0,
-            sales: 0,
+            // Use a valid value from the category enum
+            category: "Digital Assets" as "Digital Assets", // Type assertion to match enum
+            licenseType: "Standard" as "Standard", // Type assertion to match enum
             coverImage: productImages.length > 0 ? productImages[0] : "", // Use the first image as cover
             imageUrl: productImages.length > 0 ? productImages[0] : "",   // Add imageUrl field for compatibility
             productImages: formData.productImages, // Store all product images
-            author: {
-              id: 1,
-              name: "Current User",
-              avatar: "/avatar.jpg"
-            },
-            createdAt: new Date().toISOString(),
-            iconName: formData.iconName || "Zap",
+            authorId: 1, // Default user ID - in a real app, get this from auth state
+            iconName: formData.iconName || "cpu",
             customIcon: formData.customIcon || "",
+            isPublished: true,
           };
           
-          // Save to localStorage
-          const productsString = localStorage.getItem('products') || '[]';
-          const products = JSON.parse(productsString);
-          products.push(newProduct);
-          localStorage.setItem('products', JSON.stringify(products));
-          
-          console.log("Products loaded from localStorage:", products);
+          // Save to database via API
+          const createdProduct = await createProduct(newProduct);
+          console.log("Product created in database:", createdProduct);
           
           // Show success message
           dialogContent.innerHTML = `
