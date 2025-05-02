@@ -26,7 +26,11 @@ import {
   Grid3X3,
   ShoppingCart,
   Heart,
-  X as XIcon
+  X as XIcon,
+  User,
+  Package,
+  Settings,
+  LogOut
 } from "lucide-react";
 import { cn } from "../lib/utils";
 import { Button } from "../components/ui/button";
@@ -34,6 +38,14 @@ import { Input } from "../components/ui/input";
 import { Badge } from "../components/ui/badge";
 import { Switch } from "../components/ui/switch";
 import { Tabs, TabsList, TabsTrigger } from "../components/ui/tabs";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../components/ui/dropdown-menu";
 import { Label } from "../components/ui/label";
 import { Slider } from "../components/ui/slider";
 import { Avatar3D } from "../components/ui/3d-avatar";
@@ -504,7 +516,7 @@ export default function Explore() {
           {/* Logo and nav */}
           <div className="flex items-center space-x-8">
             <div className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-blue-500">
-              3D Marketplace
+              Digital Marketplace
             </div>
             
             <nav className="hidden md:flex space-x-6">
@@ -558,14 +570,53 @@ export default function Explore() {
               <ShoppingCart className="w-5 h-5" />
             </Button>
             
+            {/* Profile dropdown */}
             <div className="hidden md:flex items-center gap-2">
-              <motion.div 
-                className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center text-white font-semibold"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                JD
-              </motion.div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="p-0 h-auto">
+                    <div className="flex items-center gap-2">
+                      <motion.div 
+                        className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center text-white font-semibold"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        JD
+                      </motion.div>
+                      <div className="flex flex-col items-start">
+                        <span className="text-sm font-medium text-white">John Doe</span>
+                        <span className="text-xs text-gray-400">Premium Member</span>
+                      </div>
+                      <ChevronDown className="h-4 w-4 text-gray-400" />
+                    </div>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Profile</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Package className="mr-2 h-4 w-4" />
+                    <span>My Products</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Heart className="mr-2 h-4 w-4" />
+                    <span>Wishlist</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Settings</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>
