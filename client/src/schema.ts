@@ -62,6 +62,7 @@ export interface Product extends ProductDB {
   sales?: number;
   customIcon?: string;
   productImages?: string[];
+  tags?: string;
   author?: {
     id: number;
     name: string;

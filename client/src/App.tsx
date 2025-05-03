@@ -16,6 +16,7 @@ import ProductDetailPage from "./pages/ProductDetail";
 import BottomNav from "./components/BottomNav";
 import Explore from "./pages/Explore";
 import AuthPage from "./pages/AuthPage";
+import BuyingPage from "./pages/BuyingPage";
 import { AuthProvider } from "./hooks/use-auth";
 import { ProtectedRoute } from "./components/ui/protected-route";
 
@@ -27,6 +28,7 @@ function Router() {
       <Route path="/explore" component={Explore} />
       <Route path="/product/:id" component={ProductDetailPage} />
       <Route path="/auth" component={AuthPage} />
+      <Route path="/buying" component={BuyingPage} />
       
       {/* Protected routes that require authentication */}
       <ProtectedRoute path="/buy" component={Buy} />
