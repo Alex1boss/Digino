@@ -56,7 +56,7 @@ import BottomNav from "../components/BottomNav";
 import ProductDetail from "../components/ui/ProductDetail";
 
 // Helper function to safely render icons from product
-function renderProductIcon(product: Product, props: React.ComponentProps<ElementType> = {}) {
+function renderProductIcon(product: Product, props: any = {}) {
   // If product has a custom icon, use that instead
   if (product.customIcon) {
     return (
@@ -71,11 +71,9 @@ function renderProductIcon(product: Product, props: React.ComponentProps<Element
     );
   }
   
-  // Otherwise fallback to standard icon component
-  return React.createElement(
-    product.Icon || Cpu, // Fallback to Cpu if Icon is undefined
-    props
-  );
+  // Use Cpu as a consistent icon
+  const IconComponent = Cpu;
+  return <IconComponent {...props} />;
 }
 
 // Dynamic 3D category card
