@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -605,7 +605,7 @@ export default function BuyingPage() {
                     >
                       <div className="p-4 text-center">
                         <div className="w-12 h-12 mx-auto rounded-full bg-gradient-to-br from-[#00C49A]/20 to-[#7C96FF]/20 flex items-center justify-center mb-2">
-                          <category.icon size={24} className="text-white" />
+                          <Laptop size={24} className="text-white" />
                         </div>
                         <h3 className="font-medium mb-1">{category.name}</h3>
                         <div className="text-xs text-white/60">{category.count} products</div>
@@ -708,7 +708,7 @@ export default function BuyingPage() {
                 className="text-center"
               >
                 <div className="w-14 h-14 mx-auto rounded-full bg-gradient-to-br from-[#00C49A]/20 to-[#7C96FF]/20 flex items-center justify-center mb-4">
-                  <item.icon size={28} className="text-[#00C49A]" />
+                  {React.createElement(item.icon, { size: 28, className: "text-[#00C49A]" })}
                 </div>
                 <h3 className="font-semibold mb-2">{item.title}</h3>
                 <p className="text-sm text-white/60">{item.description}</p>
