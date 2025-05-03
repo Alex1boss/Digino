@@ -106,7 +106,7 @@ export default function BuyingPage() {
     currency: product.currency || "USD",
     badges: [Math.random() > 0.5 ? "AI Favorite" : "Top Seller", Math.random() > 0.7 ? "Limited Deal" : ""],
     tags: (product.tags?.split(",") || ["ai", "digital"]).map((tag: string) => tag.trim()),
-    icon: product.Icon || Laptop,
+    icon: Laptop, // Use Laptop icon for consistency
     seller: {
       name: product.author?.name || "Innventa Creator",
       verified: true,
@@ -466,7 +466,7 @@ export default function BuyingPage() {
                         {/* Product Icon */}
                         <div className="relative mb-4">
                           <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#00C49A]/20 to-[#7C96FF]/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                            <product.icon 
+                            <Laptop 
                               size={30} 
                               className="text-white group-hover:text-[#00C49A] transition-colors" 
                             />
