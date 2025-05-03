@@ -7,13 +7,15 @@ interface Card3DProps {
   className?: string;
   bgClassName?: string;
   glowClassName?: string;
+  onClick?: () => void;
 }
 
 export function Card3D({
   children,
   className,
   bgClassName = "from-purple-500/5 via-transparent to-blue-500/5",
-  glowClassName = "from-purple-500/10 via-transparent to-blue-500/10"
+  glowClassName = "from-purple-500/10 via-transparent to-blue-500/10",
+  onClick
 }: Card3DProps) {
   const [rotateX, setRotateX] = useState(0);
   const [rotateY, setRotateY] = useState(0);
@@ -69,6 +71,7 @@ export function Card3D({
       onMouseMove={handleMouseMove}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      onClick={onClick}
     >
       {/* Background gradient with glow */}
       <div 

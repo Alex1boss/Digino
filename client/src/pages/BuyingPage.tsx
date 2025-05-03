@@ -105,7 +105,7 @@ export default function BuyingPage() {
     price: product.price || 29.99,
     currency: product.currency || "USD",
     badges: [Math.random() > 0.5 ? "AI Favorite" : "Top Seller", Math.random() > 0.7 ? "Limited Deal" : ""],
-    tags: (product.tags?.split(",") || ["ai", "digital"]).map(tag => tag.trim()),
+    tags: (product.tags?.split(",") || ["ai", "digital"]).map((tag: string) => tag.trim()),
     icon: product.Icon || Laptop,
     seller: {
       name: product.author?.name || "Innventa Creator",
@@ -517,7 +517,7 @@ export default function BuyingPage() {
                         
                         {/* Tags */}
                         <div className="flex flex-wrap gap-2 mb-3">
-                          {product.tags.slice(0, 3).map((tag, i) => (
+                          {product.tags.slice(0, 3).map((tag: string, i: number) => (
                             <span 
                               key={i} 
                               className="text-xs px-2 py-0.5 rounded-full bg-white/5 text-white/60"
