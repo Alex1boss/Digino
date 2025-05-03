@@ -146,6 +146,11 @@ export default function Navbar() {
           }`}>
             Explore
           </Link>
+          <Link href="/buying" className={`font-medium transition-colors duration-200 hover:text-[#0056D2] ${
+            location === "/buying" ? "text-[#0056D2]" : "text-white"
+          }`}>
+            Premium
+          </Link>
           <Link href="/buy" className={`font-medium transition-colors duration-200 hover:text-[#0056D2] ${
             location === "/buy" ? "text-[#0056D2]" : "text-white"
           }`}>
@@ -354,6 +359,9 @@ export default function Navbar() {
               </Link>
               <Link href="/explore" onClick={() => setShowMobileMenu(false)} className="py-2 px-4 rounded-lg hover:bg-white/5 text-white">
                 Explore
+              </Link>
+              <Link href="/buying" onClick={() => setShowMobileMenu(false)} className="py-2 px-4 rounded-lg hover:bg-white/5 text-white">
+                Premium
               </Link>
               <Link href="/buy" onClick={() => setShowMobileMenu(false)} className="py-2 px-4 rounded-lg hover:bg-white/5 text-white">
                 Buy
