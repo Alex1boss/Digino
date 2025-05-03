@@ -5,7 +5,6 @@ import { Toaster } from "./components/ui/toaster";
 import { TooltipProvider } from "./components/ui/tooltip";
 import NotFound from "./pages/not-found";
 import Home from "./pages/Home";
-import Buy from "./pages/Buy";
 import Sell from "./pages/Sell";
 import Profile3D from "./pages/Profile3D";
 import ProfileEdit from "./pages/ProfileEdit";
@@ -31,7 +30,6 @@ function Router() {
       <Route path="/buying" component={BuyingPage} />
       
       {/* Protected routes that require authentication */}
-      <ProtectedRoute path="/buy" component={Buy} />
       <ProtectedRoute path="/sell" component={Sell} />
       <ProtectedRoute path="/profile" component={Profile3D} />
       <ProtectedRoute path="/profile/edit" component={ProfileEdit} />

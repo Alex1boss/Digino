@@ -160,11 +160,20 @@ export function ProductCard({ product, index }: ProductCardProps) {
             <span className="text-xs text-gray-400 ml-1">USD</span>
           </div>
           
-          <Button 
-            className="bg-purple-600 hover:bg-purple-700 text-white rounded-full px-4 py-1"
-          >
-            <ShoppingCart className="w-4 h-4 mr-1.5" /> Add to Cart
-          </Button>
+          <div className="flex space-x-2">
+            <Button 
+              className="bg-purple-600 hover:bg-purple-700 text-white rounded-full px-3 py-1"
+              size="sm"
+            >
+              <ShoppingCart className="w-3.5 h-3.5 mr-1" /> Cart
+            </Button>
+            <Button 
+              className="bg-gradient-to-r from-[#00C49A] to-[#7C96FF] hover:opacity-90 text-white rounded-full px-3 py-1"
+              size="sm"
+            >
+              <Download className="w-3.5 h-3.5 mr-1" /> Buy
+            </Button>
+          </div>
         </div>
       </div>
     </motion.div>
