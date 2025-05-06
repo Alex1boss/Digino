@@ -228,6 +228,27 @@ export default function Buy() {
                   <span>Your payment is protected by PayPal's Buyer Protection Program</span>
                 </div>
                 
+                {/* Direct Buy Now button for improved visibility and access */}
+                <motion.button
+                  onClick={() => {
+                    if (!isPaypalAuthorized) {
+                      setShowAuthDialog(true);
+                    } else {
+                      // Find and trigger the PayPal button
+                      const paypalBtn = document.getElementById('paypal-button');
+                      if (paypalBtn) {
+                        paypalBtn.click();
+                      }
+                    }
+                  }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full py-4 mt-6 rounded-xl font-semibold text-white flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 transition-colors"
+                >
+                  <DollarSign className="w-5 h-5" />
+                  <span>Buy Now - ${product.price || '59.99'}</span>
+                </motion.button>
+                
                 <div className="mt-6 text-center">
                   <p className="text-sm text-gray-500">By completing this purchase, you agree to our <a href="#" className="text-blue-400 hover:underline">Terms of Service</a></p>
                 </div>

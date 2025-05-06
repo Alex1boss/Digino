@@ -315,8 +315,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // PayPal integration routes with enhanced security
   app.use("/paypal", isAuthenticated, addAdminAuthToPayPalRequest);
 
+  // PayPal setup endpoint - required for the PayPal SDK to initialize
   app.get("/paypal/setup", async (req, res) => {
     try {
+      console.log("PayPal setup endpoint called");
       await loadPaypalDefault(req, res);
     } catch (error) {
       console.error("Error loading PayPal setup:", error);
@@ -327,8 +329,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Create PayPal order endpoint
   app.post("/paypal/order", async (req, res) => {
     try {
+      console.log("PayPal order endpoint called with body:", req.body);
+      
       // Validate required fields
       const { intent, amount, currency } = req.body;
       if (!intent || !amount || !currency) {
@@ -349,8 +354,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Capture PayPal order endpoint
   app.post("/paypal/order/:orderID/capture", async (req, res) => {
     try {
+      console.log("PayPal capture endpoint called for orderID:", req.params.orderID);
+      
       // Validate order ID
       const { orderID } = req.params;
       if (!orderID) {
@@ -369,6 +377,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         error: "Payment service temporarily unavailable"
       });
     }
+  });
+  
+  // We'll also add these routes without the /paypal prefix to match the client component
+  app.get("/setup", (req, res) => {
+    console.log("Redirecting /setup to /paypal/setup");
+    req.url = "/paypal/setup";
+    app._router.handle(req, res);
+  });
+  
+  app.post("/order", (req, res) => {
+    console.log("Redirecting /order to /paypal/order");
+    req.url = "/paypal/order";
+    app._router.handle(req, res);
+  });
+  
+  app.post("/order/:orderID/capture", (req, res) => {
+    console.log("Redirecting /order/:orderID/capture to /paypal/order/:orderID/capture");
+    req.url = `/paypal/order/${req.params.orderID}/capture`;
+    app._router.handle(req, res);
   });
 
   const httpServer = createServer(app);
