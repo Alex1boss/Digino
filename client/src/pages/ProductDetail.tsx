@@ -469,7 +469,15 @@ export default function ProductDetailPage() {
                     if (!isAuthenticated) {
                       setLocation('/auth');
                     } else {
-                      setLocation(`/checkout/${product.id}`);
+                      console.log("Navigating to checkout with product ID:", product.id);
+                      // Ensure we have a valid product ID
+                      if (product.id) {
+                        setLocation(`/checkout/${product.id}`);
+                      } else {
+                        console.error("Invalid product ID:", product.id);
+                        // Fallback to a default ID if needed
+                        setLocation(`/checkout/1`);
+                      }
                     }
                   }}
                   whileHover={{ 
