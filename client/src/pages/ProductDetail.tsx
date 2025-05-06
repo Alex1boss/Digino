@@ -20,6 +20,7 @@ export default function ProductDetailPage() {
   const productId = location.split("/").pop() || "";
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [liked, setLiked] = useState(false);
+  const { isAuthenticated } = useAuth();
 
   // Get product details
   const { data: product, isLoading } = useQuery({
