@@ -22,7 +22,7 @@ export default function BottomNav() {
             <span className="text-xs mt-1 font-medium">Explore</span>
           </Link>
           
-          <Link href="/buy" className="flex flex-col items-center">
+          <Link href="/buying" className="flex flex-col items-center">
             <motion.div 
               whileTap={{ scale: 0.9 }}
               className="w-12 h-12 rounded-full bg-[#4F46E5]/10 flex items-center justify-center text-[#4F46E5]"
