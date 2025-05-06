@@ -1,20 +1,25 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useRoute } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
-import { Check, ChevronLeft, DollarSign } from 'lucide-react';
+import { Check, ChevronLeft, DollarSign, Lock } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Card3D } from '@/components/ui/3d-card';
 import { Product } from '@/schema';
 import { motion } from 'framer-motion';
 import PayPalButton from '@/components/PayPalButton';
+import PayPalAuthDialog from '@/components/PayPalAuthDialog';
 import { useAuth } from '@/hooks/use-auth';
+import { useToast } from '@/hooks/use-toast';
 
 export default function CheckoutPage() {
   const [isPaypalReady, setIsPaypalReady] = useState(false);
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const [isPaypalAuthorized, setIsPaypalAuthorized] = useState(false);
   const [, setLocation] = useLocation();
   const [matched, params] = useRoute('/checkout/:id');
   const { isAuthenticated, user } = useAuth();
+  const { toast } = useToast();
   const productId = params?.id || '';
 
   // Get product data based on URL parameter
@@ -208,12 +213,26 @@ export default function CheckoutPage() {
                       <div 
                         id="paypal-button"
                         className="w-full py-3 px-4 bg-blue-500 text-white font-medium rounded-lg flex items-center justify-center gap-2 cursor-pointer transition-colors hover:bg-blue-600 active:bg-blue-700"
+                        onClick={() => {
+                          if (!isPaypalAuthorized) {
+                            setShowAuthDialog(true);
+                          }
+                        }}
                       >
-                        <DollarSign className="w-5 h-5" />
-                        <span>Pay with PayPal</span>
+                        {isPaypalAuthorized ? (
+                          <>
+                            <DollarSign className="w-5 h-5" />
+                            <span>Pay with PayPal</span>
+                          </>
+                        ) : (
+                          <>
+                            <Lock className="w-5 h-5" />
+                            <span>Unlock PayPal Payment</span>
+                          </>
+                        )}
                       </div>
                       
-                      <div style={{ display: 'none' }}>
+                      <div style={{ display: isPaypalAuthorized ? 'block' : 'none' }}>
                         <PayPalButton 
                           amount={product.price?.toString() || '59.99'} 
                           currency="USD" 
@@ -296,6 +315,29 @@ export default function CheckoutPage() {
       </div>
       
       <Footer />
+      
+      {/* PayPal Admin Auth Dialog */}
+      <PayPalAuthDialog 
+        isOpen={showAuthDialog} 
+        onClose={() => setShowAuthDialog(false)}
+        onSuccess={() => {
+          setShowAuthDialog(false);
+          setIsPaypalAuthorized(true);
+          toast({
+            title: "PayPal Access Granted",
+            description: "You can now proceed with your payment",
+            variant: "default"
+          });
+          
+          // Give a little time for the UI to update before clicking the PayPal button
+          setTimeout(() => {
+            const paypalBtn = document.getElementById('paypal-button');
+            if (paypalBtn) {
+              paypalBtn.click();
+            }
+          }, 500);
+        }}
+      />
     </div>
   );
 }
