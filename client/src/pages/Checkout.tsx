@@ -175,17 +175,29 @@ export default function CheckoutPage() {
               <div className="space-y-6">
                 {/* PayPal payment option */}
                 <div className="relative p-5 rounded-xl border-2 border-blue-500/50 bg-blue-950/30">
-                  <div className="flex items-center gap-2 mb-4">
-                    <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center">
-                      <span className="font-bold text-white">P</span>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center">
+                        <span className="font-bold text-white">P</span>
+                      </div>
+                      <span className="font-semibold">PayPal</span>
                     </div>
-                    <span className="font-semibold">PayPal</span>
+                    <div className="flex items-center bg-white/10 px-2 py-1 rounded-md">
+                      <svg className="w-5 h-5 text-green-500 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                      </svg>
+                      <span className="text-xs text-green-400">Secure</span>
+                    </div>
                   </div>
                   
                   <div>
-                    <p className="text-sm text-gray-400 mb-6">
+                    <p className="text-sm text-gray-400 mb-4">
                       Pay securely via PayPal. You can pay with your PayPal account or credit card.
                     </p>
+                    <div className="flex justify-between items-center mb-4 bg-white/5 p-2 rounded-lg">
+                      <div className="text-xs text-gray-400">Your transaction is protected by PayPal's Buyer Protection</div>
+                      <img src="https://www.paypalobjects.com/webstatic/en_US/i/buttons/pp-acceptance-small.png" alt="PayPal Acceptance Mark" className="h-6" />
+                    </div>
                     
                     <motion.div 
                       className="w-full"
@@ -232,6 +244,55 @@ export default function CheckoutPage() {
             </Card3D>
           </div>
         </div>
+      </div>
+      
+      {/* Trust badges and security notices */}
+      <div className="container mx-auto px-4 py-8 border-t border-gray-800 mt-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+          <div className="flex flex-col items-center">
+            <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center mb-3">
+              <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </div>
+            <h3 className="text-sm font-medium mb-1">Secure Payment</h3>
+            <p className="text-xs text-gray-400">256-bit SSL encryption</p>
+          </div>
+          
+          <div className="flex flex-col items-center">
+            <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center mb-3">
+              <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+            </div>
+            <h3 className="text-sm font-medium mb-1">Buyer Protection</h3>
+            <p className="text-xs text-gray-400">Full refund if item not as described</p>
+          </div>
+          
+          <div className="flex flex-col items-center">
+            <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center mb-3">
+              <svg className="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 className="text-sm font-medium mb-1">24/7 Support</h3>
+            <p className="text-xs text-gray-400">Help available anytime</p>
+          </div>
+        </div>
+        
+        <div className="flex justify-center mt-8 mb-4">
+          <div className="flex gap-3">
+            <img src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_37x23.jpg" alt="PayPal Credit Card Acceptance Mark" className="h-6" />
+            <img src="https://www.paypalobjects.com/digitalassets/c/website/marketing/apac/C2/logos-buttons/optimize/34_Blue_PayPal_Pill_Button.png" alt="PayPal Logo" className="h-6" />
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/MasterCard_Logo.svg/200px-MasterCard_Logo.svg.png" alt="Mastercard" className="h-6" />
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/200px-Visa_Inc._logo.svg.png" alt="Visa" className="h-6" />
+          </div>
+        </div>
+        
+        <p className="text-xs text-center text-gray-500 mt-4">
+          This transaction is secured with SSL encryption and processed by PayPal, one of the world's leading payment processors.
+          Your personal and financial information is never shared with sellers.
+        </p>
       </div>
       
       <Footer />

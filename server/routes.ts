@@ -11,6 +11,10 @@ import {
   serveUploads
 } from "./upload";
 import { setupAuth, isAuthenticated } from "./auth";
+import { 
+  addAdminAuthToPayPalRequest,
+  verifyPayPalAccess
+} from "./adminAuth";
 import path from "path";
 import { createPaypalOrder, capturePaypalOrder, loadPaypalDefault } from "./paypal";
 
@@ -305,18 +309,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // PayPal integration routes
+  // PayPal authorization route
+  app.post("/api/paypal-auth", isAuthenticated, verifyPayPalAccess);
+
+  // PayPal integration routes with enhanced security
+  app.use("/paypal", isAuthenticated, addAdminAuthToPayPalRequest);
+
   app.get("/paypal/setup", async (req, res) => {
-    await loadPaypalDefault(req, res);
+    try {
+      await loadPaypalDefault(req, res);
+    } catch (error) {
+      console.error("Error loading PayPal setup:", error);
+      res.status(500).json({ 
+        message: "Failed to initialize PayPal",
+        error: "Payment service temporarily unavailable"
+      });
+    }
   });
 
   app.post("/paypal/order", async (req, res) => {
-    // Request body should contain: { intent, amount, currency }
-    await createPaypalOrder(req, res);
+    try {
+      // Validate required fields
+      const { intent, amount, currency } = req.body;
+      if (!intent || !amount || !currency) {
+        return res.status(400).json({ 
+          message: "Missing required payment information",
+          error: "Please provide intent, amount, and currency" 
+        });
+      }
+      
+      // Create PayPal order
+      await createPaypalOrder(req, res);
+    } catch (error) {
+      console.error("Error creating PayPal order:", error);
+      res.status(500).json({ 
+        message: "Failed to create payment order",
+        error: "Payment service temporarily unavailable"
+      });
+    }
   });
 
   app.post("/paypal/order/:orderID/capture", async (req, res) => {
-    await capturePaypalOrder(req, res);
+    try {
+      // Validate order ID
+      const { orderID } = req.params;
+      if (!orderID) {
+        return res.status(400).json({ 
+          message: "Missing order ID",
+          error: "Order ID is required" 
+        });
+      }
+      
+      // Capture the payment
+      await capturePaypalOrder(req, res);
+    } catch (error) {
+      console.error("Error capturing PayPal order:", error);
+      res.status(500).json({ 
+        message: "Failed to complete payment",
+        error: "Payment service temporarily unavailable"
+      });
+    }
   });
 
   const httpServer = createServer(app);
