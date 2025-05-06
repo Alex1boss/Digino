@@ -101,13 +101,23 @@ export default function Buy() {
       
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto">
-          <button 
-            onClick={() => setLocation(`/product/${productId}`)}
-            className="flex items-center text-gray-400 hover:text-white mb-8 transition-colors"
-          >
-            <ChevronLeft className="w-5 h-5 mr-1" />
-            <span>Back to Product</span>
-          </button>
+          <div className="flex items-center justify-between mb-8">
+            <a 
+              href={`/product/${productId}`}
+              className="flex items-center text-gray-400 hover:text-white transition-colors"
+            >
+              <ChevronLeft className="w-5 h-5 mr-1" />
+              <span>Back to Product</span>
+            </a>
+            
+            <a 
+              href="/buy-debug/1"
+              className="text-blue-500 hover:text-blue-400 text-sm underline"
+              target="_blank"
+            >
+              Debug View
+            </a>
+          </div>
           
           <h1 className="text-3xl font-bold mb-2">Complete Your Purchase</h1>
           <p className="text-gray-400 mb-10">You're just one step away from owning this premium digital product</p>
@@ -233,25 +243,35 @@ export default function Buy() {
                 </div>
                 
                 {/* Direct Buy Now button for improved visibility and access */}
-                <motion.button
-                  onClick={() => {
-                    if (!isPaypalAuthorized) {
-                      setShowAuthDialog(true);
-                    } else {
-                      // Find and trigger the PayPal button
-                      const paypalBtn = document.getElementById('paypal-button');
-                      if (paypalBtn) {
-                        paypalBtn.click();
-                      }
-                    }
-                  }}
+                <motion.div
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="w-full py-4 mt-6 rounded-xl font-semibold text-white flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 transition-colors"
+                  className="w-full mt-6"
                 >
-                  <DollarSign className="w-5 h-5" />
-                  <span>Buy Now - ${product.price || '59.99'}</span>
-                </motion.button>
+                  <button
+                    onClick={() => {
+                      console.log("Buy Now button clicked");
+                      if (!isPaypalAuthorized) {
+                        console.log("PayPal not authorized, showing dialog");
+                        setShowAuthDialog(true);
+                      } else {
+                        console.log("PayPal authorized, triggering PayPal button");
+                        // Find and trigger the PayPal button
+                        const paypalBtn = document.getElementById('paypal-button');
+                        if (paypalBtn) {
+                          console.log("Found PayPal button, clicking it");
+                          paypalBtn.click();
+                        } else {
+                          console.log("PayPal button not found");
+                        }
+                      }
+                    }}
+                    className="w-full py-4 rounded-xl font-semibold text-white flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 transition-colors"
+                  >
+                    <DollarSign className="w-5 h-5" />
+                    <span>Buy Now - ${product.price || '59.99'}</span>
+                  </button>
+                </motion.div>
                 
                 <div className="mt-6 text-center">
                   <p className="text-sm text-gray-500">By completing this purchase, you agree to our <a href="#" className="text-blue-400 hover:underline">Terms of Service</a></p>

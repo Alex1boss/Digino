@@ -464,49 +464,34 @@ export default function ProductDetailPage() {
               
               {/* Purchase buttons */}
               <div className="space-y-4">
-                <motion.button
-                  onClick={() => {
-                    console.log("Buy Now button clicked. Product details:", {
-                      id: product.id,
-                      name: product.name,
-                      authenticated: isAuthenticated
-                    });
-                    
-                    // Always navigate to the new Buy page which will handle authentication
-                    console.log("Navigating to Buy page with product ID:", product.id);
-                    
-                    // Ensure we have a valid product ID
-                    if (product.id) {
-                      // Use direct navigation with full URL to ensure it works
-                      window.location.href = `/buy/${product.id}`;
-                    } else {
-                      console.error("Invalid product ID:", product.id);
-                      // Fallback to a default ID if needed
-                      window.location.href = '/buy/1';
-                    }
-                  }}
-                  whileHover={{ 
-                    scale: 1.02,
-                    boxShadow: `0 20px 30px -10px ${colors.glow}`
-                  }}
-                  whileTap={{ scale: 0.98 }}
-                  className="relative w-full py-4 rounded-xl font-semibold text-white flex items-center justify-center gap-2 overflow-hidden"
-                  style={{
-                    background: `linear-gradient(to right, ${colors.primary}, ${colors.secondary})`
-                  }}
+                <a
+                  href={`/buy/${product.id || 1}`}
+                  className="block w-full"
                 >
-                  <ShoppingCart className="w-5 h-5" />
-                  <span>Buy Now • ${product.price || "59.99"}</span>
-                  
-                  {/* Shine effect */}
-                  <div 
-                    className="absolute inset-0 opacity-30 shine-animation"
-                    style={{
-                      background: "linear-gradient(105deg, transparent 20%, rgba(255, 255, 255, 0.4) 50%, transparent 80%)",
-                      backgroundSize: "200% 200%"
+                  <motion.div
+                    whileHover={{ 
+                      scale: 1.02,
+                      boxShadow: `0 20px 30px -10px ${colors.glow}`
                     }}
-                  />
-                </motion.button>
+                    whileTap={{ scale: 0.98 }}
+                    className="relative w-full py-4 rounded-xl font-semibold text-white flex items-center justify-center gap-2 overflow-hidden cursor-pointer"
+                    style={{
+                      background: `linear-gradient(to right, ${colors.primary}, ${colors.secondary})`
+                    }}
+                  >
+                    <ShoppingCart className="w-5 h-5" />
+                    <span>Buy Now • ${product.price || "59.99"}</span>
+                    
+                    {/* Shine effect */}
+                    <div 
+                      className="absolute inset-0 opacity-30 shine-animation"
+                      style={{
+                        background: "linear-gradient(105deg, transparent 20%, rgba(255, 255, 255, 0.4) 50%, transparent 80%)",
+                        backgroundSize: "200% 200%"
+                      }}
+                    />
+                  </motion.div>
+                </a>
                 
                 <motion.button
                   whileHover={{ scale: 1.02 }}
