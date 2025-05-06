@@ -472,20 +472,16 @@ export default function ProductDetailPage() {
                       authenticated: isAuthenticated
                     });
                     
-                    if (!isAuthenticated) {
-                      console.log("User not authenticated, redirecting to auth page");
-                      setLocation('/auth');
+                    // Always navigate to the new Buy page which will handle authentication
+                    console.log("Navigating to Buy page with product ID:", product.id);
+                    
+                    // Ensure we have a valid product ID
+                    if (product.id) {
+                      setLocation(`/buy/${product.id}`);
                     } else {
-                      console.log("Navigating to checkout with product ID:", product.id);
-                      // Ensure we have a valid product ID
-                      if (product.id) {
-                        // Use window.location.href for direct navigation
-                        window.location.href = `/checkout/${product.id}`;
-                      } else {
-                        console.error("Invalid product ID:", product.id);
-                        // Fallback to a default ID if needed
-                        window.location.href = '/checkout/1';
-                      }
+                      console.error("Invalid product ID:", product.id);
+                      // Fallback to a default ID if needed
+                      setLocation('/buy/1');
                     }
                   }}
                   whileHover={{ 
