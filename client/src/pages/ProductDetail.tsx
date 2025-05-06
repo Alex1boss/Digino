@@ -13,6 +13,7 @@ import { Badge3D } from "@/components/ui/3d-badge";
 import { Card3D } from "@/components/ui/3d-card";
 import { StatsCard3D } from "@/components/ui/3d-stats-card";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function ProductDetailPage() {
   const [location, setLocation] = useLocation();
@@ -463,6 +464,13 @@ export default function ProductDetailPage() {
               {/* Purchase buttons */}
               <div className="space-y-4">
                 <motion.button
+                  onClick={() => {
+                    if (!isAuthenticated) {
+                      setLocation('/auth');
+                    } else {
+                      setLocation(`/checkout/${product.id}`);
+                    }
+                  }}
                   whileHover={{ 
                     scale: 1.02,
                     boxShadow: `0 20px 30px -10px ${colors.glow}`

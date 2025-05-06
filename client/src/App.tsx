@@ -16,6 +16,7 @@ import BottomNav from "./components/BottomNav";
 import Explore from "./pages/Explore";
 import AuthPage from "./pages/AuthPage";
 import BuyingPage from "./pages/BuyingPage";
+import CheckoutPage from "./pages/Checkout";
 import { AuthProvider } from "./hooks/use-auth";
 import { ProtectedRoute } from "./components/ui/protected-route";
 
@@ -37,6 +38,7 @@ function Router() {
       <ProtectedRoute path="/product/new" component={UploadProduct} />
       <ProtectedRoute path="/publish" component={SimplePublish} />
       <ProtectedRoute path="/direct-publish" component={DirectPublish} />
+      <ProtectedRoute path="/checkout/:id" component={CheckoutPage} />
       
       {/* Fallback route */}
       <Route component={NotFound} />
