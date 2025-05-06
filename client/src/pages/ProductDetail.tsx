@@ -477,11 +477,12 @@ export default function ProductDetailPage() {
                     
                     // Ensure we have a valid product ID
                     if (product.id) {
-                      setLocation(`/buy/${product.id}`);
+                      // Use direct navigation with full URL to ensure it works
+                      window.location.href = `/buy/${product.id}`;
                     } else {
                       console.error("Invalid product ID:", product.id);
                       // Fallback to a default ID if needed
-                      setLocation('/buy/1');
+                      window.location.href = '/buy/1';
                     }
                   }}
                   whileHover={{ 

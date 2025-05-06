@@ -33,16 +33,20 @@ export default function Buy() {
         const response = await fetch(`/api/products/${productId}`);
         
         if (!response.ok) {
+          console.error(`Failed to fetch product ${productId}:`, response.status, response.statusText);
           throw new Error('Product not found');
         }
         
-        return await response.json() as Product;
+        const data = await response.json();
+        console.log("Successfully fetched product data:", data);
+        return data as Product;
       } catch (err) {
         console.error("Error fetching product:", err);
         throw err;
       }
     },
-    enabled: !!productId
+    enabled: !!productId,
+    retry: 3 // Retry up to 3 times if the request fails
   });
 
   // Redirect to login if not authenticated

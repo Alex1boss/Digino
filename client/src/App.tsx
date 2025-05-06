@@ -18,6 +18,7 @@ import AuthPage from "./pages/AuthPage";
 import BuyingPage from "./pages/BuyingPage";
 import CheckoutPage from "./pages/Checkout";
 import Buy from "./pages/Buy";
+import BuyDebug from "./pages/BuyDebug";
 import { AuthProvider } from "./hooks/use-auth";
 import { ProtectedRoute } from "./components/ui/protected-route";
 
@@ -32,6 +33,7 @@ function Router() {
       <Route path="/buying" component={BuyingPage} />
       <Route path="/buy" component={BuyingPage} />
       <Route path="/buy/:id" component={Buy} />
+      <Route path="/buy-debug/:id" component={BuyDebug} />
       
       {/* Protected routes that require authentication */}
       <ProtectedRoute path="/sell" component={Sell} />
