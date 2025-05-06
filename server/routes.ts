@@ -12,6 +12,7 @@ import {
 } from "./upload";
 import { setupAuth, isAuthenticated } from "./auth";
 import path from "path";
+import { createPaypalOrder, capturePaypalOrder, loadPaypalDefault } from "./paypal";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Configure file upload middleware
@@ -302,6 +303,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Error fetching current user products:", error);
       res.status(500).json({ message: "Failed to fetch your products" });
     }
+  });
+
+  // PayPal integration routes
+  app.get("/paypal/setup", async (req, res) => {
+    await loadPaypalDefault(req, res);
+  });
+
+  app.post("/paypal/order", async (req, res) => {
+    // Request body should contain: { intent, amount, currency }
+    await createPaypalOrder(req, res);
+  });
+
+  app.post("/paypal/order/:orderID/capture", async (req, res) => {
+    await capturePaypalOrder(req, res);
   });
 
   const httpServer = createServer(app);
