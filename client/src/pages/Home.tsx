@@ -60,6 +60,12 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       <Navbar />
+      {/* Test button for direct navigation */}
+      <div className="fixed top-20 right-4 z-50">
+        <a href="/buying" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          Test Buying Page
+        </a>
+      </div>
       <main className="pt-24 pb-16">
         <AnimatePresence>
           {showHero && (
