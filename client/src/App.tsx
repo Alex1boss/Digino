@@ -28,6 +28,7 @@ function Router() {
       <Route path="/product/:id" component={ProductDetailPage} />
       <Route path="/auth" component={AuthPage} />
       <Route path="/buying" component={BuyingPage} />
+      <Route path="/buy" component={BuyingPage} />
       
       {/* Protected routes that require authentication */}
       <ProtectedRoute path="/sell" component={Sell} />
