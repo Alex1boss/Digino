@@ -48,9 +48,17 @@ export default function CheckoutPage() {
   // Redirect to login if not authenticated
   useEffect(() => {
     if (!isAuthenticated) {
+      console.log("User not authenticated, redirecting to auth page");
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to continue to checkout",
+        variant: "destructive"
+      });
       setLocation('/auth');
+    } else {
+      console.log("User is authenticated, proceeding with checkout");
     }
-  }, [isAuthenticated, setLocation]);
+  }, [isAuthenticated, setLocation, toast]);
 
   // Show loading state
   if (isLoading) {

@@ -38,7 +38,8 @@ function Router() {
       <ProtectedRoute path="/product/new" component={UploadProduct} />
       <ProtectedRoute path="/publish" component={SimplePublish} />
       <ProtectedRoute path="/direct-publish" component={DirectPublish} />
-      <ProtectedRoute path="/checkout/:id" component={CheckoutPage} />
+      {/* Changed from ProtectedRoute to regular Route to allow access and perform auth check in component */}
+      <Route path="/checkout/:id" component={CheckoutPage} />
       
       {/* Fallback route */}
       <Route component={NotFound} />

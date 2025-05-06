@@ -466,17 +466,25 @@ export default function ProductDetailPage() {
               <div className="space-y-4">
                 <motion.button
                   onClick={() => {
+                    console.log("Buy Now button clicked. Product details:", {
+                      id: product.id,
+                      name: product.name,
+                      authenticated: isAuthenticated
+                    });
+                    
                     if (!isAuthenticated) {
+                      console.log("User not authenticated, redirecting to auth page");
                       setLocation('/auth');
                     } else {
                       console.log("Navigating to checkout with product ID:", product.id);
                       // Ensure we have a valid product ID
                       if (product.id) {
-                        setLocation(`/checkout/${product.id}`);
+                        // Use window.location.href for direct navigation
+                        window.location.href = `/checkout/${product.id}`;
                       } else {
                         console.error("Invalid product ID:", product.id);
                         // Fallback to a default ID if needed
-                        setLocation(`/checkout/1`);
+                        window.location.href = '/checkout/1';
                       }
                     }
                   }}
